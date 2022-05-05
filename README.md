@@ -1,6 +1,6 @@
-# Udacity Data Sciece Nanodegree
+# Udacity Data Science Nanodegree: Personal Notes
 
-This are my notes related to the Udacity Data Science Nanodegree.
+These are my personal notes taken while following the Udacity Data Science Nanodegree.
 
 Mikel Sagardia, 2022.
 No guarantees.
