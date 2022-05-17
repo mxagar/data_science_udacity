@@ -112,6 +112,14 @@ Another way of dealing with missing data is to impute or assign values:
 
 However, very important: **when imputing a value, we are diluting its importance!** We are artificially making the rows more similar, when that might not be the case. Thus, always be very careful and think of the effects of what we're doing.
 
+### Working with Categorical Variables
+
+Using one-hot encoding or dummy variables is easy and has the advantage that we can easily interpret the influence of a category in the output when using linear models. However, if we have many categorical variables with many levels/categories, the number of dummy variables explodes.
+
+Additionally, each dummy variable should have at least 10 data points with a `1` value in it; that's a rule of thumb that is not always met.
+
+
+
 ### Concepts to Review and Take Aways
 
 - Confidence intervals: review
@@ -124,7 +132,7 @@ However, very important: **when imputing a value, we are diluting its importance
 
 ### Notebooks
 
-The notebooks should depict the usual processs in data science, although I have seen better introductory courses & notebooks than these. The dataset is the one introduced above: Stackoverflow survey on salariey and job satisfaction.
+The notebooks should depict the usual processs in data science, although I have seen better introductory courses & notebooks than these. The dataset is the one introduced above: Stackoverflow survey on salaries and job satisfaction.
 
 1. `A Look at the Data.ipynb`
   - a
@@ -147,6 +155,12 @@ The notebooks should depict the usual processs in data science, although I have 
 7. `Imputation Methods and Resources -.ipynb`
   - a
   - b
+8. `Imputing Values.ipynb`
+  - a
+  - b
+9. `Categorical Variables.ipynb`
+  - 
+  - 
 
 #### Summary of Interesting Python Commands
 
@@ -209,5 +223,16 @@ r2_test =  r2_score(y_test,y_test_preds)
 fill_mean = lambda col: col.fillna(col.mean())
 df.apply(fill_mean, axis=0) # apply to axis = 0, ie., rows; NOT inplace
 df['A'].fillna(df['A'].mean()) # another easier way
+fill_mode = lambda col: col.fillna(col.mode()[0]) # mode() returns a series, pick first value
+df.apply(fill_mode, axis=0)
 
+# One-hot encoding / Dummy variables
+# Select categorical variables
+cat_df = df.select_dtypes(include=['object']).copy()
+# The number of columns with no missing values
+len(cat_df.columns[cat_df.notna().sum() == cat_df.shape[0]])
+# The number of columns with more than half of the column missing
+len(cat_df.columns[cat_df.isna().sum()/cat_df.shape[0] > 0.5])
+# Create a dummy variable NaN for missing values: Maybe it's informative
+pd.get_dummies(cat_df['col'], dummy_na=True)
 ```
