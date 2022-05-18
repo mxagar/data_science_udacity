@@ -8,6 +8,51 @@ No guarantees.
 Overview of Contents:
 
 1. Welcome
+  - 1.1 The Skills that Set You Apart
+2. Introduction to Data Science
+  - Lesson 2: The Data Science Process
+    - Business Understanding & Data Understanding (CRISP-DM 1 & 2 / 6)
+    - Preparing the Data - Missing Data: Removing (CRISP-DM 3 / 6)
+    - Preparing the Data - Missing Data: Imputing (CRISP-DM 3 / 6)
+    - Preparing the Data - Working with Categorical Variables (CRISP-DM 3 / 6)
+    - Modelling - Predicting the Salary (CRISP-DM 4 / 6)
+    - Modelling - Overfitting (CRISP-DM 4 / 6)
+    - Results (CRISP-DM 5 / 6)
+    - Deploy (CRISP-DM 6 / 6)
+    - Notebooks
+      1. `A Look at the Data.ipynb`
+        - Dataset is loaded, shape and variables analyzed
+        - Light EDA on the education of the participants
+      2. `How To Break Into the Field.ipynb`
+        - Values of `CousinEducation` are cleaned
+        - Stratification of participants by `Education` to see differences in `CousinEducation`
+      3. `Job Satisfaction.ipynb`
+        - `JobSatisfaction` is analyzed by stratifying/grouping according to `EmploymentStatus`, `CompanySize`, `HomeRemote`, `FormalEducation`
+      4. `What Happened.ipynb`
+        - Correlation heatmap computed: numeric variables, target
+      5. `Removing Values.ipynb`
+        - Different examples of `drop()` and `dropna()`
+      6. `Removing Data Part II.ipynb`
+        - Rows with NA target value must be removed
+        - Different strategies followed to remove rows/data-points or columns/features
+      7. `Imputation Methods and Resources -.ipynb`
+        - Different examples of `fillna()` and `apply()`
+      8. `Imputing Values.ipynb`
+        - Mean is imputed for NA values
+        - The first model with only numerical variables is created; it has a low R2
+      9. `Categorical Variables.ipynb`
+        - Categorical variables are detected
+        - Categoricals are encoded as dummy variables
+        - A new model is built and fit; better performance, but it's overfitting
+      10. `Putting It All Together.ipynb`
+        - Everything is functionalized: data cleaning (removing, imputation)
+        - Models are trained with decreasing number of features: less feeatures, less overfitting
+        - The optimum model is chosen
+        - The salary prediction coefficients are shown, sorted
+    - Notebooks: Summary of Interesting Python Commands
+    - Concepts to Review, Take-Aways, Caveats
+  - Lesson 3: Communicating to Stakeholders
+
 
 # 1. Welcome
 
@@ -43,10 +88,19 @@ The CRISP-DM Process = Cross-Industry Standard Process for Data Mining: Standard
   - How do these questions make sense?
 2. Data understanding
   - Which data do we need to collect to answer the question?
-3. Data preparation
+  - Exploratory Data Analysis
+3. Data preparation **(80% of the time goes here!)**
+  - Data cleaning: missing values
+  - Feature engineering: transformations, categorical encoding, scaling
+  - Outliers
 4. Data modeling
+  - Select model
+  - Fit and evaluate
+  - Tune parameters, check required features for less overfitting
 5. Result evaluation
 6. Deployment
+  - Deploy for use
+  - Communicate results to stakeholders
 
 This lesson uses an example dataset:
 
@@ -61,7 +115,7 @@ The dataset seems to be a survey from Stackoverflow to their users. 154 variable
 - `survey_results_schema.csv`: the 154 variables and their definition
 - `survey_results_public.csv`: 19102 x 154 dataset
 
-### Business Understanding & Data Understanding
+### Business Understanding & Data Understanding (CRISP-DM 1 & 2 / 6)
 
 We need to select the business questions we're interested in and selectthe variables that would help answer them.
 
@@ -72,12 +126,7 @@ For instance:
 - What relates to salary? Any or all columns
 - What relates to job satisfaction? Any or all columns
 
-### Modelling: Predicting the Salary
-
-Modelling implies creating supervised learning models that predict either by regression or classification.
-However, note that inferences do not need models.
-
-### Missing Data: Removing
+### Preparing the Data - Missing Data: Removing (CRISP-DM 3 / 6)
 
 Models usually cannot deal with missing data; therefore, we need to process NA values. The three major ways:
 
@@ -101,7 +150,7 @@ Taking decisions based on the number of missing values:
 - If a large percentage of values is missing (> 70%) we should consider removing the column, we see if the provided data is useful
 - If the percentage is considerable (50%) consider removing it, but create a dummy column which tracks whether missing column or not
 
-### Missing Data: Imputing
+### Preparing the Data - Missing Data: Imputing (CRISP-DM 3 / 6)
 
 Another way of dealing with missing data is to impute or assign values: 
 
@@ -112,57 +161,80 @@ Another way of dealing with missing data is to impute or assign values:
 
 However, very important: **when imputing a value, we are diluting its importance!** We are artificially making the rows more similar, when that might not be the case. Thus, always be very careful and think of the effects of what we're doing.
 
-### Working with Categorical Variables
+### Preparing the Data - Working with Categorical Variables (CRISP-DM 3 / 6)
 
 Using one-hot encoding or dummy variables is easy and has the advantage that we can easily interpret the influence of a category in the output when using linear models. However, if we have many categorical variables with many levels/categories, the number of dummy variables explodes.
 
 Additionally, each dummy variable should have at least 10 data points with a `1` value in it; that's a rule of thumb that is not always met.
 
+### Modelling - Predicting the Salary (CRISP-DM 4 / 6)
 
+Modelling implies creating supervised learning models that predict either by regression or classification.
+However, note that inferences do not need models.
 
-### Concepts to Review and Take Aways
+### Modelling - Overfitting (CRISP-DM 4 / 6)
 
-- Confidence intervals: review
-- It's not always about ML; sometimes curiosity, proper data and analysis are enough to answer the business questions
-- If a correlation matrix has a missing cell, it means that if the one column had a value, the other didn't! That means the model will fail if we feed those two columns without dealing with the missing values.
-- Review: Data pre-processing notebooks by Soledad Galli. These contain a very nice summary of what is to be done in the pre-processing steps!
-- When we drop NAs, we drop entire rows; check first the percentages of missing values in columns: maybe it makes more sense to ddrop columns instead of rows!
-- Use `try-execpt` in parts of the code where it could fail, e.g., when fitting models or scoring.
-- `pandas.isnull()` is an alias of `pandas.isna()`, so they do exactly the same thing!
+When the model fails to generalize with the test split, we have overfitting: the accuracy or the used metric is considerably lower in the test split.
+
+Methods to avoid overfitting:
+
+- Regularization
+- Reduce the number of features: try subsets of features
+- Fit the model many times with different rows, then average the responses; aka. bootstraping
+
+If we have overfittting, do not add more features! Instead, reduce them!
+
+### Results (CRISP-DM 5 / 6)
+
+We just answer the business questions.
+
+### Deploy (CRISP-DM 6 / 6)
+
+We either deploy to production (seen in later modules) or communicate the findings to the stakeholders (next lesson).
+
+For communication:
+
+- Github
+- Medium, Blog
+- Dashboard
 
 ### Notebooks
 
-The notebooks should depict the usual processs in data science, although I have seen better introductory courses & notebooks than these. The dataset is the one introduced above: Stackoverflow survey on salaries and job satisfaction.
+The notebooks should depict the usual processs in data science, although I have seen better introductory courses & notebooks than these. The dataset is the one introduced above: Stackoverflow survey on salaries and job satisfaction. In the following, I summarize their content in the order they should be done. Below, a collection of helpful code snippets extracted from the notebooks is provided.
+
+The repository: [https://github.com/mxagar/cd0017-introduction-to-data-science](https://github.com/mxagar/cd0017-introduction-to-data-science)
 
 1. `A Look at the Data.ipynb`
-  - a
-  - b
+  - Dataset is loaded, shape and variables analyzed
+  - Light EDA on the education of the participants
 2. `How To Break Into the Field.ipynb`
-  - a
-  - b
+  - Values of `CousinEducation` are cleaned
+  - Stratification of participants by `Education` to see differences in `CousinEducation`
 3. `Job Satisfaction.ipynb`
-  - a
-  - b
+  - `JobSatisfaction` is analyzed by stratifying/grouping according to `EmploymentStatus`, `CompanySize`, `HomeRemote`, `FormalEducation`
 4. `What Happened.ipynb`
-  - a
-  - b
+  - Correlation heatmap computed: numeric variables, target
 5. `Removing Values.ipynb`
-  - a
-  - b
+  - Different examples of `drop()` and `dropna()`
 6. `Removing Data Part II.ipynb`
-  - a
   - Rows with NA target value must be removed
+  - Different strategies followed to remove rows/data-points or columns/features
 7. `Imputation Methods and Resources -.ipynb`
-  - a
-  - b
+  - Different examples of `fillna()` and `apply()`
 8. `Imputing Values.ipynb`
-  - a
-  - b
+  - Mean is imputed for NA values
+  - The first model with only numerical variables is created; it has a low R2
 9. `Categorical Variables.ipynb`
-  - 
-  - 
+  - Categorical variables are detected
+  - Categoricals are encoded as dummy variables
+  - A new model is built and fit; better performance, but it's overfitting
+10. `Putting It All Together.ipynb`
+  - Everything is functionalized: data cleaning (removing, imputation)
+  - Models are trained with decreasing number of features: less feeatures, less overfitting
+  - The optimum model is chosen
+  - The salary prediction coefficients are shown, sorted
 
-#### Summary of Interesting Python Commands
+### Notebooks: Summary of Interesting Python Commands
 
 This section collects the most interesting python commands from the notebooks:
 
@@ -219,12 +291,24 @@ lm.fit(X_train, y_train)
 y_test_preds = lm_model.predict(X_test)
 r2_test =  r2_score(y_test,y_test_preds)
 
+# Get coefficient values from linear model
+coefs_df = pd.DataFrame()
+coefs_df['estimators'] = X_train.columns
+coefs_df['coefs'] = lm.coef_
+coefs_df['abs_coefs'] = np.abs(lm.coef_)
+coefs_df = coefs_df.sort_values('abs_coefs', ascending=False)
+
 # Imputation
 fill_mean = lambda col: col.fillna(col.mean())
-df.apply(fill_mean, axis=0) # apply to axis = 0, ie., rows; NOT inplace
+df = df.apply(fill_mean, axis=0) # apply to axis = 0, ie., rows; NOT inplace
 df['A'].fillna(df['A'].mean()) # another easier way
 fill_mode = lambda col: col.fillna(col.mode()[0]) # mode() returns a series, pick first value
-df.apply(fill_mode, axis=0)
+df = df.apply(fill_mode, axis=0)
+# IMPORTANT NOTE: Consider better this approach
+# Because apply might lead to errors
+num_vars = df.select_dtypes(include=['float', 'int']).columns
+for col in num_vars:
+    df[col].fillna((df[col].mean()), inplace=True)
 
 # One-hot encoding / Dummy variables
 # Select categorical variables
@@ -234,5 +318,36 @@ len(cat_df.columns[cat_df.notna().sum() == cat_df.shape[0]])
 # The number of columns with more than half of the column missing
 len(cat_df.columns[cat_df.isna().sum()/cat_df.shape[0] > 0.5])
 # Create a dummy variable NaN for missing values: Maybe it's informative
-pd.get_dummies(cat_df['col'], dummy_na=True)
+# and add prefix _ to column names
+# IMPORTANT NOTE: apparently it is better to do it column by column
+cat_df_dummy = pd.get_dummies(cat_df['col'], prefix_sep='_', dummy_na=True)
+# Concatenate numeric/non-categorical & dummies
+df_new = pd.concat([cat_df.drop('col',axis=1),cat_df_dummy],axis=1)
+# Column by column; note: efficiency could be improved!
+cat_df = df.select_dtypes(include=['object'])
+cat_cols = cat_df.columns
+for col in cat_cols:
+  df = pd.concat([df.drop(col, axis=1), 
+                  pd.get_dummies(
+                                df[col],
+                                prefix=col, 
+                                prefix_sep='_',
+                                drop_first=True,
+                                dummy_na=False)],
+                  axis=1)
 ```
+
+### Concepts to Review, Take-Aways, Caveats
+
+- Confidence intervals: review
+- It's not always about ML; sometimes curiosity, proper data and analysis are enough to answer the business questions
+- If a correlation matrix has a missing cell, it means that if the one column had a value, the other didn't! That means the model will fail if we feed those two columns without dealing with the missing values.
+- Review: Data pre-processing notebooks by Soledad Galli. These contain a very nice summary of what is to be done in the pre-processing steps!
+- When we drop NAs, we drop entire rows; check first the percentages of missing values in columns: maybe it makes more sense to ddrop columns instead of rows!
+- Use `try-execpt` in parts of the code where it could fail, e.g., when fitting models or scoring.
+- `pandas.isnull()` is an alias of `pandas.isna()`, so they do exactly the same thing!
+
+## Lesson 3: Communicating to Stakeholders
+
+
+
