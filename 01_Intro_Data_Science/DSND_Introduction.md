@@ -349,5 +349,129 @@ for col in cat_cols:
 
 ## Lesson 3: Communicating to Stakeholders
 
+This lesson is about
+
+- how to publish on Github
+- how to publish on Medium
+
+### README Files
+
+Anatomy of a `README.md` (not all parts are necessary):
+
+- Title
+  - Short description
+- Installation / Getting Started
+  - Dependencies
+  - Installation commands
+- Usage
+  - Commands
+  - Known bugs
+- Contributing
+  - Guidelines if people wantto contribute
+- Code Status
+  - are all tests passing?
+  - shields: build/passing
+  - if necessary
+- FAQs (if necessary)
+- License / Copyright
+  - By default, I have the intelectual property, but it's not bad stating it explicitly if necessary
+  - Choose appropriate license
+
+Examples of READMEs:
+
+- [Bootstrap](https://github.com/twbs/bootstrap)
+- [Scikit Learn](https://github.com/scikit-learn/scikit-learn)
+- [Stackoverflow blog](https://github.com/jjrunner/stackoverflow)
+
+Observations:
+
+- Files should appear as links: `[File](file.md)`
+- README sections should appear as anchor links: `[My Heading](#my-heading)`
+- If we have a section/part which is long and could be collapsed, do it! Use `<details>` and `<summary>`; see below.
+- Provide all links possible in text
+- Big projects have
+  - Documentation links
+  - Shields as Status
+  - How to contribute
+  - Community
+  - Sponsors
+  - Authors / Creators
+  - Thanks
+  - Backers
+
+Example of **callapsable text**:
+
+```Markdown
+For some amazing info, you can checkout the [below](#amazing-info) section.
+
+<details><summary>Click to expand</summary>
+
+## Amazing Info
+It would be great if a hyperlink could directly show this title.
+
+</details>
+```
+
+### Github Basics
+
+```bash
+git clone
+git add *
+git commit -m "message"
+git push
+```
+
+### Medium
+
+Interesting links:
+
+- [How to Use Medium: A Beginner's Guide to Writing, Publishing & Promoting on the Platform](https://blog.hubspot.com/marketing/how-to-use-medium)
+- [Tips and Tricks for Medium Writers](https://blog.medium.com/tips-and-tricks-for-medium-writers-1d79498101c3)
+- [How to attract users with headlines](https://medium.com/the-mission/this-new-data-will-make-you-rethink-how-you-write-headlines-751358f6639a)
+- [A Scientific Guide to Posting Tweets, Facebook Posts, Emails, and Blog Posts at the Best Time](https://buffer.com/resources/best-time-to-tweet-post-to-facebook-send-emails-publish-blogposts/)
+- [The Art of Storytelling in Analytics and Data Science](https://www.analyticsvidhya.com/blog/2020/05/art-storytelling-analytics-data-science/)
+- [Making Money on Medium](https://medium.com/words-for-life/a-100-transparent-look-at-my-first-medium-paycheck-197b69483b44)
+- [Can You Make Money on Medium?](https://writingcooperative.com/can-you-make-money-on-medium-90565989d599)
+
+
+### Know Your Audience
+
+The audience shoudl relate to the content.
+
+Technical audience:
+
+- Technical details
+- Edge cases, difficulties
+- Creative solutions
+
+Broad audience:
+
+- Questions of interest
+- Results of each question
+- Interesting findings through visuals
+
+### Three Steps to Captivate Your Audience
+
+1. Pull in and engage
+2. Keep engaged with: strong storytelling, personal voice, article structure
+3. Provide a practical ending with the desired takeaways + Call to Action
+
+#### 1. Pull in and engage
+
+On Medium, the readers see **title** + **image**.
+
+We must have a compelling image to grab our reader! The title supports it. Spend time on the image! Think of a captivating image and then fnd a title to match; in that order!
+
+#### 2. Keep engaged
+
+Once the reader is on the page, we have 2 sentences and one image to keep him/her. A personal voice is a useful tactic for that; some possible methods:
+
+- Tell a personal story
+- Ask a question we had, and that we think the audience might have, too
+- Relate to current events that are shared by the audience
+
+Break up the content to 3 lines / idea, never more than 5 lineas / idea. Avoid long blocks without visuals or white spaces.
+
+#### 3. Provide a practical ending
 
 
