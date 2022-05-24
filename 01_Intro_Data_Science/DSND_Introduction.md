@@ -52,6 +52,16 @@ Overview of Contents:
     - Notebooks: Summary of Interesting Python Commands
     - Concepts to Review, Take-Aways, Caveats
   - Lesson 3: Communicating to Stakeholders
+    - README Files
+    - Github Basics
+    - Medium: Links
+    - Know Your Audience
+    - Three Steps to Captivate Your Audience
+      1. Pull in and engage
+      2. Keep engaged
+      3. Provide a practical ending
+    - Other Important Details
+  - Project: Writing a Data Scientist Blog Post
 
 
 # 1. Welcome
@@ -436,7 +446,7 @@ Interesting links:
 
 ### Know Your Audience
 
-The audience shoudl relate to the content.
+The audience should relate to the content.
 
 Technical audience:
 
@@ -472,6 +482,54 @@ Once the reader is on the page, we have 2 sentences and one image to keep him/he
 
 Break up the content to 3 lines / idea, never more than 5 lineas / idea. Avoid long blocks without visuals or white spaces.
 
+##### Exercise: Practice writing and Introduction
+
+In late 2018 I decided to shift my areas of focus from robotics to machine vision and machine learning. Which is the fastest path for a senior engineer to become knowledgeable in new disciplines? Should she look for junior roles now, maybe find mentors? These were the questions that were in my mind at the time, and the advent of the pandemic in early 2020 gave them even more relevance, while further emphasising my insecurities.
+
+Example by instructor: [How Do YOU Become A Developer?](https://medium.com/@josh_2774/how-do-you-become-a-developer-5ef1c1c68711)
+
 #### 3. Provide a practical ending
 
+Provide always:
+
+- Easy to digest Take-home takeaways: reiterate the main points
+- The feeling that the time spent reading was productive
+
+A very effective technique is also to introduce a "Call To Action": ask the reader a question, make him/her act in some way, etc.
+
+### Other Important Details
+
+- Be short and sweet: 1-2 pages / 200-500 words / less than 8 minutes
+- Create an outline and stick to it: Intro, Takeaway 1, 2, 3, Conclusion
+- Review the work: you and others; catch mistakes and improve understanding
+
+## Project: Writing a Data Scientist Blog Post
+
+Create a Github repository and its blog post (e.g., on Medium) in which a dataset is analyzed according to the CRISP-DM framework.
+
+Example:
+
+- [Github Repository](https://github.com/jjrunner/stackoverflow)
+- [Medium Post](https://medium.com/@josh_2774/how-do-you-become-a-developer-5ef1c1c68711)
+
+Both pieces must comply with all the learnings in the module.
+
+Recall, the CRISP-DM process:
+
+- Come up with three questions you are interested in answering.
+- Extract the necessary data to answer these questions.
+- Perform necessary cleaning, analysis, and modeling.
+- Evaluate your results.
+- Share your insights with stakeholders in a blog post.
+
+Possible Datasets:
+
+- [More analysis on the Stackoverflow 2017 Survey](https://www.kaggle.com/datasets/stackoverflow/so-survey-2017)
+- [Other several years of the Stackoverflow survey](https://insights.stackoverflow.com/survey)
+- [Seattle AirBnB Data](https://www.kaggle.com/datasets/airbnb/seattle)
+- [Boston AirBnB Data](https://www.kaggle.com/datasets/airbnb/boston)
+- [Other AirBnB Data](http://insideairbnb.com/get-the-data/)
+- Choose another dataset
+
+We need to submit two links: the one of the Github (with the notebook(s) + REAMDE) and the one of the post.
 
