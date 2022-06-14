@@ -52,6 +52,8 @@ My notes can be found in my Jekyll guide repo:
 
 [jekyll_web_guide](https://github.com/mxagar/jekyll_web_guide) `/ html_css_bootstrap_guide.md`
 
+The notes are linked on my local computer in the upper folder.
+
 ## 2. Software Engineering Pratices Part 1
 
 This section is fully covered in the [Udacity Nanodegree Machine Learning DevOps Engineer](https://www.udacity.com/course/machine-learning-dev-ops-engineer-nanodegree--nd0821). My notes and practice exercises can be found in this repository:
