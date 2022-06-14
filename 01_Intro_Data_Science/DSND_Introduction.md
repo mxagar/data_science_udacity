@@ -2,14 +2,24 @@
 
 These are my personal notes taken while following the [Udacity Data Science Nanodegree](https://www.udacity.com/course/data-scientist-nanodegree--nd025).
 
+The Nanodegree asssumes basic data analysis skills with python libraries (pandas, numpy, matplotlib, sklearn, etc.) and has 5 modules that build up on those skills:
+
+1. Introduction to Data Science
+2. Software Engineering
+3. Data Engineering
+4. Experimental Design & Recommendations
+5. Data Scientist Capstone
+
+This folder & guide refer to the **first module**: Introduction to Data Science.
+
 Mikel Sagardia, 2022.
 No guarantees.
 
 Overview of Contents:
 
-1. Welcome
+0. Welcome
   - 1.1 The Skills that Set You Apart
-2. Introduction to Data Science
+1. Introduction to Data Science
   - Lesson 2: The Data Science Process
     - Business Understanding & Data Understanding (CRISP-DM 1 & 2 / 6)
     - Preparing the Data - Missing Data: Removing (CRISP-DM 3 / 6)
@@ -64,9 +74,9 @@ Overview of Contents:
   - Project: Writing a Data Scientist Blog Post
 
 
-# 1. Welcome
+# 0. Welcome
 
-## 1.1 The Skills that Set You Apart
+## 0.1 The Skills that Set You Apart
 
 Robert Chang, AirBnB
 
@@ -87,7 +97,7 @@ Richard Sharp, Starbucks
 
 - Needed: Maths, Progamming (not always need formal training)
 
-# 2. Introduction to Data Science
+# 1. Introduction to Data Science
 
 ## Lesson 2: The Data Science Process
 
