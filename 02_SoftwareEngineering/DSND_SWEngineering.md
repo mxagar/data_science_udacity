@@ -20,7 +20,7 @@ Overview of Contents:
 1. Introduction to Software Engineering
 2. Software Engineering Pratices Part 1
 3. Software Engineering Pratices Part 2
-4. Introduction to Object Oriented Programming
+4. Introduction to Object Oriented Programming & Python Packages
 5. Portfolio Exercise: Upload a Package to PyPi
 6. Web Development
 7. Portfolio Exercise: Deploy a Data Dashboard
@@ -77,3 +77,17 @@ Topics:
 - Testing with `pytest`
 - Logging
 - Code reviews
+
+## 4. Introduction to Object Oriented Programming & Python Packages
+
+This section has two parts:
+
+1. Object Oriented Programming (OOP)
+2. How to build python packages
+
+OOP brings two important advantages:
+
+1. We can write modular programs that can scale more easily.
+2. The implementation can be hidden to the user, so that they focus on the functionality.
+
+
