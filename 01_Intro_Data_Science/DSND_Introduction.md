@@ -543,3 +543,28 @@ Possible Datasets:
 
 We need to submit two links: the one of the Github (with the notebook(s) + REAMDE) and the one of the post.
 
+### My Submission
+
+Blog post: [Planning Your Next Vacation in Spain](https://mikelsagardia.io/blog/airbnb-spain-basque-data-analysis.html)
+
+Github repository: [airbnb_data_analysis](https://github.com/mxagar/airbnb_data_analysis)
+
+### Some Interesting Links (by the Reviewer)
+
+- [How to Handle Missing Data](https://towardsdatascience.com/how-to-handle-missing-data-8646b18db0d4)
+- [Data Visualization using Python for Machine Learning and Data science](https://towardsdatascience.com/data-visualization-for-machine-learning-and-data-science-a45178970be7)
+- [DATA ANALYSIS, VISUALIZATION AND INTERPRETATION](https://mealdprostarter.org/n-data-analysis-visualization-and-interpretation/)
+- [The Art of Storytelling in Analytics and Data Science | How to Create Data Stories?](https://www.analyticsvidhya.com/blog/2020/05/art-storytelling-analytics-data-science/)
+- [How I Write a Data Science Blog](https://towardsdatascience.com/how-i-write-a-data-science-blog-62e4108fe478)
+- [What is CRISP DM?](https://www.datascience-pm.com/crisp-dm-2/)
+- [How The CRISP-DM Method Can Help Manage Your Next Data Science Project](https://analyticsindiamag.com/crisp-dm-data-science-project/)
+- [Six Steps in CRISP-DM](https://www.proglobalbusinesssolutions.com/six-steps-in-crisp-dm-the-standard-data-mining-process/)
+- [Jupyter Notebook Best Practices](https://towardsdatascience.com/jupyter-notebook-best-practices-f430a6ba8c69)
+- [Jupyter Notebook Shortcuts](https://towardsdatascience.com/jypyter-notebook-shortcuts-bf0101a98330)
+- [Pycodestyle](https://pypi.org/project/pycodestyle/)
+
+Free images:
+
+- [Post Images: StockSnap.io](https://stocksnap.io)
+- [Post Images: Pixabay.com](https://pixabay.com)
+
