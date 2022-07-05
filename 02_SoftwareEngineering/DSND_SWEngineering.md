@@ -25,6 +25,19 @@ Overview of Contents:
 	- [4.2 OOP Syntax in Python](#4.2-OOP-Syntax-in-Python)
 		- [Getters & Setters](#Getters-&-Setters)
 	- [4.3 Commenting Object-Oriented Code](#4.3-Commenting-Object-Oriented-Code)
+	- [4.4 Gaussian and Binomial Distirbutions](#4.4-Gaussian-and-Binomial-Distirbutions)
+		- Gaussian Distribution
+		- Binomial Distribution
+	- [4.5 A Gaussian Class Implementation](#4.5-A-Gaussian-Class-Implementation)
+	- [4.6 Magic Methods: Application to the Summation of Gaussians](#4.6-Magic-Methods:-Application-to-the-Summation-of-Gaussians)
+	- [4.7 Inheritance](#4.7-Inheritance)
+		- Gaussian Class and Virtual Methods
+	- [4.8 More OOP Concepts](#4.8-More-OOP-Concepts)
+		- Polymorphism
+		- Class Methods, Instance Methods, Static Methods
+		- Class Attributes, Instance Attributes
+		- Multiple Inheritance and Mixins
+		- Python Decorators
 5. Portfolio Exercise: Upload a Package to PyPi
 6. Web Development
 7. Portfolio Exercise: Deploy a Data Dashboard
@@ -1113,13 +1126,97 @@ Python has some built-in **decorators used in class methods**: `@classmethod`, `
 
 The first two (`@classmethod`, `@staticmethod`) are explained above.
 
-The decorators `@property` 
+The decorator `@property` is used for defining attribute setters and getters, often for attributes we'd like to handle like private. The idea is to prefix an attribute with `_` so that we signal it should be treated as private. Simultaneously, we define a getter with `@property`, which returns the attribute with a layer of control. That makes sense in case we'd like to apply some transformations to the attribute (e.g., unit conversions). Similarly, a setter can be defined.
 
+```python
+class Circle:
+    def __init__(self, radius):
+        self._radius = radius
 
-Typical applications:
+    @property # getter: now, _radius can be get with obj.radius
+    def radius(self):
+        """Get value of radius"""
+        return self._radius
+
+    @radius.setter # setter: now, _radius can be set with obj.radius = value
+    def radius(self, value):
+        """Set radius, raise error if negative"""
+        if value >= 0:
+            self._radius = value
+        else:
+            raise ValueError("Radius must be positive")
+
+    @property # getter, but no setter
+    def area(self):
+        """Calculate area inside circle"""
+        return self.pi() * self.radius**2
+
+    def cylinder_volume(self, height):
+        """Calculate volume of cylinder with circle as base"""
+        return self.area * height
+
+    @classmethod # factory function: instance of class with radius = 1 created
+    def unit_circle(cls):
+        """Factory method creating a circle with radius 1"""
+        return cls(1)
+
+    @staticmethod # function independent from class / instance
+    def pi():
+        """Value of π, could use math.pi instead though"""
+        return 3.1415926535
+
+###
+
+c = Circle(5)
+c.radius # 5 (get)
+c.area # 78.5398163375 (get)
+
+c.radius = 2
+c.area # 12.566370614 (get)
+
+c.area = 100 # AttributeError: can't set attribute; we haven't defined @area.setter
+
+c.cylinder_volume(height=4) # 50.265482456
+
+c.radius = -1 # ValueError: Radius must be positive
+
+c = Circle.unit_circle() # Factory function: custom constructor
+c.radius # 1
+
+c.pi() # 3.1415926535
+Circle.pi() # 3.1415926535
+```
+
+Other common applications:
 
 - Request logging
 - Timer
 - Debugging
 - Registering plugins
 - Slowing down code
+
+
+```python
+# Python module which contains several handy decorators
+from decorators import debug, timer
+
+class TimeWaster:
+    @debug
+    def __init__(self, max_num):
+        self.max_num = max_num
+
+    @timer
+    def waste_time(self, num_times):
+        for _ in range(num_times):
+            sum([i**2 for i in range(self.max_num)])
+
+###
+
+tw = TimeWaster(1000)
+# Calling __init__(<time_waster.TimeWaster object at 0x7efccce03908>, 1000)
+# '__init__' returned None
+
+tw.waste_time(999)
+# Finished 'waste_time' in 0.3376 secs
+
+```
