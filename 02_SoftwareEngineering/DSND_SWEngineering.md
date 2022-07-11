@@ -1220,3 +1220,373 @@ tw.waste_time(999)
 # Finished 'waste_time' in 0.3376 secs
 
 ```
+
+### 4.9 Organizing into Modules
+
+Modules are single python scripts which contain functions, classes and global variables. They are called modules because the code is modular. Modules are organized into packages: a package is a folder which contains several modules.
+
+All the code related to the Gaussian distribution explained in Section 4.7 is modularized and transferred to scripts.
+
+- `Generaldistriubtion.py`
+- `Gaussiandistribution.py`
+
+
+Then, we have a script which imports the Gaussian class code and instantiates it:
+
+```python
+from Gaussiandistribution import Gaussian
+
+gaussian_one = Gaussian(22, 2)
+print(gaussian_one.mean)
+```
+
+That script is run as follows:
+
+```bash
+python 2_modularized_code/example_code.py
+```
+
+### 4.10 Making a Package
+
+When we create a package that contains modules we can `pip install` it.
+
+The general structure of a package is as follows:
+
+```
+├.
+├── package-name/
+│ ├── module_1.py
+│ ├── module_2.py
+│ └── __init__.py
+└── setup.py
+```
+
+- Inside the `package-name/` folder we have
+	- All module files. Note that any imports from one module to the other must be preceded with `.` inside the module code: `from .module_1 import my_function`.
+	- A file `__init__.py`, which can be empty, but which signals this is a package. In this file, we can write imports and configurations which facilitate the use of our package.
+- In the same level as `package-name/` we have `setup.py`, which is used by `pip` to configure the installation of our package. 
+
+#### Example with the Gaussian class
+
+```
+├.
+├── distributions/
+│ ├── Generaldistriubtion.py
+│ ├── Gaussiandistribution.py
+│ └── __init__.py
+└── setup.py
+```
+
+Module files have the same code; the exception are the imports from modules inside the package that is being defined; those need to be preceeded by `.`. For instance, in `Gaussiandistribution.py`:
+
+```python
+import math
+import matplotlib.pyplot as plt
+# Add . before module names in the package that is being defined!
+from .Generaldistribution import Distribution
+
+class Gaussian(Distribution):
+	#...
+```
+
+File `__init__.py`:
+
+```python
+# This import makes possible to use this import later on:
+# 		from distributions import Gaussian
+# instead of 
+# 		from distributions.Gaussiandistrubtion import Gaussian
+from .Gaussiandistrubtion import Gaussian
+```
+
+File `setup.py`:
+
+```python
+from setuptools import setup
+
+setup(name="distributions", # name of the package
+	  version="0.1",
+	  description="Gaussian distributions", 
+	  packages=['distributions'], # folder names
+	  zip_safe=False)
+```
+
+To install it, we go to the folder where `setup.py` is and execute:
+
+```bash
+# The first time
+pip install .
+# If we change things in the package
+pip install --upgrade .
+```
+
+With that command, the package files are copied and installed to our python distribution/environment. Thus, we have access to them rom anywhere! To use our package:
+
+``` python
+from distributions import Gaussian
+
+gaussian_one = Gaussian(10,5)
+gaussian_one.mean
+gaussian_one.stdev
+
+import distributions
+distributions.__file__ # this will output the path to the installed __init__.py file
+```
+
+### 4.11 Virtual Environments
+
+A virtual environment is an independent python installation in which we can install the package version we need for a given project.
+
+Two popular virtual environment managers are **conda** and **venv**.
+
+However, note that `conda` does two things: environment andd package management.
+
+One alternative to `conda` is using the two Python native tools:
+
+- `venv` for environment managing
+- `pip` for package managing
+
+However, note that `pip` handles only python packages, while `conda` is language agnostic. In fact, `conda` emerged because of the need to install data science packages such as `numpy` which are developed in another language than Python.
+
+We can use `pip` within `conda`, but we need to add `pip` to the creation of our environment:
+
+`conda create --name env_name pip`
+
+Otherwise, any `pip install` we do applies to the global Anaconda Python installation, not the environment we're in, even if we do `conda install pip`!
+
+Which one should we use?
+
+- Conda works well with data science projects, because packagees for that are well curated and handled; however, it is more difficult for general package development.
+- `pip` and `venv` are for general python development.
+
+#### Examples
+
+```bash
+# conda
+conda create --name my_env pip
+source activate my_env
+conda install numpy
+pip istall package # installed in my_env BECAUSE pip added when creation of my_env 
+
+# venv
+python3 -m venv my_env # my_env folder is created locally and a python kernel installed there
+source my_env/bin/activate
+pip install numpy # pip installs locally always in venv
+# if we remove the my_env folder the virtual env is removed
+# nothing bad happens happens
+```
+
+### 4.12 Exercise: Adding the Binomial Class to the Package
+
+In this section, a `Binomialdistribution.py` module is created and added to the package. Then, the package is reinstalled.
+
+Files changed:
+
+- `__init__.py`
+- `Binomialdistribution.py`
+
+To re-install the package: `pip install --upgrade .`
+
+This exercise is a summary of the section; as such, I add a copy to `lab/`.
+
+File `__init__.py`:
+
+```python
+from .Gaussiandistribution import Gaussian
+from .Binomialdistribution import Binomial
+```
+
+File `Binomialdistribution.py`:
+
+```python
+import math
+import matplotlib.pyplot as plt
+from .Generaldistribution import Distribution
+
+class Binomial(Distribution):
+    """ Binomial distribution class for calculating and 
+    visualizing a Binomial distribution.
+    
+    Attributes:
+        mean (float) representing the mean value of the distribution
+        stdev (float) representing the standard deviation of the distribution
+        data_list (list of floats) a list of floats to be extracted from the data file
+        p (float) representing the probability of an event occurring
+        n (int) number of trials
+    """
+    def __init__(self, prob=.5, size=20):
+                
+        self.n = size
+        self.p = prob
+        
+        Distribution.__init__(self, self.calculate_mean(), self.calculate_stdev())
+
+    def calculate_mean(self):
+        """Function to calculate the mean from p and n.
+        
+        Args: 
+            None
+        Returns: 
+            float: mean of the data set
+        """
+        self.mean = self.p * self.n
+                
+        return self.mean
+
+    def calculate_stdev(self):
+        """Function to calculate the standard deviation from p and n.
+        
+        Args: 
+            None       
+        Returns: 
+            float: standard deviation of the data set
+        """
+        self.stdev = math.sqrt(self.n * self.p * (1 - self.p))
+        
+        return self.stdev
+        
+    def replace_stats_with_data(self):
+        """Function to calculate p and n from the data set
+        
+        Args: 
+            None
+        Returns: 
+            float: the p value
+            float: the n value
+        """
+        self.n = len(self.data)
+        self.p = 1.0 * sum(self.data) / len(self.data)
+        self.mean = self.calculate_mean()
+        self.stdev = self.calculate_stdev()
+        
+        return self.p, self.n
+        
+    def plot_bar(self):
+        """Function to output a histogram of the instance variable data using 
+        matplotlib pyplot library.
+        
+        Args:
+            None            
+        Returns:
+            None
+        """
+        plt.bar(x = ['0', '1'], height = [(1 - self.p) * self.n, self.p * self.n])
+        plt.title('Bar Chart of Data')
+        plt.xlabel('outcome')
+        plt.ylabel('count')
+        
+    def pdf(self, k):
+        """Probability density function calculator for the binomial distribution.
+        
+        Args:
+            x (float): point for calculating the probability density function
+        Returns:
+            float: probability density function output
+        """
+        a = math.factorial(self.n) / (math.factorial(k) * (math.factorial(self.n - k)))
+        b = (self.p ** k) * (1 - self.p) ** (self.n - k)
+        
+        return a * b
+        
+    def plot_bar_pdf(self):
+        """Function to plot the pdf of the binomial distribution
+        
+        Args:
+            None
+        Returns:
+            list: x values for the pdf plot
+            list: y values for the pdf plot
+        """
+        x = []
+        y = []
+        
+        # calculate the x values to visualize
+        for i in range(self.n + 1):
+            x.append(i)
+            y.append(self.pdf(i))
+
+        # make the plots
+        plt.bar(x, y)
+        plt.title('Distribution of Outcomes')
+        plt.ylabel('Probability')
+        plt.xlabel('Outcome')
+
+        plt.show()
+
+        return x, y
+        
+    def __add__(self, other):
+        """Function to add together two Binomial distributions with equal p.
+        
+        Args:
+            other (Binomial): Binomial instance
+        Returns:
+            Binomial: Binomial distribution 
+        """
+        
+        try:
+            assert self.p == other.p, 'p values are not equal'
+        except AssertionError as error:
+            raise
+        
+        result = Binomial()
+        result.n = self.n + other.n
+        result.p = self.p
+        result.calculate_mean()
+        result.calculate_stdev()
+        
+        return result
+        
+    def __repr__(self):
+        """Function to output the characteristics of the Binomial instance
+        
+        Args:
+            None
+        Returns:
+            string: characteristics of the Gaussian
+        
+        """
+        return "mean {}, standard deviation {}, p {}, n {}".\
+        format(self.mean, self.stdev, self.p, self.n)
+
+```
+
+### 4.13 Complex Projects
+
+In this section, the source code of [Scikit-Learn]() is shown briefly and links for contributing to open source projects are provided:
+
+- [Beginner's Guide to Contributing to a Github Project](https://akrabat.com/the-beginners-guide-to-contributing-to-a-github-project/)
+- [Contributing to a Github Project](https://github.com/MarcDiethelm/contributing/blob/master/README.md)
+
+### 4.14 Uploading Packages to PyPi
+
+PyPi = Python Package Index. Un-reviewed repository of python packages. We can download and install packages from there using `pip`.
+
+There are actually two repositories or indices:
+
+1. The actual PyPi: [https://pypi.org/](https://pypi.org/)
+2. The test version: [https://test.pypi.org/](https://test.pypi.org/)
+
+We should first use the test index/repository; when we see that everything works fine, we can upload our package to the real index.
+
+We need to register in both: mxagar.
+
+I created a folder in `lab/` in which the `distributions` package is set up and uploaded to PyPi:
+
+`./lab/distributions_package` 
+
+
+```bash
+
+cd binomial_package_files
+python setup.py sdist
+pip install twine
+
+# commands to upload to the pypi test repository
+twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+pip install --index-url https://test.pypi.org/simple/ dsnd-probability
+
+# command to upload to the pypi repository
+twine upload dist/*
+pip install dsnd-probability
+```
