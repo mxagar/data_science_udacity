@@ -21,7 +21,7 @@ The rest of the files are the expected ones in a Python package.
 Installation in your preferred virtual environment:
 
 ```
-pip install distributions_lite
+pip install distributions_mxagar
 ```
 
 Usage of the package:
