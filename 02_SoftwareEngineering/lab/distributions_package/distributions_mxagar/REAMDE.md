@@ -21,13 +21,13 @@ The rest of the files are the expected ones in a Python package.
 Installation in your preferred virtual environment:
 
 ```
-pip install distributions_mxagar
+pip install distributions-mxagar
 ```
 
 Usage of the package:
 
 ```python
-from distributions import Gaussian, Binomial
+from distributions_mxagar import Gaussian, Binomial
 
 gaussian_one = Gaussian(10,5)
 gaussian_one.mean # 10
@@ -37,7 +37,5 @@ gaussian_two = Gaussian(1,2)
 gaussian_three = gaussian_one + gaussian_two
 
 binomial = Binomial() # prob=.5, size=20
-binomial.mean # 0.5
-binomial.stdev # 20
-
+binomial # mean 10.0, standard deviation 2.23606797749979, p 0.5, n 20
 ```

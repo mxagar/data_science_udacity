@@ -1571,22 +1571,107 @@ We should first use the test index/repository; when we see that everything works
 
 We need to register in both: mxagar.
 
+Then, we follow the steps in this section. However, note that the guidelines outlined here, although correct, are not updated. Udacity instructs to use `python setup.py` while the new guidelines suggest using `python -m build` instead. Additionally, the definition of the `project.toml` is missing. For more information, look at the following links after reading this section. Additionally, the repository [deploying-machine-learning-models](https://github.com/mxagar/deploying-machine-learning-models) from the Udemy course [Deployment of Machine Learning Models](https://www.udemy.com/course/deployment-of-machine-learning-models) covers the new approach:
+
+- [Transition your Python project to use pyproject.toml and setup.cfg](http://ivory.idyll.org/blog/2021-transition-to-pyproject.toml-example.html)
+- [Why you shouldn't invoke setup.py directly](https://blog.ganssle.io/articles/2021/10/setup-py-deprecated.html)
+- [What the heck is pyproject.toml?](https://snarky.ca/what-the-heck-is-pyproject-toml/)
+- [Building and Distributing Packages with Setuptools](https://setuptools.pypa.io/en/latest/setuptools.html#configuring-setup-using-setup-cfg-files)
+- [Python Packaging User Guide](https://packaging.python.org/en/latest/)
+- [Packaging Python Projects](https://packaging.python.org/en/latest/tutorials/packaging-projects/)
+
+#### Building and Uploading Steps
+
 I created a folder in `lab/` in which the `distributions` package is set up and uploaded to PyPi:
 
 `./lab/distributions_package` 
 
+In there, we have the following files, which must have a content:
+
+```
+setup.py # setup configuration
+distributions_mxagar/ # package folder
+	__init__.py # it signals that's a package
+	license.txt # license; e.g., MIT -- see link below
+	REAMDE.md # documentation
+	setup.cfg # configuration
+	Binomialdistribution.py # module, code
+	Gaussiandistribution.py # module, code
+	Generaldistribution.py # module, code
+```
+
+The rest of the files are not really necessary: `test.py`, `numbers.txt`, `numbers_binomial.txt`.
+
+`setup.cfg` contains metadata of the package:
+
+```
+[metadata]
+description-file = README.md
+```
+
+`setup.py` defines parameters for installation:
+
+```python
+from setuptools import setup
+
+setup(name = 'distributions_mxagar', # every package on PyPi needs a UNIQUE name
+      version = '0.1', # every upload needs a new version
+      description = 'Gaussian and Binomial distributions',
+      packages = ['distributions_mxagar'], # package folder with __init__.py in it; use same as in name
+      author = 'Mikel Sagardia',
+      author_email = 'mxagar@gmail.com',
+      zip_safe=False) # whether we can execute the package while zipped; e.g., if we use an ASCII file from the package folder we can't
+```
+
+Upload and install:
 
 ```bash
+# Create the package
+cd .../lab/distributions_package
+# Build the package; every time we change something, we need to change the version and rebuild the package
+python setup.py sdist bdist_wheel
+# New folders with files appear
+# - dist/: it contains a tar.gz and a wheel of the package to be uploaded; the tar.gz is the un-compiled old version, the wheel is the compiled new version
+# - distributions_mxagar.egg-info/: some package uploading info: paths, deppendencies, etc.
+# - build/: build folder
 
-cd binomial_package_files
-python setup.py sdist
-pip install twine
-
-# commands to upload to the pypi test repository
+# Commands to upload to the pypi TEST repository
+pip install twine # tool to upload packages
+# Upload the package; we need to log in in the Terminal
+# If we re-upload it, we need to change the version and rebuild the package
 twine upload --repository-url https://test.pypi.org/legacy/ dist/*
-pip install --index-url https://test.pypi.org/simple/ dsnd-probability
+# Now, check the https://test.pypi.org repository/index
+# NOTE: _ is parsed as -, so the package is called distributions-mxagar
+# Install the package
+pip install --index-url https://test.pypi.org/simple/ distributions-mxagar
+# Re-install/Upgrade a package version
+pip install --upgrade --index-url https://test.pypi.org/simple/ distributions-mxagar
 
-# command to upload to the pypi repository
+# Command to upload to the pypi repository: analogous to before
 twine upload dist/*
-pip install dsnd-probability
+pip install distributions-mxagar
 ```
+
+Usage:
+
+```python
+# Note that the index package name was changed by PyPi to distributions-mxagar
+# but we still use the original name in the code: distributions_mxagar
+from distributions_mxagar import Gaussian, Binomial
+
+gaussian_one = Gaussian(10,5)
+gaussian_one.mean # 10
+gaussian_one.stdev # 5
+
+gaussian_two = Gaussian(1,2)
+gaussian_three = gaussian_one + gaussian_two
+
+binomial = Binomial() # prob=.5, size=20
+binomial # mean 10.0, standard deviation 2.23606797749979, p 0.5, n 20
+```
+
+Rekevant links:
+
+- [MIT License](https://opensource.org/licenses/MIT)
+- [Python Packaging User Guide](https://packaging.python.org/en/latest/)
+- [Packaging Python Projects](https://packaging.python.org/en/latest/tutorials/packaging-projects/)
