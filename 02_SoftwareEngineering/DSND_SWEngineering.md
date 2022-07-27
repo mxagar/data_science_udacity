@@ -1553,7 +1553,7 @@ class Binomial(Distribution):
 
 ### 4.13 Complex Projects
 
-In this section, the source code of [Scikit-Learn]() is shown briefly and links for contributing to open source projects are provided:
+In this section, the source code of [Scikit-Learn](https://scikit-learn.org/stable/) is shown briefly and links for contributing to open source projects are provided:
 
 - [Beginner's Guide to Contributing to a Github Project](https://akrabat.com/the-beginners-guide-to-contributing-to-a-github-project/)
 - [Contributing to a Github Project](https://github.com/MarcDiethelm/contributing/blob/master/README.md)
@@ -1675,3 +1675,297 @@ Rekevant links:
 - [MIT License](https://opensource.org/licenses/MIT)
 - [Python Packaging User Guide](https://packaging.python.org/en/latest/)
 - [Packaging Python Projects](https://packaging.python.org/en/latest/tutorials/packaging-projects/)
+
+## 5. Portfolio Exercise: Upload a Package to PyPi
+
+I uploaded the Gaussian package to the test registry, as explained in Section 4.14.
+
+## 6. Web Development
+
+In this section a data dashboard is created.
+
+The contents:
+
+- HTML, CSS, Javascript.
+- Bootstrap for out-of-the-box CSS styling.
+- Plotly visualizations.
+- Flask Back-End with Python.
+- Deployment to Heroku.
+
+Usually, we talk about:
+
+- Front-end
+    - Content: HTML
+    - Design: CSS
+    - Interactivities: Javascript
+- Back-end: we can code it with PHP, Java, Ruby... or Python
+    - Server
+    - Database
+    - All files related to the website
+
+Note that I have two guides on several topics dealt here:
+
+- [flask_guide](https://github.com/mxagar/flask_guide) `/ flask_guide.md`
+- [jekyll_web_guide](https://github.com/mxagar/jekyll_web_guide) `/ html_css_bootstrap_guide.md`
+
+Even though the exercises of this section are in the repository
+
+[udacity-cd0171--software-engineering-for-data-scientists](https://github.com/udacity/https-github.com-)
+
+I copied and completed them in the `./lab/` folder.
+
+Useful tip: use extensively the Chrome `View > Developer > Developer Tools`, or equivalent.
+
+### 6.1 HTML Basics
+
+It is common to think of HTML as a tree of elements or tags which contain the content in the form of paragraphs, headlines, links, bulleted lists, etc.
+
+![HTML Tree](./pics/html_tree.png)
+
+Common elements of tags:
+
+- `<head>`: we add the `<title>` and some other meta information, such as CSS and Javascript file links or paths.
+- `<body>` has the page content:
+    - `<p>`: paragraphs
+    - `<h1>`: headings
+    - `<img>`: images
+    - `<a>`: anchors or links
+    - `<form>`: forms
+    - `<ol>`, `<ul>`: ordered and unordered lists, with `<li>` list items.
+
+Some interesting links:
+
+- [HTML Element Reference](https://www.w3schools.com/tags/default.asp)
+- [HTML Tutorial](https://www.w3schools.com/html/)
+
+#### Exercise 1
+
+Example of HTML code; open it with a web browser.
+
+`exercise_1.html`:
+
+```html
+<! DOCTYPE html>
+
+<html>
+  
+  <head>
+    <title>Udacity Task List</title>
+  </head>
+  <body>
+    <h1>Today's TODO list</h1>
+    <img src='udacity_logo.png' alt='Udacity Logo'>
+    <a href="https://www.udacity.com">Udacity</a>    
+    <!-- TODO: Use a paragraph tag. Inside the paragraph tag, introduce yourself -->
+    <p>Hi, my name is Mikel. These are my tasks:</p>
+    <ul>
+      <li>Watch ten videos</li>
+      <li>Answer all the quizzes</li>
+      <li>Work on the project for 2 hours</li>
+    </ul>
+    
+    <!-- TODO: Get creative and add anything else youl would like to add. The W3Schools website has a wealth of information about html tags. See: https://www.w3schools.com/tags -->
+    <table>
+      <caption>Breakdown of Tasks Completed</caption>
+      <tr>
+        <th>Day</th>
+        <th>Tasks Completed</th>
+      </tr>
+      <tr>
+        <td>Monday</td>
+        <td>Completed five concepts</td>
+      </tr>
+      <tr>
+        <td>Tuesday</td>
+        <td>Did three quizzes</td>
+    </table>
+
+    <br>
+    <nav>
+      <a href="https://www.w3schools.com/html/">HTML</a> |
+      <a href="https://www.w3schools.com/w3css/">CSS</a> |
+      <a href="https://www.w3schools.com/js/default.asp">JavaScript</a> |
+      <a href="https://www.w3schools.com/Jquery/default.asp">jQuery</a>
+    </nav>
+  </body>
+  
+</html>
+```
+
+### 6.2 HTML: Divs, Spans, Classes, Ids
+
+We can separate the content in groups and apply a concrete style class to each group:
+
+- `<div>` is used to group larger pieces of content; we can apply CSS style classes to each group/division.
+- `<span>` is similar to `<div>`, but it's used for smaller pieces of content, like some few words.
+
+```html
+<div>
+   <p>This is an example of when to use a div elements versus a span element. A span element goes around <span>a small chunk of html</span></p>
+</div>
+```
+
+Every element in HTML can have two attributes which are defined in the CSS stylesheet:
+
+- `id`: a particular HTML element gets an `id="myId"` which is used in the CSS as `#myId{}`.
+    - Uniquely identify a piece of content
+    - Should only be used once per HTML page
+    - IDs can go in any tag
+    - Elements can only have one id
+- `class`: we define a style for a group of different element types. It is very common to use classes in `divs`: `<div class="myDivClass">`; then, we define the class in the CSS file as `.myDivClass{}`.
+    - Groups multiple pieces of content together
+    - Class names can be used multiple times in an HTML page
+    - Elements can have more than one class
+
+```html
+<div class="firstDiv">
+    <p>I'm inside the first div</p>
+</div>
+
+<div class="secondDiv">
+    <p>I'm inside the second div</p>
+</div>
+
+<p id="singeParagraph">I'm outside any div</p>
+```
+
+```css
+.firstDiv{
+    color: blue;
+}
+
+.secondDiv{
+    background-color: gray;
+}
+
+#singeParagraph{
+    color: red;
+}
+```
+
+#### Exercise 2
+
+Note that a provided CSS stylesheet is used.
+
+`exercise_2.html`:
+
+```html
+<! DOCTYPE html>
+
+<html>
+  
+  <head>
+    <title>Udacity Task List</title>
+        <!-- Ignore the following link to the css stylesheet. You will learn more about this in the next exercise. -->
+     <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  <body>
+    <h1>Today's TODO list</h1>
+    <img src='udacity_logo.png' alt='Udacity Logo'>
+    <!-- TODO: add an id to the Udacity link tag -->
+    <a id="main-link" href="https://www.udacity.com">Udacity</a>  
+     <!-- NOTE - Adding id and class attributes to HTML does not change the appearance of the page. The changes made in this exercise affect how the page is displayed because this page has been linked to a style sheet. You'll be learning more about that shortly. -->
+    <!-- TODO: Wrap the following paragraphs and list with a 
+       div tag. Add an id to the div tag called main-content -->
+    <!-- TODO: add a class to the the next two paragraphs
+after this comment. Call the class bold-paragraph -->
+    <div id="main-content">
+      <p class="bold-paragraph">Hi, my name is Mikel.</p>
+      <p class="bold-paragraph">I am a Udacity student from Los Angeles, California</p>
+        <!-- TODO: add a span around the terms data scientist after this comment. Add a class attribute called green-text -->
+      <p>I'm currently studying for the <span class="green-text">data scientist</span> nanodegree program</p>
+      <p>These are my tasks:</p>
+      <ul>
+          <li>Watch ten videos</li>
+          <li>Answer all the quizzes</li>
+          <li>Work on the project for 2 hours</li>
+      </ul>
+      <p>Here is a table of the tasks that I've completed this week</p>
+    </div>
+    <table>
+      <caption>Breakdown of Tasks Completed</caption>
+      <tr>
+        <th>Day</th>
+        <th>Tasks Completed</th>
+      </tr>
+      <tr>
+        <td>Monday</td>
+        <td>Completed five concepts</td>
+      </tr>
+      <tr>
+        <td>Tuesday</td>
+        <td>Did three quizzes</td>
+    </table>
+
+    <br>
+    <nav>
+      <a href="https://www.w3schools.com/html/">HTML</a> |
+      <a href="https://www.w3schools.com/w3css/">CSS</a> |
+      <a href="https://www.w3schools.com/js/default.asp">JavaScript</a> |
+      <a href="https://www.w3schools.com/Jquery/default.asp">jQuery</a>
+    </nav>  </body>
+  
+</html>
+```
+
+### 6.3 CSS
+
+Cascading Style Sheets contain style definitions. If we open the `View > Developer > Developer Tools` and remove the `<head>` we remove the link to the style sheet, among others, and we'll see the plain HTML content without any styling!
+
+If we refresh the site, then it's back :)
+
+We can do styling in two ways:
+
+1. Inline styling: we add a `style=...` attribute to the tags. This is tedious, since we need to define the style of each HTML tag in the HTML content file.
+2. Using CSS files: we define all the styles in a CSS stylesheet file and link it to the `<head>` either wit hits path or its URL.
+
+```html
+<head>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+```
+
+Obviously, we should use the 2nd way.
+
+A simple example of how we populate `style.css`:
+
+```css
+/* This affects to the whole body */
+body {
+  margin-left:20px;
+  margin-right:20px;
+  border: solid black 1px;
+  padding: 10px;
+}
+
+/* This affects to all the images */
+img {
+  width: 200px;
+}
+
+/* This affects to all anchors/links */
+a {
+  text-decoration: none;
+}
+
+/* Apply to paragraphs inside the div with id "main-content" */
+div#main-content p {
+  font-family: "helvetica";
+}
+
+/* This is the id bold-paragraph */
+p.bold-paragraph {
+  font-weight:bold;
+}
+
+/* This is the id green-text */
+.green-text {
+  color:green;
+}
+
+/* This is the class main-link */
+#main-link {
+  color:blue;
+}
+
+```
