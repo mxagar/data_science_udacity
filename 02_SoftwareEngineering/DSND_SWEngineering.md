@@ -1916,7 +1916,7 @@ If we refresh the site, then it's back :)
 
 We can do styling in two ways:
 
-1. Inline styling: we add a `style=...` attribute to the tags. This is tedious, since we need to define the style of each HTML tag in the HTML content file.
+1. Inline styling: we add a `style="border:solid red 1px;margin:40px;"` attribute to the tags, with style property definitions separated with `;`. This is tedious, since we need to define the style of each HTML tag in the HTML content file.
 2. Using CSS files: we define all the styles in a CSS stylesheet file and link it to the `<head>` either wit hits path or its URL.
 
 ```html
@@ -1925,7 +1925,7 @@ We can do styling in two ways:
 </head>
 ```
 
-Obviously, we should use the 2nd way.
+Obviously, we should use the 2nd way in general.
 
 A simple example of how we populate `style.css`:
 
@@ -1958,14 +1958,213 @@ p.bold-paragraph {
   font-weight:bold;
 }
 
-/* This is the id green-text */
+/* This is the class "green-text" */
 .green-text {
   color:green;
 }
 
-/* This is the class main-link */
-#main-link {
+/* This is the id "blue-section" */
+#blue-section {
   color:blue;
 }
+```
+
+Then, we use those styles in the HTML:
+
+`index.html`:
+
+```html
+<div id="div_top">
+   <p>This is a paragraph</p>
+</div>
+
+<div class="green-text">
+    <p>This is a green section.</p>
+</div>
+```
+
+#### Margins and Padding
+
+In the following, several property definitions are shown using the inline approach:
+
+```html
+<div style="border:solid red 1px;">
+    Box
+</div>
+
+<div style="border:solid red 1px;margin:40px;">
+    Box
+</div>
+
+<div style="border:solid red 1px;padding:40px;">
+    Box
+</div>
+
+<div style="border:solid red 1px;margin:40px;padding:40px;">
+    Box
+</div>
 
 ```
+
+#### Size: Pixels vs. % vs. EM
+
+In the following, several property definitions are shown using the inline approach.
+
+We can define size in 3 ways:
+
+- With pixels: we define the exact number of pixels
+- With % values: the size changes dynamically based on the browser settings; `150%` means `1.5x` default size value.
+- With `em` values: the size changes dynamically based on the browser settings; `1.5em` means `1.5x` default size value.
+
+Note that sizes are inherited in the HTML tree; that is important if we define absolute pixel sizes in an element and then relative sizes in its children (which will refer to the parent absolute size).
+
+```html
+<p style="font-size: 12px;">
+
+<p style="font-size: 100%"> 
+
+<body style="font-size: 20px">
+    <p style="font-size:80%">This is a paragraph</p>
+</body>
+```
+
+#### Exercise 3
+
+`exercise_3.html`:
+
+```html
+<! DOCTYPE html>
+
+<html>
+  <head>
+    <title>Udacity Task List</title>
+    <link rel="stylesheet" type="text/css" href="exercise_3_style.css">
+  </head>
+  <body>
+    <h1>Today's TODO list</h1>
+    <img src='udacity_logo.png' alt='Udacity Logo'>
+    <a id="main-link" href="https://www.udacity.com">Udacity</a>    
+    <div id="main-content">
+      <p class="bold-paragraph">Hi, my name is Andrew.</p>
+      <p class="bold-paragraph">I am a Udacity student from Los Angeles, California</p>
+      <p>I'm currently studying for the data scientist nanodegree program</p>
+      <p>These are my tasks:</p>
+      <ul>
+          <li>Watch ten videos</li>
+          <li>Answer all the quizzes</li>
+          <li>Work on the project for 2 hours</li>
+      </ul>
+      <p>Here is a table of the tasks that I've completed this week</p>
+    </div>
+    <table>
+      <caption>Breakdown of Tasks Completed</caption>
+      <tr>
+        <th>Day</th>
+        <th>Tasks Completed</th>
+      </tr>
+      <tr>
+        <td>Monday</td>
+        <td>Completed five concepts</td>
+      </tr>
+      <tr>
+        <td>Tuesday</td>
+        <td>Did three quizzes</td>
+    </table>
+    <br>
+    <nav>
+      <a href="https://www.w3schools.com/html/">HTML</a> |
+      <a href="https://www.w3schools.com/w3css/">CSS</a> |
+      <a href="https://www.w3schools.com/js/default.asp">JavaScript</a> |
+      <a href="https://www.w3schools.com/Jquery/default.asp">jQuery</a>
+    </nav>
+  </body>
+  
+</html>
+```
+
+`exercise_3_style.css`:
+
+```css
+/* TODO:
+- add a left margin of 25px and a right margin of 25px to the body tag */
+
+body {
+ margin-left:25px;
+ margin-right:25px; 
+}
+
+/* TODO: h1 header
+- change the h1 header to all capital letters 
+- add a top and bottom margin of 20px
+hint: https://www.w3schools.com/cssref/pr_text_text-transform.asp*/ 
+h1 {
+ text-transform:uppercase; 
+ margin-top: 20px;
+ margin-bottom: 20px;
+}
+
+/* TODO: img
+- make the Udacity logo only half the width of the screen
+hint: https://www.w3schools.com/css/css_dimension.asp
+*/
+img {
+ width:50%; 
+}
+
+/* TODO: Udacity link 
+- make the Udacity link on its own line instead of next to the image
+- give the link a top and bottom margin of 20px
+- remove the underline
+- increase the font to 45px
+- change the font color to gray
+hint: the block value might be of interest
+https://www.w3schools.com/cssref/pr_class_display.asp
+hint: make sure to specify the Udacity link using the id; otherwise all links will be styled like the Udacity link
+*/
+a#main-link {
+  display:block;
+  margin-top:20px;
+  margin-bottom:20px;
+  text-decoration:none;
+  font-size:45px;
+  color:gray;
+}
+
+/* TODO: Udacity link 
+- make the Udacity link on its own line instead of next to the image
+- give the link a top and bottom margin of 20px
+- remove the underline
+- increase the font to 45px
+- change the font color to gray
+hint: the block value might be of interest
+https://www.w3schools.com/cssref/pr_class_display.asp
+hint: make sure to specify the Udacity link using the id; otherwise all links will be styled like the Udacity link
+*/
+
+
+/* TODO: Div main-content id
+- change the font of all elements inside the #main-content div to helvetica
+hint: https://www.w3schools.com/cssref/pr_font_font-family.asp
+*/
+div#main-content {
+  font-family: "helvetica";
+}
+
+/* TODO: bold-paragraph class
+- for the paragraphs with the bold-paragraph class, make the text bold
+*/
+p.bold-paragraph {
+  font-weight:bold;
+}
+
+/* TODO: table
+- draw a black border around the td elements in the table
+hint: https://www.w3schools.com/css/css_border.asp
+*/
+td {
+ border:solid black 1px; 
+}
+```
+
+### 6.4 Bootstrap
+
