@@ -2168,3 +2168,761 @@ td {
 
 ### 6.4 Bootstrap
 
+[Bootstrap](https://getbootstrap.com/) is a Front-end toolkit with many built-in components and themes ready to use.
+
+There are 2 ways of using Bootstrap:
+
+1. Download the toolkit and link it locally.
+2. Copy the links provided in the [Bootstrap](https://getbootstrap.com/) homepage to HTML file.
+
+For the 2nd approach, we distinguish between the CSS stylesheets and `<script>` lines:
+
+- CSS stylesheets are integrated with `<link>` and they go in the `<head>`.
+- Javascript and other files are integrated with `<cript>` and they should go at the end of the `<body>`.
+- Place vendor files first and our files then so that we replace vendor styles.
+
+```html
+<html>
+  <head>
+    <link rel="stylesheet" href="bootstrap.css">
+    <link rel="stylesheet" href="your-other-styles.css">
+  </head>
+  <body>
+    <!-- content -->
+    <script src="jquery.js"></script>
+    <script src="bootstrap.js"></script>
+    <script src="your-other-scripts.js"></script>
+  </body>
+</html>
+```
+
+Look at the [Bootstrap examples](https://getbootstrap.com/docs/5.2/examples/) for some of the available possibilities.
+
+Look at the [Bootstrap docs](https://getbootstrap.com/docs/5.2/getting-started/introduction/): select a component, read the docs and find the HTML snippet we can directly copy & paste.
+
+If we remove the Bootstrap CSS and JS links, the components will appear, but unformated, i.e., ugly. In that sense, the [Bootstrap docs](https://getbootstrap.com/docs/5.2/getting-started/introduction/) are also a very good reference of components/examples we can use in HTML.
+
+The initial template with all the imports recommended by Bootstrap is the following:
+
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+  </head>
+  <body>
+    <h1>Hello, world!</h1>
+    
+    <!--Bootstrap-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
+    <!--jQuery-->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <!--Popper-->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js" integrity="sha384-Xe+8cL9oJa6tN/veChSP7q+mnSPaj5Bcu9mPX5F5xIGE0DVittaqT5lorf0EI7Vk" crossorigin="anonymous"></script>
+    <!--Bootstrap JS-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js" integrity="sha384-ODmDIVzN+pFdexxHEHFBQH3/9/vQ9uori45z4JjnFsRydbmQbmL5t1tQ0culUzyK" crossorigin="anonymous"></script>
+  </body>
+</html>
+```
+
+See `./lab/bootstrap_exercises/example_1.html`.
+
+#### Rows and Columns (Example 1)
+
+Bootstrap divides the page in invisible rows and columns; there are 12 columns and an infinite number of rows. We can make use of these divisions.
+
+```html
+<body>
+    <div class="row">
+        <!-- The class col-1 accesses one column width -->
+        <div class="col-1">C1</div>
+        <div class="col-1">C2</div>
+        <div class="col-1">C3</div>
+        <div class="col-1">C4</div>
+        <div class="col-1">C5</div>
+        <div class="col-1">C6</div>
+        <div class="col-1">C7</div>
+        <div class="col-1">C8</div>
+        <div class="col-1">C9</div>
+        <div class="col-1">C10</div>
+        <div class="col-1">C11</div>
+        <div class="col-1">C12</div>
+    </div>
+
+    <div class="row">
+        <div class="col-1">C1</div>
+        <!-- The class col-2 accesses two column widths -->
+        <div class="col-2">C2, C3</div>
+        <!-- The class col-3 accesses three column widths -->
+        <div class="col-3">C4, C5, C6</div>
+        <div class="col-1">C7</div>
+        <div class="col-1">C8</div>
+        <div class="col-1">C9</div>
+        <div class="col-1">C10</div>
+        <div class="col-1">C11</div>
+        <div class="col-1">C12</div>
+    </div>
+</body>
+```
+
+See `./lab/bootstrap_exercises/example_1.html`.
+
+#### Navigation Bars: Navbar (Example 1)
+
+If we look at the [Bootstrap Navbar](https://getbootstrap.com/docs/5.2/components/navbar/) documentation, we see we have many ready to use navigation bar examples. We simply copy and paste the code, modify it for our purpose, and that's it!
+
+```html
+<!--Navbar-->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Dashboard</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="#">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Source</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+```
+
+See `./lab/bootstrap_exercises/example_1.html`.
+
+#### Structuring the Dashboard (Example 2)
+
+Usually, the first thing we do when we'd like to build a dashboard is to structure the page or define the layout. For instance:
+
+- We define a navbar first.
+- We define the row and column divisions we want to have in different `<div>` sections.
+- We fill in the cells with placeholder images of the final dashboard and arrange their margins, borders, etc.
+
+In the following a snippet where the aforementioned is done, visible in `./lab/bootstrap_exercises/example_2.html`.
+
+Note that the following **important classes** are used:
+
+- `navbar-dark` and `bg-dark`: dark navbar and background.
+- `border-right`: we add a line/border to the row/col cell right
+- `mt-3`, `ml-2`: margin top/left of 3/2 units.
+- `img-fluid`: images change dynamically as we resize the web pages.
+- `text-muted`: we change the text color to pale gray.
+
+See `./lab/bootstrap_exercises/example_2.html`.
+
+```html
+<!--Navbar-->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="#">World Bank Dashboard</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavDropdown">
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="https://www.udacity.com/course/data-scientist-nanodegree--nd025">Udacity</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="https://data.worldbank.org/">World Bank</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<div class="row ml-1 mt-2">
+  <!--Left contact column: Github-->
+  <div class="col-1">
+    <a href="https://www.github.com">
+      <img class="img-fluid" src="assets/githublogo.png" alt="github logo">
+    </a>
+  </div>
+  <!--Left contact column: LinkedIn & Instagram-->  
+  <div class="col-1 border-right">
+    <a href="https://www.linkedin.com">
+      <img class="mb-3 img-fluid" src="assets/linkedinlogo.png" alt="linkedin logo">
+    </a>
+    <a href="https://www.instagram.com">
+      <img class="img-fluid" src="assets/instagram.png" alt="instagram logo">
+    </a>
+  </div>
+  <!--Right: Content, Plots-->
+  <div class="col-10">
+    <h2>World Bank Data Dashboard</h2>
+    <h4 class="text-muted">Land Use Visualizations</h4>
+    <!--Plots-->
+    <div class="container">
+      <div class="row mb-3">
+        <!--First row, 3 columns-->
+        <div class="col-4">
+          <img class="img-fluid" src="assets/plot1.png" alt="chart one">
+        </div>
+        <div class="col-4">
+          <img class="img-fluid" src="assets/plot2.png" alt="chart two">
+        </div>
+        <div class="col-4">
+          <img class="img-fluid" src="assets/plot3.png" alt="chart three">
+        </div>
+      </div>
+      <div class="row">
+        <!--Second row, 2 columns-->
+        <div class="col-6">
+          <img class="img-fluid" src="assets/plot4.png" alt="chart four">       
+        </div>
+        <div class="col-6">
+          <img class="img-fluid" src="assets/plot5.png" alt="chart five">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+#### Interesting Links, Reference
+
+- [Starter Template](https://getbootstrap.com/docs/4.0/getting-started/introduction/#starter-template)
+- [Grid system](https://getbootstrap.com/docs/4.0/layout/grid/)
+- [Containers and responsive layout](https://getbootstrap.com/docs/4.0/layout/overview/)
+- [Images](https://getbootstrap.com/docs/4.0/content/images/)
+- [Navbar](https://getbootstrap.com/docs/4.0/components/navbar/)
+- [Colors](https://getbootstrap.com/docs/4.0/utilities/colors/)
+
+### 6.5 Javascript and jQuery
+
+Javascript was developed to provide interactivity in HTML webpages by a programmer from the Netscape navigator. Basically, we manipulate the elements of a webpage using Javascript: change their color, fade-in, pop-up, text, etc. Although it's called *Javascript*, it has nothing to do with the Java language; that naming was a marketing decision due to the popularity of Java at the time.
+
+Nowadays, Javascript can be used in a runtime environment like [Node](https://nodejs.org/en/). Or we can directly use the browser (Chrome) Javascript console to test our code: `View > Developer > Javascript Console`. We can copy and paste our code there.
+
+However, since this guide is related to basic web development, note that we will use Javascript files written in `my_file.js` files and integrated into the HTML file. We can also write JS code in `<script>` elements.
+
+#### Introductory Example: Javascript and jQuery
+
+Very simple example: we define a `headFunction()` which changes the `h1` text in the page when we click on the page image (`<img onclick=...`).
+
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>JS Example</title>
+    <script>
+        // Change the text content of the element with tag name h1
+        // Look for all elements with tag h1 and grab the first
+        // We need to trigger the function, e.g., with onclik in the img
+        function headFunction() {
+            document.getElementsByTagName("h1")[0].innerHTML = "Hello Again!";
+        }
+    </script>
+  </head>
+  <body>
+    <h1>Hello World!</h1>
+    <!-- Function defined above is triggered here with onclick -->
+    <img src="photo.jpg" alt="Hello world photo." onclick="headFunction()">
+  </body>
+</html>
+```
+
+Note that it is quite cumbersome having to type all that code for a simple action. To make things easier, the [jQuery](https://api.jquery.com/) Javascript can be used. We need to add the library link in a `<script>` in the body, and the code is transformed as follows:
+
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>JS Example</title>
+    <script>
+            // When website is ready, run this function:
+            // when we click on img, change the text of h1
+            // This way, we don't need the onclick attribute in the img
+            // $(): grab this element, class or id
+            $(document).ready(function(){
+                    $("img").click(function(){
+                        $("h1").text("A Photo of an Amazing  View");
+                    });
+                });
+    </script>
+  </head>
+  <body>
+    <h1>Hello World!</h1>
+    <!-- No function triggering necessary anymore -->
+    <img src="photo.jpg" alt="Hello world photo.">
+
+    <!--jQuery library URL-->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  </body>
+</html>
+```
+
+However, note that jQuery is a library for HTML element management; we still need to write *normal* Javascript code without jQuery.
+
+If we write the JS code in a separate file `my_script.js`, we just need to integrate it in the `<head>` as follows:
+
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>JS Example</title>
+    <script src="my_script.js"> </script>
+  </head>
+  <body>
+    <h1>Hello World!</h1>
+    <!-- No function triggering necessary anymore -->
+    <img src="photo.jpg" alt="Hello world photo.">
+
+    <!--jQuery library URL-->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  </body>
+</html>
+```
+
+`my_script.js`:
+
+```javascript
+// Click on an image to change text on screen
+$(document).ready(function(){
+        $("img").click(function(){
+            $("h1").text("A Photo of an Amazing  View");
+        });
+    });
+
+// Webpage content hides and then fades in slowly as webpage loads
+$(document).ready(function(){
+        $("body").hide().fadein("slow");
+    });
+
+// Image fades out when I click on title
+$(document).ready(function(){
+        $("h1").click(function(){
+            $("img").fadeout("slow");
+        });
+    });
+
+// When we click on the image, "Thank you" appears in the h2 tag
+$(document).ready(function(){
+        $("img").click(function(){
+            $("h2").text("Thank you");
+        });
+    });
+
+// When loaded the webpage, the paragraph p disappears
+// but then it starts fading in slowly
+$(document).ready(function(){
+        $("p").hide().fadein("slow");
+    });
+
+// When we click on the h2 title, it disappears quickly
+$(document).ready(function(){
+        $("h2").click(function(){
+            $("h2").fadeout("fast");
+        });
+    });
+```
+
+More modern alternatives to jQuery are React or Angular.
+
+#### Javascript Syntax
+
+In the following, some self-explanatory lines of code.
+
+We can define the code it in a `my_script.js` file and integrate it to our HTML or we can run in (copy & paste) in a Javascript console (e.g., in Chrome: `View > Developer Tools > Javascript Console`).
+
+```javascript
+// Hoisting: we don't need to declare the function
+// before using it; HOWEVER, avoid using it and declare 
+// everything as in other languages...
+function addValues(x) {
+    /* This function gets an array x.
+    All items of it are summed in a for-loop.   */
+  var sum_array = 0; // variable definition
+  for (var i=0; i < x.length; i++) {
+    sum_array += x[i]; // array indexing
+  }
+  return sum_array;
+}
+
+function main() {
+  console.log("Hello"); // print to console
+    var sum = addValues([3,4,5,6]); // we pass an array to a function
+    console.log(sum);
+    var my_string = "Hello" + " World!"; // string concatenation
+    console.log(my_string[0]); // J
+    var my_boolean = true;
+    var my_other_boolean = false;
+
+    var a = 1;
+    var b = 2;
+    if (a > b) {
+      console.log("a is greater than b");
+    } else if (a == b) {
+      console.log("a is equal to b");
+    } else {
+      console.log("a is less than b");
+    }
+
+    var colt = "not busy";
+    var weather = "nice";
+
+    if (colt === "not busy" && weather === "nice") {
+      console.log("go to the park");
+    }
+
+    // Ternary operator
+    var isGoing = true;
+    var color = isGoing ? "green" : "red";
+    console.log(color);
+
+    var start = 0; // when to start
+    while (start < 10) { // when to stop
+      console.log(start);
+      start = start + 2; // how to get to the next item
+    }
+
+    // Function expression: we declare a var
+    // as a function object.
+    // This is done to use functions as callbacks,
+    // i.e., we pass functions to other functions.
+    var catSays = function(max) {
+      var catMessage = "";
+      for (var i = 0; i < max; i++) {
+        catMessage += "meow ";
+      }
+      return catMessage;
+    };
+    catSays; // It returns the anonymous function above
+
+    // function declaration helloCat accepting a callback
+    function helloCat(callbackFunc) {
+      return "Hello " + callbackFunc(3);
+    }
+
+    // pass in catSays as a callback function
+    helloCat(catSays);
+
+    // creates a `mixedData` array with mixed data types
+    var mixedData = ["abcd", 1, true, undefined, null, "all the things"];
+
+    // creates a `arraysInArrays` array with three arrays
+    var arraysInArrays = [[1, 2, 3], ["Julia", "James"], [true, false, true, false]];
+    var row = 1;
+    var col = 0;
+    console.log(arraysInArrays[row][col]); // "Julia"
+
+    mixedData[0] = "efgh";
+
+    arraysInArrays.length; // 3
+
+    mixedData.push("test"); // add to the end
+    mixedData.pop(); // remove from the end
+
+    // Splice: add and remove elements from anywhere within an array.
+    // -2: add/remove starting position 2 before end
+    // 0: remove 0 items
+    // "chocolate frosted", "glazed": items added
+    // results: ["cookies", "chocolate frosted", "glazed", "cinnamon sugar", "crema de leche"]
+    var donuts = ["cookies", "cinnamon sugar", "crema de leche"];
+    donuts.splice(-2, 0, "chocolate frosted", "glazed");
+
+    // Upper case: "COOKIES", "CINNAMON SUGAR", ...
+    donuts[i].toUpperCase();
+
+    // Objects = Classes
+    var umbrella = {
+        color: "pink",
+        isOpen: false,
+        open: function() {
+            if (umbrella.isOpen === true) {
+                return "Already open.";
+            } else {
+                isOpen = true;
+                return "Umbrella opened.";
+            }
+        }
+    }
+    umbrella.isOpen; // false
+    umbrella["isOpen"]; // false
+    umbrella.open(); // "Umbrella opened."
+    umbrella.isOpen; // true    
+
+}
+
+```
+
+### 6.6 Plotly with Javascript
+
+[Plotly](https://plotly.com/) is a company which offers an open source library called Plotly for data visualization, originally for web applications. We can code plots in Javascript, Python and other languages. Plotly is very easy to use, compared to other Javascript visualization libraries, and we can work on it with Javascript or Python.
+
+In this section, we show how to use Plotly with Javascript.
+
+Important links:
+
+- [Getting started with Plotly](https://plotly.com/javascript/getting-started/)
+- [Plotly Javascript examples](https://plotly.com/javascript/)
+
+#### Example
+
+This example is in `./lab/plotly_example/`.
+
+The example creates a dashboard with a navbar and two plots side by side. The plots are a line plot and a bar plot. There are many other plot type examples in [Plotly Javascript examples](https://plotly.com/javascript/).
+
+We need to take into account the following:
+
+- We create Javascript files with the plot definitions; in this case, we have a script for each plot.
+- Link Plotly and the Javascript files we have created at the end of the `<body>` in the HTML document. Also, link all the other necessary Javascript libraries: jQuery, Bootstrap, etc.
+- We reserve a cell in our HTML for each of the plots and create a `<div>` with the `id` of the plot referenced in its associated Javascript file; e.g., `<div id="plot1"></div></div>`, where the `id` is `"plot1"`.
+- In the Javascript file associated to that plot with that `id`, we pass the `id` to the Plotly call: `Plotly.newPlot('plot1', data, layout);`
+
+In the following, I add the code of the three files that compose the example. Look at the comments. And recall that more plot type examples are available in [Plotly Javascript examples](https://plotly.com/javascript/).
+
+`index.html`:
+
+```html
+<!doctype html>
+<html lang="en">  
+
+  <head>
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  </head>
+
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <a class="navbar-brand" href="#">World Bank Dashboard</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="https://www.udacity.com/course/data-scientist-nanodegree--nd025">Udacity</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="https://data.worldbank.org/">World Bank</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Layout: one row, divide in 2 columns -->
+    <div class="container text-center">
+    <div class="row">
+      <!-- We create a div with a specific id in each div -->
+      <!-- That id is used in the plot.js scripts linked below -->
+      <div class="col-6"><div id="plot1"></div></div>
+      <div class="col-6"><div id="plot2"></div></div>
+    </div>
+    </div>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <!-- Popper -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <!-- Bootstrap -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <!-- Plotly -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <!-- Our plots -->
+    <script src="javascript_files/plot1.js"></script>
+    <script src="javascript_files/plot2.js"></script>
+
+  </body>
+  
+</html>
+
+```
+
+`javascript_files/plot1.js`:
+
+```javascript
+/*
+In this script we use Plotly to create a line plot.
+We define X & Y variables for 3 series or traces: Brazil, Germany, China.
+Additionally, parameters for each series are defined: type of plot, line, etc.
+We pack all traces/series in a dictionary
+and all are visualized using plotly below.
+IMPORTANT: the visualization call requires an id, which must match
+the id we define in the HTML div: "plot1".
+*/
+
+// Year: x variable
+// Same for all series/traces
+var year = [1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005,
+       2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015];
+
+// Series/Trace 1: Brazil
+// y for Brazil
+var arable_land_brazil = [30.924583699244103,
+ 30.990028882024003,
+ 31.0554740648039,
+ 31.1207996037396,
+ 31.198209170939897,
+ 31.275618738140302,
+ 31.521965413357503,
+ 31.8094695709811,
+ 32.1206632097572,
+ 32.558918611078504,
+ 32.5948835506464,
+ 32.6369263974999,
+ 32.4998145520415,
+ 32.7225913899504,
+ 32.7273771437186,
+ 32.7181645677148,
+ 32.9466843101456,
+ 32.974680969689395,
+ 33.3576728793727,
+ 33.8100342899258,
+ 33.8100342899258];
+// name for Brazil series/trace
+var country_name_brazil = 'Brazil';
+// x, y, and other series parameters are packed
+// in a dictionary called trace
+var trace1 = {
+  x: year,
+  y: arable_land_brazil,
+  mode: 'lines',
+  type: 'scatter',
+  name: country_name_brazil
+};
+
+// Series/Trace 2: Germany
+// y for Germany
+var arable_land_germany = [49.67917502148379,
+ 49.6634105817984,
+ 49.6404526572124,
+ 49.776517105037,
+ 49.1489483638031,
+ 48.912451640636206,
+ 48.822012037833204,
+ 48.6355558103537,
+ 48.7400017201342,
+ 48.7799982796686,
+ 48.8330083725198,
+ 48.5948612066988,
+ 48.61330197608051,
+ 48.535696870607794,
+ 48.4380826711798,
+ 47.9100324181656,
+ 47.9659169153087,
+ 47.8108681930338,
+ 47.8588626461821,
+ 47.9363714531384,
+ 47.9592041483809];
+// name for Germany series/trace
+var country_name_germany = 'Germany';
+// x, y, and other series parameters are packed
+// in a dictionary called trace
+var trace2 = { 
+  x: year,
+  y: arable_land_germany,
+  mode: 'lines',
+  type: 'scatter',
+  name: country_name_germany
+};
+
+// Series/Trace 3: China
+// y for China
+var arable_land_china = [55.6902039146848,
+ 55.6944173715386,
+ 55.7435214092539,
+ 55.7808021320313,
+ 55.7222181390954,
+ 55.601913887829596,
+ 55.3795417237072,
+ 55.2323417623281,
+ 54.9767049909297,
+ 55.0086611269185,
+ 55.115181785736894,
+ 54.763679479991296,
+ 54.810017687289296,
+ 54.80799387248529,
+ 54.8084187711588,
+ 54.8080992214598,
+ 54.8084187711588,
+ 54.8084187711588,
+ 54.8084187711588,
+ 54.8084187711588,
+ 56.2229587724434];
+// name for China series/trace
+var country_name_china = 'China';
+// x, y, and other series parameters are packed
+// in a dictionary called trace
+var trace3 = {
+  x: year,
+  y: arable_land_china,
+  mode: 'lines',
+  type: 'scatter',
+  name: country_name_china
+};
+
+// Generic variables of the plot: title, etc.
+var layout = {
+  title:'Percent of Land Used for Agriculture <br> 1990-2015',
+};
+
+// All traces/series are packed into an array
+var data = [trace1, trace2, trace3];
+
+// We create the plot
+// IMPORTANT: the name plot1 is the id specified in the HTML div!
+Plotly.newPlot('plot1', data, layout);
+
+````
+
+`javascript_files/plot2.js`:
+
+```javascript
+var year = [2015];
+var arable_land_brazil = [33.8100342899258];
+var country_name_brazil = 'Brazil';
+
+var arable_land_germany = [47.9592041483809];
+var country_name_germany = 'Germany';
+
+var arable_land_china = [56.2229587724434];
+var country_name_china = 'China';
+
+var trace1 = {
+  x: [country_name_brazil],
+  y: [arable_land_brazil[0]],
+  type: 'bar',
+  name: country_name_brazil
+};
+
+var trace2 = {
+  x: [country_name_germany],
+  y: [arable_land_germany[0]],
+  type: 'bar',
+  name: country_name_germany
+};
+
+var trace3 = {
+  x: [country_name_china],
+  y: [arable_land_china[0]],
+  type: 'bar',
+  name: country_name_china
+};
+
+// <br> is a line break
+var layout = {
+ title: 'Percent of Land Area Used for <br> Agriculture in 2015'
+};
+
+var data = [trace1, trace2, trace3];
+
+Plotly.newPlot('plot2', data, layout);
+````
+
+### 6.7 Flask Backend
+
+python - pandas, scikit-learn
