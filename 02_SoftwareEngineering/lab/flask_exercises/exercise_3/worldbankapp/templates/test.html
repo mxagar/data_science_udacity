@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+</head>
+<body>
+
+    <h1>This is a very simple test page</h1>
+    
+    <h4>This is the entire dataset:</h4>
+    <!-- The python list we passed: we access it with the chosen variable name -->
+    {{ data }}
+
+    <h4>This is a loop:</h4>
+    <!-- Jinja enables logic operations like loops -->
+    {% for tuple in data %}
+        <p>{{tuple}}</p>
+    {% endfor %}
+
+</body>
+</html>

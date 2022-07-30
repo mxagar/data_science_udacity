@@ -2925,4 +2925,628 @@ Plotly.newPlot('plot2', data, layout);
 
 ### 6.7 Flask Backend
 
-python - pandas, scikit-learn
+[Flask](https://flask.palletsprojects.com/en/2.1.x/) is a web framework which takes care of all the routing and serving of websites; i.e., the back-end. It is easy to use and interfaced with Python, so we can do other processing with Python in the backend file itself, e.g., with pandas or scikit-learn.
+
+I have another repository with notes on how to use Flask: [flask_guide](https://github.com/mxagar/flask_guide).
+
+The section is composed by exercises or examples located in `./lab/flask_exercises/`:
+
+1. Exercise 1: Basic package example with empty pages; this is the skeleton of any simple web app.
+2. Exercise 2: 
+
+
+#### Exercise 1: Basic package example with empty pages
+
+This example/exercise shows a basic Flask web app. Everything is packed in a package and we start the server which serves a website with several pages. The pages are empty -- we would fill them in with our content,
+
+The package has the following structure:
+
+```
+.
+└── exercise_1/
+    ├── worldbank.py
+    └── worldbankapp/
+        ├── __init__.py
+        ├── routes.py
+        └── templates/
+            |── index.html
+            |── project_one.html
+            └── new_route.html            
+```
+
+To run the web app:
+
+```bash
+cd exercise_1
+python worldbank.py
+```
+
+In the following, the content of each file is added, with comments.
+
+```python
+### -- worldbank.py
+
+# Import app from package and run it
+from worldbankapp import app
+app.run(host='0.0.0.0', port=3001, debug=True)
+
+### -- __init__.py
+
+# This is a package init file, the first which is run,
+# thus we instantiate the app.
+# Additionally, we import and instantiate routes,
+# which contains all the website rendering calls.
+from flask import Flask
+
+app = Flask(__name__)
+
+from worldbankapp import routes
+
+### -- routes.py
+
+# Application definition
+# app is defined in init
+# We route website contents to app
+# We execute the app in worldbank.py
+
+from worldbankapp import app
+
+from flask import render_template
+
+# Website addresses and their HTML content files
+# located in templates/
+@app.route('/')
+@app.route('/index')
+def index():
+    return render_template('index.html')
+    
+@app.route('/project-one')
+def project_one():
+    return render_template('project_one.html')
+
+# new route
+@app.route('/new-route')
+def new_route():
+    return render_template('new_route.html')
+
+```
+
+The HTML pages in `templates/` are empty; we would fill them in with our content, e.g., our dashboard based on Bootstrap and Plotly.
+
+```html
+<!-- index.html -->
+
+<!doctype html>
+
+<html>
+<head>
+  <title>Index Page</title>
+</head>
+
+<body>
+  <h1>The index.html page</h1>
+</body>
+</html>
+
+<!-- project_one.html -->
+
+<!doctype html>
+
+<html>
+<head>
+  <title>Project One</title>
+</head>
+
+<body>
+  <h1>The project_one.html page</h1>
+</body>
+
+<!-- new_route.html -->
+
+<!doctype html>
+
+<html>
+<head>
+  <title>New Route</title>
+</head>
+
+<body>
+  <h1>The rew_route.html page</h1>
+</body>
+
+```
+
+#### Exercise 2: Pandas + Flask
+
+Since we program Flask web apps with python, we can integrate and use any python library in the web app. This example/exercise shows how to load a CSV and process it in the web app. However, that processing is not really used by the web app yet.
+
+First, a dataset from the World Bank is downloaded and saved in `dataset/`: [Rural Population, World Bank](https://data.worldbank.org/indicator/SP.RUR.TOTL.ZS?view=chart).
+
+The structure of the previous exercise/example 1 is extended to have the following form:
+
+```
+└── exercise_2
+    ├── dataset/
+    │    ├── API_SP.RUR.TOTL.ZS_DS2_en_csv_v2_4354989.csv
+    ├── worldbank.py
+    ├── worldbankapp/
+    │    ├── __init__.py
+    │    ├── routes.py
+    │    └── templates
+    │        ├── index.html
+    │        └── project_one.html
+    └── wrangling_scripts/
+        └── wrangling.py
+```
+
+In it, apart from `dataset/`, basically another folder `wrangling_scripts/` is added, which contains `wrangling.py`. That script contains a function which loads and processes the dataset and returns a python object. That function is imported to the web app definition script in `routes.py`.
+
+```python
+### -- wrangling.py
+
+import pandas as pd
+
+def data_wrangling():
+    #df = pd.read_csv('data/API_SP.RUR.TOTL.ZS_DS2_en_csv_v2_9948275.csv', skiprows=4)
+    df = pd.read_csv('dataset/API_SP.RUR.TOTL.ZS_DS2_en_csv_v2_4354989.csv', skiprows=4)
+
+    # Filter for 1990 and 2015, top 10 economies
+    df = df[['Country Name','1990', '2015']]
+    countrylist = ['United States', 'China', 'Japan', 'Germany', 'United Kingdom', 'India', 'France', 'Brazil', 'Italy', 'Canada']
+    df = df[df['Country Name'].isin(countrylist)]
+
+    # melt year columns  and convert year to date time
+    df_melt = df.melt(id_vars='Country Name', value_vars = ['1990', '2015'])
+    df_melt.columns = ['country','year', 'variable']
+    df_melt['year'] = df_melt['year'].astype('datetime64[ns]').dt.year
+
+    # add column names
+    df_melt.columns = ['country', 'year', 'percentrural']
+
+    # prepare data into x, y lists for plotting
+    df_melt.sort_values('percentrural', ascending=False, inplace=True)
+
+    data = []
+    for country in countrylist:
+        x_val = df_melt[df_melt['country'] == country].year.tolist()
+        y_val =  df_melt[df_melt['country'] == country].percentrural.tolist()
+        data.append((country, x_val, y_val))
+        print(country, x_val, y_val)
+        
+    return data
+
+### -- worldbank.py
+
+from worldbankapp import app
+from flask import render_template
+import pandas as pd
+
+# Import the data wrangling function
+from wrangling_scripts.wrangling import data_wrangling
+# Run the data wrangling function
+data = data_wrangling()
+print(data)
+
+@app.route('/')
+@app.route('/index')
+def index():
+    return render_template('index.html')
+    
+@app.route('/project-one')
+def project_one():
+    return render_template('project_one.html')
+    
+```
+
+#### Exercise 3: Transferring Back-End Objects to the Front-End
+
+In this exercise/example two things are done:
+
+- An array with the data is passed from the back-end python script to the front-end HTML page. Then, these arrays are displayed using [Jinja](https://jinja.palletsprojects.com/en/3.1.x/) templates.
+- Plotly graph objects are passed encoded as JSON strings from the back-end script to the front-end HTML page. Then, these graph objects are visualized using Javascript Plotly. The usage of the Plotly library in Python is very similar to the usage in Javascript. It is a bit strange (because everything is packed in lists and dictionaries), but easy to understand.
+
+This example is very complete because a MVP of a dashboard is constructed with all the steps and components.
+
+To install Plotly on our Python environment:
+
+```bash
+pip install plotly
+```
+
+The structure of the project:
+
+```
+└── exercise_3
+    ├── dataset
+    │        ├── API_AG.LND.ARBL.HA.PC_DS2_en_csv_v2.csv
+    │        ├── API_AG.LND.FRST.K2_DS2_en_csv_v2_9910393.csv
+    │        ├── API_SP.RUR.TOTL.ZS_DS2_en_csv_v2_9948275.csv
+    │        └── API_SP.RUR.TOTL_DS2_en_csv_v2_9914824.csv
+    ├── worldbank.py
+    ├── worldbankapp
+    │        ├── __init__.py
+    │        ├── routes.py
+    │        ├── static
+    │        │       └── img
+    │        │           ├── githublogo.png
+    │        │           └── linkedinlogo.png
+    │        └── templates
+    │            ├── index.html
+    │            └── test.html
+    └── wrangling_scripts
+        └── wrangle_data.py
+
+```
+
+In the following, the relevant content pieces of the important files with comments:
+
+```python
+
+### -- routes.py
+
+from worldbankapp import app
+import json, plotly
+from flask import render_template
+from wrangling_scripts.wrangle_data import return_figures
+
+@app.route('/')
+@app.route('/index')
+def index():
+    # This example is more sophisticated than the one below:
+    # We create Plotly graph objects with an external function, encode them as JSON
+    # and pass them from the back-end to the front-end.
+    # In the HTML pageJavascript Plotly is used to render them.
+
+    figures = return_figures()
+
+    # plot ids for the html id tag
+    ids = ['figure-{}'.format(i) for i, _ in enumerate(figures)]
+
+    # Convert the plotly figures to JSON for javascript in html template
+    figuresJSON = json.dumps(figures, cls=plotly.utils.PlotlyJSONEncoder)
+
+    # Note that we pass two things:
+    # - a list: ids = [figure-0, figure-1, figure2, figure-3]
+    # - a JSON with the figure plotting information
+    return render_template('index.html',
+                           ids=ids,
+                           figuresJSON=figuresJSON)
+
+@app.route('/test')
+def test_page():
+    # This simple page view how a python object can be passed
+    # from the back-end to the front-end:
+    # Just pass it with any variable name to render_template()
+    # and access that variable name with Jinja in the HTML file
+    data = [1, 2, 3, 4, 5]
+    return render_template('test.html', data=data)
+
+### -- wrangle_data.py
+
+import pandas as pd
+import plotly.graph_objs as go
+
+def cleandata(dataset, keepcolumns = ['Country Name', '1990', '2015'], value_variables = ['1990', '2015']):
+    """Clean world bank data for a visualizaiton dashboard
+
+    Keeps data range of dates in keep_columns variable and data for the top 10 economies
+    Reorients the columns into a year, country and value
+    Saves the results to a csv file
+
+    Args:
+        dataset (str): name of the csv data file
+
+    Returns:
+        None
+
+    """    
+    df = pd.read_csv(dataset, skiprows=4)
+
+    # Keep only the columns of interest (years and country name)
+    df = df[keepcolumns]
+
+    top10country = ['United States', 'China', 'Japan', 'Germany', 'United Kingdom', 'India', 'France', 'Brazil', 'Italy', 'Canada']
+    df = df[df['Country Name'].isin(top10country)]
+
+    # melt year columns  and convert year to date time
+    df_melt = df.melt(id_vars='Country Name', value_vars = value_variables)
+    df_melt.columns = ['country','year', 'variable']
+    df_melt['year'] = df_melt['year'].astype('datetime64[ns]').dt.year
+
+    # output clean csv file
+    return df_melt
+
+def return_figures():
+    """Creates four plotly visualizations
+
+    Args:
+        None
+
+    Returns:
+        list (dict): list containing the four plotly visualizations
+
+    """
+
+  # first chart plots arable land from 1990 to 2015 in top 10 economies 
+  # as a line chart
+    
+    graph_one = []
+    df = cleandata('dataset/API_AG.LND.ARBL.HA.PC_DS2_en_csv_v2.csv')
+    df.columns = ['country','year','hectaresarablelandperperson']
+    df.sort_values('hectaresarablelandperperson', ascending=False, inplace=True)
+    countrylist = df.country.unique().tolist()
+    
+    for country in countrylist:
+      x_val = df[df['country'] == country].year.tolist()
+      y_val =  df[df['country'] == country].hectaresarablelandperperson.tolist()
+      graph_one.append(
+          go.Scatter(
+          x = x_val,
+          y = y_val,
+          mode = 'lines',
+          name = country
+          )
+      )
+
+    layout_one = dict(title = 'Change in Hectares Arable Land <br> per Person 1990 to 2015',
+                xaxis = dict(title = 'Year',
+                  autotick=False, tick0=1990, dtick=25),
+                yaxis = dict(title = 'Hectares'),
+                )
+
+# second chart plots ararble land for 2015 as a bar chart    
+    graph_two = []
+    df = cleandata('dataset/API_AG.LND.ARBL.HA.PC_DS2_en_csv_v2.csv')
+    df.columns = ['country','year','hectaresarablelandperperson']
+    df.sort_values('hectaresarablelandperperson', ascending=False, inplace=True)
+    df = df[df['year'] == 2015] 
+
+    graph_two.append(
+      go.Bar(
+      x = df.country.tolist(),
+      y = df.hectaresarablelandperperson.tolist(),
+      )
+    )
+
+    layout_two = dict(title = 'Hectares Arable Land per Person in 2015',
+                xaxis = dict(title = 'Country',),
+                yaxis = dict(title = 'Hectares per person'),
+                )
+
+
+# third chart plots percent of population that is rural from 1990 to 2015
+    graph_three = []
+    df = cleandata('dataset/API_SP.RUR.TOTL.ZS_DS2_en_csv_v2_9948275.csv')
+    df.columns = ['country', 'year', 'percentrural']
+    df.sort_values('percentrural', ascending=False, inplace=True)
+    for country in countrylist:
+      x_val = df[df['country'] == country].year.tolist()
+      y_val =  df[df['country'] == country].percentrural.tolist()
+      graph_three.append(
+          go.Scatter(
+          x = x_val,
+          y = y_val,
+          mode = 'lines',
+          name = country
+          )
+      )
+
+    layout_three = dict(title = 'Change in Rural Population <br> (Percent of Total Population)',
+                xaxis = dict(title = 'Year',
+                  autotick=False, tick0=1990, dtick=25),
+                yaxis = dict(title = 'Percent'),
+                )
+    
+# fourth chart shows rural population vs arable land
+    graph_four = []
+    
+    valuevariables = [str(x) for x in range(1995, 2016)]
+    keepcolumns = [str(x) for x in range(1995, 2016)]
+    keepcolumns.insert(0, 'Country Name')
+
+    df_one = cleandata('dataset/API_SP.RUR.TOTL_DS2_en_csv_v2_9914824.csv', keepcolumns, valuevariables)
+    df_two = cleandata('dataset/API_AG.LND.FRST.K2_DS2_en_csv_v2_9910393.csv', keepcolumns, valuevariables)
+    
+    df_one.columns = ['country', 'year', 'variable']
+    df_two.columns = ['country', 'year', 'variable']
+    
+    df = df_one.merge(df_two, on=['country', 'year'])
+
+    for country in countrylist:
+      x_val = df[df['country'] == country].variable_x.tolist()
+      y_val = df[df['country'] == country].variable_y.tolist()
+      year = df[df['country'] == country].year.tolist()
+      country_label = df[df['country'] == country].country.tolist()
+
+      text = []
+      for country, year in zip(country_label, year):
+          text.append(str(country) + ' ' + str(year))
+
+      graph_four.append(
+          go.Scatter(
+          x = x_val,
+          y = y_val,
+          mode = 'markers',
+          text = text,
+          name = country,
+          #textposition = 'top'
+          textposition = 'top center'
+          )
+      )
+
+    layout_four = dict(title = 'Rural Population versus <br> Forested Area (Square Km) 1990-2015',
+                xaxis = dict(title = 'Rural Population'),
+                yaxis = dict(title = 'Forest Area (square km)'),
+                )
+    
+    # append all charts to the figures list
+    figures = []
+    figures.append(dict(data=graph_one, layout=layout_one))
+    figures.append(dict(data=graph_two, layout=layout_two))
+    figures.append(dict(data=graph_three, layout=layout_three))
+    figures.append(dict(data=graph_four, layout=layout_four))
+
+    return figures
+
+```
+
+```html
+<!------ test.html ------>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+</head>
+<body>
+
+    <h1>This is a very simple test page</h1>
+    
+    <h4>This is the entire dataset:</h4>
+    <!-- The python list we passed: we access it with the chosen variable name -->
+    {{ data }}
+
+    <h4>This is a loop:</h4>
+    <!-- Jinja enables logic operations like loops -->
+    {% for tuple in data %}
+        <p>{{tuple}}</p>
+    {% endfor %}
+
+</body>
+</html>
+
+<!------ index.html ------>
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>World Bank Data Dashboard</title>
+
+<!-- Import script files needed from Plotly and Bootstrap -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT" crossorigin="anonymous"></script> 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+</head>
+
+<body>
+
+<!-- Navbar links--> 
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+   <a class="navbar-brand" href="#">World Bank Dashboard</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" 
+  data-target="#navbarTogglerDemo02" 
+  aria-controls="navbarTogglerDemo02" aria-expanded="false" 
+  aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+    <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+      <li class="nav-item">
+        <a class="nav-link" href="https://www.udacity.com">Udacity</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="https://data.worldbank.org/">World Bank Data</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<!--middle section-->       
+<div class="row">
+
+    <!--social media buttons column-->      
+    <div class="col-1 border-right">
+        <div id="follow-me" class="mt-3">
+            <a href="#">
+                <img src="/static/img/linkedinlogo.png" alt="linkedin" class="img-fluid mb-4 ml-2">
+            </a>
+            <a href="#">
+                <img src="/static/img/githublogo.png" alt="github" class="img-fluid ml-2">
+            </a>
+        </div>
+    </div>
+
+    <!--visualizations column-->        
+    <div class="col-11">
+
+        <!--chart descriptions-->       
+        <div id="middle-info" class="mt-3">
+
+            <h2 id="tag-line">World Bank Data Dashboard</h2>
+            <h4 id="tag-line" class="text-muted">Top 10 World Economies Land Use</h4>
+            
+        </div>
+        
+        <!--charts-->       
+        <div id="charts" class="container mt-3 text-center">
+            <!-- Note that {{ids[0]}} is simply "figure-0, figure-1, ..." -->
+            <!-- We set the id here and it is used in the script from the footer to plot-->
+            <!--top two charts-->       
+            <div class="row">
+                <div class="col-6">
+                    <div id="{{ids[0]}}"></div>
+                </div>
+                <div class="col-6">
+                    <div id="{{ids[1]}}"></div>
+                </div>
+            </div>
+
+            <!--bottom two charts-->        
+            <div class="row mb-6">
+                <div class="col-6"> 
+                    <div id="chart3">
+                        <div id="{{ids[2]}}"></div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div id="chart4">
+                        <div id="{{ids[3]}}"></div>
+                    </div>
+                </div>
+            </div>
+        
+        </div>
+    <div>
+</div>
+
+<!--footer section-->               
+<div id="footer" class="container"></div>
+
+</body>
+
+
+<footer>
+
+    <script type="text/javascript">
+        // Plots the figure with id;
+        // id much match the div id above in the html.
+        // safe is a filter to escape characters,
+        // in case we have special symbols .
+        // Note that we have placed the figures in the layout;
+        // here we go in a loop through the placed ids
+        // and create the plot to be inserted in the corresponding cells.
+        var figures = {{figuresJSON | safe}};
+        var ids = {{ids | safe}};
+        for(var i in figures) {
+            Plotly.plot(ids[i],
+                figures[i].data,
+                figures[i].layout || {});
+        }
+    </script>
+    
+</footer>
+
+
+</html>
+
+```
+
