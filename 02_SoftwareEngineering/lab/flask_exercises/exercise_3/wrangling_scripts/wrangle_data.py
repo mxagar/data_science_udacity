@@ -153,12 +153,31 @@ def return_figures():
                 xaxis = dict(title = 'Rural Population'),
                 yaxis = dict(title = 'Forest Area (square km)'),
                 )
-    
+
+# fifth chart shows rural population vs forested area
+    graph_five = []
+    df_five = cleandata('dataset/API_SP.RUR.TOTL_DS2_en_csv_v2_9914824.csv', ['Country Name', '2015'], ['2015'])
+
+    df_five.columns = ['country','year','ruralpopulation']
+    df_five.sort_values('ruralpopulation', ascending=False, inplace=True) 
+
+    graph_five.append(
+      go.Bar(
+      x = df_five.country.tolist(),
+      y = df_five.ruralpopulation.tolist(),
+      )
+    )
+
+    layout_five = dict(title = 'Rural Population in 2015',
+                xaxis = dict(title = 'Country',),
+                yaxis = dict(title = 'Rural Population'))
+
     # append all charts to the figures list
     figures = []
     figures.append(dict(data=graph_one, layout=layout_one))
     figures.append(dict(data=graph_two, layout=layout_two))
     figures.append(dict(data=graph_three, layout=layout_three))
     figures.append(dict(data=graph_four, layout=layout_four))
+    figures.append(dict(data=graph_five, layout=layout_five))
 
     return figures
