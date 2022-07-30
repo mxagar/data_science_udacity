@@ -2931,9 +2931,15 @@ I have another repository with notes on how to use Flask: [flask_guide](https://
 
 The section is composed by exercises or examples located in `./lab/flask_exercises/`:
 
-1. Exercise 1: Basic package example with empty pages; this is the skeleton of any simple web app.
-2. Exercise 2: 
+1. Exercise 1: Basic package example with empty pages; this is the skeleton of any simple web app. However, look at the exercise 3 for a MVP.
+2. Exercise 2: Pandas + Flask Integration without Transferring Objects. This example is not that interesting.
+3. **Exercise 3**: Transferring Back-End Objects to the Front-End. This example is very complete because a MVP of a dashboard is constructed with all the steps and components.
 
+Note that these exercises use CSV spreadsheets to generate the plots. In contrast, we can also work with SQL databases instead. However, note that the web app is not static anymore if we do that. I have a [flask_guide](https://github.com/mxagar/flask_guide) in which Flask-SQL integration is explained with examples. Udacity provides the following informational links:
+
+- [The Flask Mega-Tutorial Part IV: Database](https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-iv-database)
+- [SQLAlchemy](https://docs.sqlalchemy.org/en/14/)
+- [Flask-SQLAlchemy](https://flask-sqlalchemy.palletsprojects.com/en/2.x/)
 
 #### Exercise 1: Basic package example with empty pages
 
@@ -3056,7 +3062,7 @@ The HTML pages in `templates/` are empty; we would fill them in with our content
 
 ```
 
-#### Exercise 2: Pandas + Flask
+#### Exercise 2: Pandas + Flask Integration without Transferring Objects
 
 Since we program Flask web apps with python, we can integrate and use any python library in the web app. This example/exercise shows how to load a CSV and process it in the web app. However, that processing is not really used by the web app yet.
 
@@ -3142,7 +3148,7 @@ def project_one():
 
 In this exercise/example two things are done:
 
-- An array with the data is passed from the back-end python script to the front-end HTML page. Then, these arrays are displayed using [Jinja](https://jinja.palletsprojects.com/en/3.1.x/) templates.
+- An array with the data is passed from the back-end python script to the front-end HTML page. Then, these arrays are displayed using [Jinja](https://jinja.palletsprojects.com/en/3.1.x/) templates. Thisis
 - Plotly graph objects are passed encoded as JSON strings from the back-end script to the front-end HTML page. Then, these graph objects are visualized using Javascript Plotly. The usage of the Plotly library in Python is very similar to the usage in Javascript. It is a bit strange (because everything is packed in lists and dictionaries), but easy to understand.
 
 This example is very complete because a MVP of a dashboard is constructed with all the steps and components.
@@ -3151,6 +3157,15 @@ To install Plotly on our Python environment:
 
 ```bash
 pip install plotly
+```
+
+To run the example:
+
+```bash
+cd exercise_3
+python worldbank.py
+# http://192.168.1.39:3001/
+# http://192.168.1.39:3001/test
 ```
 
 The structure of the project:
@@ -3178,7 +3193,8 @@ The structure of the project:
 
 ```
 
-In the following, the relevant content pieces of the important files with comments:
+In the following, the relevant content pieces of the important files with comments; for the complete code, look at 
+`./lab/flask_exercises/exercise_3/`:
 
 ```python
 
@@ -3549,4 +3565,7 @@ def return_figures():
 </html>
 
 ```
+
+### 6.8 Deployment on Heroku
+
 
