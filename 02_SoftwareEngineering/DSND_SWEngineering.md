@@ -3731,3 +3731,5 @@ Interesting links on the topic:
 
 ### 6.10 Using REST APIs
 
+### 6.11 Web Dashboard Project
+
