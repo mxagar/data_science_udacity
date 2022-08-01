@@ -3568,4 +3568,166 @@ def return_figures():
 
 ### 6.8 Deployment on Heroku
 
+This section shows how to deploy the web app created so far on Heroku. We can deploy to Heroku in two ways;
+
+- **Git deployment**: we create a git repository locally which is linked to a remote git origin at Heroku. This is the most common option. The python package `requirements.txt` file is created and added to the repository. This type of deployment is done in this section.
+- Container deployment: we can create a container image uploaded to the Heroku image registry.
+
+With the free tier, we have 500-1000 dyno hours: one dyno is a Heroku container running our app.
+
+In this section, I will use the web app from Exercise 3.
+
+Summary of steps:
+
+- Install the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli).
+- Create a new folder with the app.
+- Create a new virtual environment, install the necessary packages and freeze the `requirements.txt`.
+- Create a `Procfile` in the app folder.
+- Create a local git repository.
+- Create a Heroku app.
+
+#### Environment Setup
+
+Important Note: Heroku supports concrete python runtime versions: [Heroku - supported runtimes](https://devcenter.heroku.com/articles/python-support#supported-runtimes). If we want a specific version, we need to define in a `runtime.txt` file.
+
+```bash
+# Move all the files of the app to a new folder
+mkdir ~/git_repositories/test_repos/worldbankapp
+cd ~/git_repositories/test_repos/worldbankapp
+# In our example: move all files from Exercise 3 in previous section here
+# remove __pycache__ folders
+# Final structure of the app folder
+tree
+.
+├── dataset
+│   ├── API_AG.LND.ARBL.HA.PC_DS2_en_csv_v2.csv
+│   ├── API_AG.LND.FRST.K2_DS2_en_csv_v2_9910393.csv
+│   ├── API_SP.RUR.TOTL.ZS_DS2_en_csv_v2_9948275.csv
+│   └── API_SP.RUR.TOTL_DS2_en_csv_v2_9914824.csv
+├── worldbank.py
+├── worldbankapp
+│   ├── __init__.py
+│   ├── routes.py
+│   ├── static
+│   │   └── img
+│   │       ├── githublogo.png
+│   │       └── linkedinlogo.png
+│   └── templates
+│       ├── index.html
+│       └── test.html
+└── wrangling_scripts
+    └── wrangle_data.py
+
+# Update Python
+conda update python
+# Check that the Python version we are using one the supported by Heroku
+python --version # Python 3.7.13
+# Run the following from the Exercise folder
+# Create a virtual environment stored in a local folder
+python3 -m venv worldbankvenv
+# Activate the new environment (Mac/Linux)
+source worldbankvenv/bin/activate
+# Install dependencies: the versions must be the ones in our development environment
+# gunicorn is the package used by Heroku for the web server
+# To get the versions
+# pip freeze | grep <packagename>
+# conda list | grep <packagename>
+pip install Flask==2.1.0 pandas==1.2.4 plotly==5.3.1 gunicorn
+# Try the app works in the new environment
+python worldbank.py
+# Freeze the requirements
+pip freeze > requirements.txt
+
+# If we want to deactivate the worldbankvenv:
+# deactivate
+
+# Heroku has supported python versions
+# https://devcenter.heroku.com/articles/python-support#supported-runtimes
+# If we want a specific Python runtime version
+# other than the default we need a runtime.txt file.
+# Currently, default: python-3.10.5; ours: python-3.7.13
+# Thus, we need to create a runtime.txt with the right version
+touch runtime.txt
+vim runtime.txt
+# Add:
+# python-3.7.13
+```
+
+#### Heroku Git Repository Setup
+
+```bash
+# Create a Procfile, necessary for Heroku
+touch Procfile
+# Edit the Procfile
+vim Procfile
+# Add this line:
+# web gunicorn worldbank:app
+
+# Remove or comment from the worldbank.py file this line
+# app.run(host='0.0.0.0', port=3001, debug=True)
+
+touch .gitignore
+vim .gitignore 
+# __pycache__
+# .DS_Store
+# the venv folder: worldbankvenv
+
+# Verify the heroku CLI installation
+heroku --version
+# Log in: web browser is opened and we log in
+heroku login -i
+
+# Run it just once, in the beginning
+git init
+# For the first time commit, you need to configure the git username and email:
+git config --global user.email "mxagar@gmail.com"
+git config --global user.name "Mikel"
+
+# Every time you make any edits to any file in the app folder
+git add .
+# Check which files are ready to be committed
+git status
+git commit -m "your message"
+
+# Create the heroku app by binding the local repo
+# to a remote heroku git.
+# We need to use a unique name, eg.: mxagar-worldbank-test
+heroku create mxagar-worldbank-test --buildpack heroku/python
+# The output will be like:
+# https://mxagar-worldbank-test.herokuapp.com/ | https://git.heroku.com/mxagar-worldbank-test.git
+
+# Check that the remote repo is added
+git remote -v
+
+# Set any environment variable to pass along with the push
+heroku config:set SLUGIFY_USES_TEXT_UNIDECODE=yes
+heroku config:set AIRFLOW_GPL_UNIDECODE=yes
+# Verify the variables
+heroku config
+
+# Push the repo and deploy
+# git push <remote branch name> <local branch name>
+git push heroku master
+# Wait until the repo is pushed
+# Deployment is automatic and we get the URL of the deployed app in the Terminal
+# https://mxagar-worldbank-test.herokuapp.com/ 
+```
+
+#### Using the App
+
+Open the browser and go to [https://mxagar-worldbank-test.herokuapp.com/ ](https://mxagar-worldbank-test.herokuapp.com/).
+
+#### Databases
+
+We can use databases instead of CSV files. Flask can use different relational databases. One common use case is using CSVs but additionally a database for user login (username and password).
+
+Interesting links on the topic:
+
+- [Flask Mega Tutorial](https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-iv-database)
+- [Heroku - Provision a Database](https://devcenter.heroku.com/articles/getting-started-with-python#provision-a-database): Free Heroku Postgres add-on.
+
+
+### 6.9 Web App Template
+
+### 6.10 Using REST APIs
 
