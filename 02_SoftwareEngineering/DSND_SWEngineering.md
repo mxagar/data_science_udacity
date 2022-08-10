@@ -1,4 +1,4 @@
-# Udacity Data Science Nanodegree: Introduction
+# Udacity Data Science Nanodegree: Software Engineering
 
 These are my personal notes taken while following the [Udacity Data Science Nanodegree](https://www.udacity.com/course/data-scientist-nanodegree--nd025).
 
