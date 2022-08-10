@@ -3729,7 +3729,532 @@ Interesting links on the topic:
 
 ### 6.9 Web App Template
 
+In the repository [DSND_Term2](https://github.com/udacity/DSND_Term2) there is a web app dashboard template provided by Udacity.
+
+I have copied the files to:
+
+`02_SoftwareEngineering / lab / dashboard_template /`
+
+I have tested the dashboard, but not deployed it to Heroku. With this template example and the one from **Exercise 3** that was deployed in the previous section, we have very nice blueprints.
+
+File structure:
+
+```
+./dashboard_template git:(main) ✗ tree
+.
+├── README.md
+├── myapp
+│   ├── __init__.py
+│   ├── routes.py # Flask routes: we pass the Python back-end objects to the front-end
+│   ├── static
+│   │   └── img
+│   │       ├── githublogo.png
+│   │       └── linkedinlogo.png
+│   └── templates
+│       └── index.html # Dashboard HTML, the front-end
+├── myapp.py # The Flask web app is instantiated
+├── requirements.txt
+└── wrangling_scripts
+    └── wrangle_data.py # Data wrangling and Plotly objects
+
+```
+
+#### `routes.py`
+
+```python
+from myapp import app
+import json, plotly
+from flask import render_template
+from wrangling_scripts.wrangle_data import return_figures
+
+@app.route('/')
+@app.route('/index')
+def index():
+
+    figures = return_figures()
+
+    # plot ids for the html id tag
+    ids = ['figure-{}'.format(i) for i, _ in enumerate(figures)]
+
+    # Convert the plotly figures to JSON for javascript in html template
+    figuresJSON = json.dumps(figures, cls=plotly.utils.PlotlyJSONEncoder)
+
+    return render_template('index.html',
+                           ids=ids,
+                           figuresJSON=figuresJSON)
+```
+
+#### `wrangle_data.py`
+
+```python
+import pandas as pd
+import plotly.graph_objs as go
+
+def return_figures():
+    """Creates four plotly visualizations
+
+    Args:
+        None
+
+    Returns:
+        list (dict): list containing the four plotly visualizations
+
+    """
+
+    # first chart plots arable land from 1990 to 2015 in top 10 economies 
+    # as a line chart
+    
+    graph_one = []    
+    graph_one.append(
+      go.Scatter(
+      x = [0, 1, 2, 3, 4, 5],
+      y = [0, 2, 4, 6, 8, 10],
+      mode = 'lines'
+      )
+    )
+
+    layout_one = dict(title = 'Chart One',
+                xaxis = dict(title = 'x-axis label'),
+                yaxis = dict(title = 'y-axis label'),
+                )
+
+# second chart plots ararble land for 2015 as a bar chart    
+    graph_two = []
+
+    graph_two.append(
+      go.Bar(
+      x = ['a', 'b', 'c', 'd', 'e'],
+      y = [12, 9, 7, 5, 1],
+      )
+    )
+
+    layout_two = dict(title = 'Chart Two',
+                xaxis = dict(title = 'x-axis label',),
+                yaxis = dict(title = 'y-axis label'),
+                )
+
+
+# third chart plots percent of population that is rural from 1990 to 2015
+    graph_three = []
+    graph_three.append(
+      go.Scatter(
+      x = [5, 4, 3, 2, 1, 0],
+      y = [0, 2, 4, 6, 8, 10],
+      mode = 'lines'
+      )
+    )
+
+    layout_three = dict(title = 'Chart Three',
+                xaxis = dict(title = 'x-axis label'),
+                yaxis = dict(title = 'y-axis label')
+                       )
+    
+# fourth chart shows rural population vs arable land
+    graph_four = []
+    
+    graph_four.append(
+      go.Scatter(
+      x = [20, 40, 60, 80],
+      y = [10, 20, 30, 40],
+      mode = 'markers'
+      )
+    )
+
+    layout_four = dict(title = 'Chart Four',
+                xaxis = dict(title = 'x-axis label'),
+                yaxis = dict(title = 'y-axis label'),
+                )
+    
+    # append all charts to the figures list
+    figures = []
+    figures.append(dict(data=graph_one, layout=layout_one))
+    figures.append(dict(data=graph_two, layout=layout_two))
+    figures.append(dict(data=graph_three, layout=layout_three))
+    figures.append(dict(data=graph_four, layout=layout_four))
+
+    return figures
+```
+
+#### `index.html`
+
+```html
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>My Data Dashboard</title>
+
+<!--import script files needed from plotly and bootstrap-->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT" crossorigin="anonymous"></script> 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+</head>
+
+<body>
+
+<!--navbar links-->     
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+   <a class="navbar-brand" href="#">Data Dashboard</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" 
+  data-target="#navbarTogglerDemo02" 
+  aria-controls="navbarTogglerDemo02" aria-expanded="false" 
+  aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+    <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+      <li class="nav-item">
+        <a class="nav-link" href="https://www.udacity.com">Udacity</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Other Link</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<!--middle section-->       
+<div class="row">
+
+    <!--social media buttons column-->      
+    <div class="col-1 border-right">
+        <div id="follow-me" class="mt-3">
+            <a href="#">
+                <img src="/static/img/linkedinlogo.png" alt="linkedin" class="img-fluid mb-4 ml-2">
+            </a>
+            <a href="#">
+                <img src="/static/img/githublogo.png" alt="github" class="img-fluid ml-2">
+            </a>
+        </div>
+    </div>
+
+    <!--visualizations column-->        
+    <div class="col-11">
+
+        <!--chart descriptions-->       
+        <div id="middle-info" class="mt-3">
+
+            <h2 id="tag-line">Data Dashboard</h2>
+            <h4 id="tag-line" class="text-muted">Sub-header</h4>
+            
+        </div>
+        
+        <!--charts-->       
+        <div id="charts" class="container mt-3 text-center">
+                    
+            <!--top two charts-->       
+            <div class="row">
+                <div class="col-6">
+                    <div id="{{ids[0]}}"></div>
+                </div>
+                <div class="col-6">
+                    <div id="{{ids[1]}}"></div>
+                </div>
+            </div>
+
+            <!--bottom two charts-->        
+            <div class="row mb-6">
+                <div class="col-6"> 
+                    <div id="chart3">
+                        <div id="{{ids[2]}}"></div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div id="chart4">
+                        <div id="{{ids[3]}}"></div>
+                    </div>
+                <div>
+            </div>
+        
+        </div>
+    <div>
+</div>
+
+<!--footer section-->               
+<div id="footer" class="container"></div>
+
+</body>
+
+
+<footer>
+
+    <script type="text/javascript">
+        // plots the figure with id
+        // id much match the div id above in the html
+        var figures = {{figuresJSON | safe}};
+        var ids = {{ids | safe}};
+        for(var i in figures) {
+            Plotly.plot(ids[i],
+                figures[i].data,
+                figures[i].layout || {});
+        }
+    </script>
+    
+</footer>
+
+
+</html>
+```
+
 ### 6.10 Using REST APIs
 
+REST = Representational State Transfer. Presented by Roy Fielding in his dissertation in 2000.
+
+If all the guidelines of REST are satisfied in an application, it's RESTful.
+
+A web app conforming to the REST architectural style is a REST API
+
+#### Guiding Principles of RESTful
+
+- Uniform interface
+    - Uniquely identify resources
+    - Resources manipulated via representations
+    - Self-descriptive messages
+    - The application should have only the initial URI and work; URI = Uniform Resource Identifier
+- Client-Server pattern to separate concerns
+- Stateless: requests can be completely understood in a query, no context necessary or saved
+- Cacheable: we can store and use the response later; if not, we need to state it.
+- Layered system: components cannot see beyond the layers they're interfacing with
+- Code on Demand (optional): it is possible to download applets to the client which simplify its implementation.
+
+#### Resources in REST
+
+A **resource** is any piece of information that we can name: document, image, collections, etc. A resource consists of:
+
+- the data
+- the metadata describing the data (e.g., its URI identifier)
+- hypermedia links (addresses) that help the client transition to the next state
+
+Therefore, the REST API is an assembly of interlinked resources. This is called the **resource model**.
+
+Commonly, the methods used on the resources are the HTTP methods, but this is not necessary to have a REST API:
+
+`GET/PUT/POST/DELETE`
+
+#### Example: World Bank API
+
+Instead of downloading the data as CSVs, we can use the [World Bank API](https://datahelpdesk.worldbank.org/knowledgebase/articles/889392-about-the-indicators-api-documentation); we google it and look for the [API Basic Call Structures](https://datahelpdesk.worldbank.org/knowledgebase/articles/898581). We cam also check the [Developer Information](https://datahelpdesk.worldbank.org/knowledgebase/topics/125589) site.
+
+Note that most APIs require some authorization/identification token created beforehand; that is not the case for the World Bank API.
+
+In the basic call page, we see many examples; if we paste them in the browser, we get XML files for the request. However, we can change the output format to be a JSON, too.
+
+Examples:
+
+```
+# Date: ?date=2000
+# The first parameter is separated with `?` and the successive by `&`
+http://api.worldbank.org/v2/country/all/indicator/SP.POP.TOTL?date=2000
+http://api.worldbank.org/v2/country/chn;bra/indicator/DPANUSSPB?date=2012M01
+
+# Date range: ?date=2000:2001
+http://api.worldbank.org/v2/country/all/indicator/SP.POP.TOTL?date=2000:2001
+
+# Change output format: ?format=json
+http://api.worldbank.org/v2/country/all/indicator/SP.POP.TOTL?format=json
+
+# Specify a page; usually 50 results per page
+http://api.worldbank.org/v2/country/all/indicator/SP.POP.TOTL?page=2
+
+# Specify number of results per page
+http://api.worldbank.org/v2/country/all/indicator/SP.POP.TOTL?per_page=25
+
+# Get all countries: and look for selected country ids
+http://api.worldbank.org/v2/country?per_page=299
+
+# Get Spain and Germany: if several countries/indicators desired, use ; to separate
+http://api.worldbank.org/v2/country/ESP;DEU/
+http://api.worldbank.org/v2/countries/ESP;DEU/
+
+# Get GDP of Spain and Germany
+# Indicator: NY.GDP.MKTP.CD
+# If not specified, yearly GDP all the way back to 1960
+http://api.worldbank.org/v2/countries/ESP;DEU/indicator/NY.GDP.MKTP.CD
+http://api.worldbank.org/v2/countries/ES;DE/indicator/NY.GDP.MKTP.CD
+
+# Get GDP of all countries
+http://api.worldbank.org/v2/countries/all/indicator/NY.GDP.MKTP.CD
+```
+
+We can check the [Indicator API Queries](https://datahelpdesk.worldbank.org/knowledgebase/articles/898599-indicator-api-queries)
+
+```
+# Request all indicators: 20256 indicators in total
+http://api.worldbank.org/v2/indicator
+```
+
+Also, check the [World Bank Indicator Dashboard](https://data.worldbank.org/indicator?tab=all)
+
+Notes:
+
+- Country codes can be the [2-character ISO codes](https://www.nationsonline.org/oneworld/country_code_list.htm).
+- The first parameter is separated with `?` and the successive by `&`.
+
+#### API Calls with Python
+
+In the following notebook:
+
+`lab/api_calls_python/world_bank_api.ipynb`
+
+the `requests` library is used to get information from the World Bank API:
+
+- [Python requests library documentation](https://requests.readthedocs.io/en/latest/)
+- [Python requests library](https://pypi.org/project/requests/)
+
+To install `requests`: `pip install requests`.
+
+Other interesting details:
+
+- [Authentication with requests](https://requests.readthedocs.io/en/latest/user/authentication/?highlight=authentication)
+- Always check if there is already a library that abstracts the API, e.g., [Twitter API Tools](https://developer.twitter.com/en/docs/twitter-api/tools-and-libraries/v2)
+
+Code summary:
+
+```python
+# Basic request: Brazil GDP
+import requests
+r = requests.get('http://api.worldbank.org/v2/countries/br/indicators/NY.GDP.MKTP.CD')
+r.text # XML text by default
+
+# With requests we can perform the typical HTTP request methods:
+# - GET: request a representation of the specified resource.
+# - HEAD: response identical to a GET request, but without the response body.
+# - POST: submits an entity to the specified resource, often causing a change in state.
+# - PUT: replaces all current representations of the target resource with the request payload.
+# - DELETE: delete the specified resource.
+# - CONNECT: establish a tunnel to the server identified by the target resource.
+# - OPTIONS: describe the communication options for the target resource.
+# - TRACE: perform a message loop-back test along the path to the target resource.
+# - PATCH: apply partial modifications to a resource.
+#
+# With the World Bank API, we can only perform GET methods
+
+### ---
+
+# Request with parameters integrated in the URL:
+# First parameter separated with ?, next with &
+r_url = requests.get('http://api.worldbank.org/v2/countries/br/indicators/NY.GDP.MKTP.CD?format=json&per_page=500&date=1990:2015')
+
+# Request with parameters in payload dictionary passed as params argument
+payload = {'format': 'json', 'per_page': '500', 'date':'1990:2015'}
+r_payload = requests.get('http://api.worldbank.org/v2/countries/br/indicators/NY.GDP.MKTP.CD', params=payload)
+
+# Test if both results are the same string
+r_url.text == r_payload.text # True
+
+### ---
+
+# Requests comes with a JSON decoder which is very simple to use: just .json()
+payload = {'format': 'json', 'per_page': '500', 'date':'1990:2015'}
+r = requests.get('http://api.worldbank.org/v2/countries/br/indicators/NY.GDP.MKTP.CD', params=payload)
+r.json()
+# Every API delivers the results in their ways; output the result and decide what we need
+# The WB delivers a list with two items: metadata and the data
+# So we take the second item, which is a list of all the time series of GDP for Brazil
+r.json()[1]
+
+# Get the World Bank GDP data for Brazil, China and the United States
+payload = {'format': 'json', 'per_page': '500', 'date':'1990:2016'}
+r = requests.get('http://api.worldbank.org/v2/countries/br;cn;us/indicators/NY.GDP.MKTP.CD', params=payload)
+
+# Put the results in a dictionary where each country contains a list of all the x values and all the y values
+# This will make it easier to plot the results
+from collections import defaultdict
+data = defaultdict(list)
+
+for entry in r.json()[1]:
+    # Check if country is already in dictionary.
+    # If so, append the new x and y values to the lists
+    if data[entry['country']['value']]:
+        data[entry['country']['value']][0].append(int(entry['date']))
+        data[entry['country']['value']][1].append(float(entry['value']))       
+    else: # if country not in dictionary, then initialize the lists that will hold the x and y values
+        data[entry['country']['value']] = [[],[]] # keys are countries; values are two lists of dates and GDP values
+
+# show the results contained in the data dictionary
+for country in data: # keys are countries
+    print(country)
+    print(data[country][0]) # dates
+    print(data[country][1]) # gdp
+    print('\n')
+
+### ---
+
+# visualize the results with matplotlib
+import matplotlib.pyplot as plt
+%matplotlib inline 
+
+# create a plot for each country
+for country in data:
+    plt.plot(data[country][0], data[country][1], label=country)
+
+# label the plot
+plt.title('GDP for Brazil, China, and USA 1990 to 2015')
+plt.legend()
+plt.xlabel('year')
+plt.ylabel('GDP')
+plt.show()
+
+```
+
+#### Exercise 4: Advanced World Bank Dashboard with API Usage
+
+In this exercise/example two things are done:
+
+- An array with the data is passed from the back-end python script to the front-end HTML page. Then, these arrays are displayed using [Jinja](https://jinja.palletsprojects.com/en/3.1.x/) templates. Thisis
+- Plotly graph objects are passed encoded as JSON strings from the back-end script to the front-end HTML page. Then, these graph objects are visualized using Javascript Plotly. The usage of the Plotly library in Python is very similar to the usage in Javascript. It is a bit strange (because everything is packed in lists and dictionaries), but easy to understand.
+
+This example is very complete because a MVP of a dashboard is constructed with all the steps and components.
+
+To install Plotly on our Python environment:
+
+```bash
+pip install plotly
+```
+
+To run the example:
+
+```bash
+cd exercise_4/world_bank_api_dashboard
+python worldbank.py
+# http://localhost:3001/
+```
+
+The structure of the project:
+
+```
+.
+└── world_bank_api_dashboard
+    ├── Procfile
+    ├── README.md
+    ├── requirements.txt
+    ├── scripts
+    │   └── data.py
+    ├── worldbank.py
+    └── worldbankapp
+        ├── __init__.py
+        ├── routes.py
+        ├── static
+        │   └── img
+        │       ├── githublogo.png
+        │       └── linkedinlogo.png
+        └── templates
+            └── index.html
+
+```
+
+In the following, the relevant content pieces of the important files with comments; for the complete code, look at 
+`./lab/flask_exercises/exercise_3/`:
+
+
+
 ### 6.11 Web Dashboard Project
+
+TBD.
 
