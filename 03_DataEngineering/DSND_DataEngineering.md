@@ -38,42 +38,9 @@ Overview of Contents:
 		- Class Attributes, Instance Attributes
 		- Multiple Inheritance and Mixins
 		- Python Decorators
-5. [Portfolio Exercise: Upload a Package to PyPi](#5.-Portfolio-Exercise:-Upload-a-Package-to-PyPi)
-6. [Web Development](#6.-Web-Development)
-    - 6.1 HTML Basics
-        - Exercise 1
-    - 6.2 HTML: Divs, Spans, Classes, Ids
-        - Exercise 2
-    - 6.3 CSS
-        - Margins and Padding
-        - Size: Pixels vs. % vs. EM
-        - Exercise 3
-    - 6.4 Bootstrap
-        - Rows and Columns (Example 1)
-        - Navigation Bars: Navbar (Example 1)
-        - Structuring the Dashboard (Example 2)
-        - Interesting Links, Reference
-    - 6.5 Javascript and jQuery
-        - Introductory Example: Javascript and jQuery
-        - Javascript Syntax
-    - 6.6 Plotly with Javascript
-        - Example
-    - [6.7 Flask Backend](#6.7-Flask-Backend)
-        - Exercise 1: Basic package example with empty pages
-        - Exercise 2: Pandas + Flask Integration without Transferring Objects
-        - Exercise 3: Transferring Back-End Objects to the Front-End
-    - [6.8 Deployment on Heroku](#6.8-Deployment-on-Heroku)
-        - Environment Setup
-        - Heroku Git Repository Setup
-        - Using the App
-        - Databases
-    - [6.9 Using REST APIs](#6.9-Using-REST-APIs)
-        - Example: World Bank API
-        - API Calls with Python
-        - Exercise 4: Advanced World Bank Dashboard with API Usage
-    - [6.10 Web App Template](#6.10-Web-App-Template)
-7. [Portfolio Exercise: Deploy a Data Dashboard](#7.-Portfolio-Exercise:-Deploy-a-Data-Dashboard)
-
+5. Portfolio Exercise: Upload a Package to PyPi
+6. Web Development
+7. Portfolio Exercise: Deploy a Data Dashboard
 
 ## 1. Introduction to Software Engineering
 
@@ -4278,8 +4245,7 @@ def return_figures():
 </html>
 ```
 
-## 7. Portfolio Exercise: Deploy a Data Dashboard
+### 6.11 Web Dashboard Project
 
-I deployed the dashboard from *exercise 3* following Sections 6.7 and 6.8.
-
+TBD.
 
