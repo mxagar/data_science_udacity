@@ -17,64 +17,75 @@ No guarantees.
 
 Overview of Contents:
 
-1. [Introduction to Software Engineering](#1.-Introduction-to-Software-Engineering)
-2. [Software Engineering Pratices Part 1](#2.-Software-Engineering-Pratices-Part-1)
-3. [Software Engineering Pratices Part 2](#3.-Software-Engineering-Pratices-Part-2)
-4. [Introduction to Object Oriented Programming & Python Packages](#4.-Introduction-to-Object-Oriented-Programming-&-Python-Packages)
-	- [4.1 Procedural vs. Object Oriented Programming](4.1-Procedural-vs.-Object-Oriented-Programming)
-	- [4.2 OOP Syntax in Python](#4.2-OOP-Syntax-in-Python)
-		- [Getters & Setters](#Getters-&-Setters)
-	- [4.3 Commenting Object-Oriented Code](#4.3-Commenting-Object-Oriented-Code)
-	- [4.4 Gaussian and Binomial Distirbutions](#4.4-Gaussian-and-Binomial-Distirbutions)
-		- Gaussian Distribution
-		- Binomial Distribution
-	- [4.5 A Gaussian Class Implementation](#4.5-A-Gaussian-Class-Implementation)
-	- [4.6 Magic Methods: Application to the Summation of Gaussians](#4.6-Magic-Methods:-Application-to-the-Summation-of-Gaussians)
-	- [4.7 Inheritance](#4.7-Inheritance)
-		- Gaussian Class and Virtual Methods
-	- [4.8 More OOP Concepts](#4.8-More-OOP-Concepts)
-		- Polymorphism
-		- Class Methods, Instance Methods, Static Methods
-		- Class Attributes, Instance Attributes
-		- Multiple Inheritance and Mixins
-		- Python Decorators
-5. [Portfolio Exercise: Upload a Package to PyPi](#5.-Portfolio-Exercise:-Upload-a-Package-to-PyPi)
-6. [Web Development](#6.-Web-Development)
-    - 6.1 HTML Basics
-        - Exercise 1
-    - 6.2 HTML: Divs, Spans, Classes, Ids
-        - Exercise 2
-    - 6.3 CSS
-        - Margins and Padding
-        - Size: Pixels vs. % vs. EM
-        - Exercise 3
-    - 6.4 Bootstrap
-        - Rows and Columns (Example 1)
-        - Navigation Bars: Navbar (Example 1)
-        - Structuring the Dashboard (Example 2)
-        - Interesting Links, Reference
-    - 6.5 Javascript and jQuery
-        - Introductory Example: Javascript and jQuery
-        - Javascript Syntax
-    - 6.6 Plotly with Javascript
-        - Example
-    - [6.7 Flask Backend](#6.7-Flask-Backend)
-        - Exercise 1: Basic package example with empty pages
-        - Exercise 2: Pandas + Flask Integration without Transferring Objects
-        - Exercise 3: Transferring Back-End Objects to the Front-End
-    - [6.8 Deployment on Heroku](#6.8-Deployment-on-Heroku)
-        - Environment Setup
-        - Heroku Git Repository Setup
-        - Using the App
-        - Databases
-    - [6.9 Using REST APIs](#6.9-Using-REST-APIs)
-        - Example: World Bank API
-        - API Calls with Python
-        - Exercise 4: Advanced World Bank Dashboard with API Usage
-    - [6.10 Web App Template](#6.10-Web-App-Template)
-7. [Portfolio Exercise: Deploy a Data Dashboard](#7.-Portfolio-Exercise:-Deploy-a-Data-Dashboard)
-
-
+- [Udacity Data Science Nanodegree: Software Engineering](#udacity-data-science-nanodegree-software-engineering)
+  - [1. Introduction to Software Engineering](#1-introduction-to-software-engineering)
+  - [2. Software Engineering Pratices Part 1](#2-software-engineering-pratices-part-1)
+  - [3. Software Engineering Pratices Part 2](#3-software-engineering-pratices-part-2)
+  - [4. Introduction to Object Oriented Programming & Python Packages](#4-introduction-to-object-oriented-programming--python-packages)
+    - [4.1 Procedural vs. Object Oriented Programming](#41-procedural-vs-object-oriented-programming)
+    - [4.2 OOP Syntax in Python](#42-oop-syntax-in-python)
+      - [Getters & Setters](#getters--setters)
+    - [4.3 Commenting Object-Oriented Code](#43-commenting-object-oriented-code)
+    - [4.4 Gaussian and Binomial Distirbutions](#44-gaussian-and-binomial-distirbutions)
+      - [Gaussian Distribution](#gaussian-distribution)
+      - [Binomial Distribution](#binomial-distribution)
+    - [4.5 A Gaussian Class Implementation](#45-a-gaussian-class-implementation)
+    - [4.6 Magic Methods: Application to the Summation of Gaussians](#46-magic-methods-application-to-the-summation-of-gaussians)
+    - [4.7 Inheritance](#47-inheritance)
+      - [Gaussian Class and Virtual Methods](#gaussian-class-and-virtual-methods)
+    - [4.8 More OOP Concepts](#48-more-oop-concepts)
+      - [Polymorphism](#polymorphism)
+      - [Class Methods, Instance Methods, Static Methods](#class-methods-instance-methods-static-methods)
+      - [Class Attributes, Instance Attributes](#class-attributes-instance-attributes)
+      - [Multiple Inheritance and Mixins](#multiple-inheritance-and-mixins)
+      - [Python Decorators](#python-decorators)
+    - [4.9 Organizing into Modules](#49-organizing-into-modules)
+    - [4.10 Making a Package](#410-making-a-package)
+      - [Example with the Gaussian class](#example-with-the-gaussian-class)
+    - [4.11 Virtual Environments](#411-virtual-environments)
+      - [Examples](#examples)
+    - [4.12 Exercise: Adding the Binomial Class to the Package](#412-exercise-adding-the-binomial-class-to-the-package)
+    - [4.13 Complex Projects](#413-complex-projects)
+    - [4.14 Uploading Packages to PyPi](#414-uploading-packages-to-pypi)
+      - [Building and Uploading Steps](#building-and-uploading-steps)
+  - [5. Portfolio Exercise: Upload a Package to PyPi](#5-portfolio-exercise-upload-a-package-to-pypi)
+  - [6. Web Development](#6-web-development)
+    - [6.1 HTML Basics](#61-html-basics)
+      - [Exercise 1](#exercise-1)
+    - [6.2 HTML: Divs, Spans, Classes, Ids](#62-html-divs-spans-classes-ids)
+      - [Exercise 2](#exercise-2)
+    - [6.3 CSS](#63-css)
+      - [Margins and Padding](#margins-and-padding)
+      - [Size: Pixels vs. % vs. EM](#size-pixels-vs--vs-em)
+      - [Exercise 3](#exercise-3)
+    - [6.4 Bootstrap](#64-bootstrap)
+      - [Rows and Columns (Example 1)](#rows-and-columns-example-1)
+      - [Navigation Bars: Navbar (Example 1)](#navigation-bars-navbar-example-1)
+      - [Structuring the Dashboard (Example 2)](#structuring-the-dashboard-example-2)
+      - [Interesting Links, Reference](#interesting-links-reference)
+    - [6.5 Javascript and jQuery](#65-javascript-and-jquery)
+      - [Introductory Example: Javascript and jQuery](#introductory-example-javascript-and-jquery)
+      - [Javascript Syntax](#javascript-syntax)
+    - [6.6 Plotly with Javascript](#66-plotly-with-javascript)
+      - [Example](#example)
+      - [Exercise 2: Pandas + Flask Integration without Transferring Objects](#exercise-2-pandas--flask-integration-without-transferring-objects)
+      - [Exercise 3: Transferring Back-End Objects to the Front-End](#exercise-3-transferring-back-end-objects-to-the-front-end)
+    - [6.8 Deployment on Heroku](#68-deployment-on-heroku)
+      - [Environment Setup](#environment-setup)
+      - [Heroku Git Repository Setup](#heroku-git-repository-setup)
+      - [Using the App](#using-the-app)
+      - [Databases](#databases)
+    - [6.9 Using REST APIs](#69-using-rest-apis)
+      - [Guiding Principles of RESTful](#guiding-principles-of-restful)
+      - [Resources in REST](#resources-in-rest)
+      - [Example: World Bank API](#example-world-bank-api)
+      - [API Calls with Python](#api-calls-with-python)
+      - [Exercise 4: Advanced World Bank Dashboard with API Usage](#exercise-4-advanced-world-bank-dashboard-with-api-usage)
+    - [6.10 Web App Template](#610-web-app-template)
+      - [`routes.py`](#routespy)
+      - [`wrangle_data.py`](#wrangle_datapy)
+      - [`index.html`](#indexhtml)
+  - [7. Portfolio Exercise: Deploy a Data Dashboard](#7-portfolio-exercise-deploy-a-data-dashboard)
 ## 1. Introduction to Software Engineering
 
 This module has 3 major parts and 2 projects that are not compulsory.
