@@ -21,10 +21,10 @@ Overview of Contents:
   - [1. Introduction to Software Engineering](#1-introduction-to-software-engineering)
   - [2. Software Engineering Pratices Part 1](#2-software-engineering-pratices-part-1)
   - [3. Software Engineering Pratices Part 2](#3-software-engineering-pratices-part-2)
-  - [4. Introduction to Object Oriented Programming & Python Packages](#4-introduction-to-object-oriented-programming--python-packages)
+  - [4. Introduction to Object Oriented Programming \& Python Packages](#4-introduction-to-object-oriented-programming--python-packages)
     - [4.1 Procedural vs. Object Oriented Programming](#41-procedural-vs-object-oriented-programming)
     - [4.2 OOP Syntax in Python](#42-oop-syntax-in-python)
-      - [Getters & Setters](#getters--setters)
+      - [Getters \& Setters](#getters--setters)
     - [4.3 Commenting Object-Oriented Code](#43-commenting-object-oriented-code)
     - [4.4 Gaussian and Binomial Distirbutions](#44-gaussian-and-binomial-distirbutions)
       - [Gaussian Distribution](#gaussian-distribution)
@@ -68,6 +68,8 @@ Overview of Contents:
       - [Javascript Syntax](#javascript-syntax)
     - [6.6 Plotly with Javascript](#66-plotly-with-javascript)
       - [Example](#example)
+    - [6.7 Flask Backend](#67-flask-backend)
+      - [Exercise 1: Basic package example with empty pages](#exercise-1-basic-package-example-with-empty-pages)
       - [Exercise 2: Pandas + Flask Integration without Transferring Objects](#exercise-2-pandas--flask-integration-without-transferring-objects)
       - [Exercise 3: Transferring Back-End Objects to the Front-End](#exercise-3-transferring-back-end-objects-to-the-front-end)
     - [6.8 Deployment on Heroku](#68-deployment-on-heroku)
@@ -86,6 +88,7 @@ Overview of Contents:
       - [`wrangle_data.py`](#wrangle_datapy)
       - [`index.html`](#indexhtml)
   - [7. Portfolio Exercise: Deploy a Data Dashboard](#7-portfolio-exercise-deploy-a-data-dashboard)
+
 ## 1. Introduction to Software Engineering
 
 This module has 3 major parts and 2 projects that are not compulsory.
