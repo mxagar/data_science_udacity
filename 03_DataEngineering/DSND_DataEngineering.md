@@ -28,6 +28,7 @@ Overview of Contents:
       - [Exercise 1: CSV](#exercise-1-csv)
       - [Exercise 2: JSON and XML](#exercise-2-json-and-xml)
       - [Exercise 3: SQL](#exercise-3-sql)
+      - [Exercise 4: APIs](#exercise-4-apis)
     - [3.3 Transform](#33-transform)
     - [3.4 Load](#34-load)
   - [3. NLP Pipelines](#3-nlp-pipelines)
@@ -244,6 +245,31 @@ columns = [col.replace(' ', '_') for col in df.columns]
 df.columns = columns
 df.to_sql("dataset", conn, if_exists="replace")
 ```
+
+#### Exercise 4: APIs
+
+World Bank APIs resources:
+
+- [Documentation included how to filter by year](https://datahelpdesk.worldbank.org/knowledgebase/articles/898581-api-basic-call-structure)
+- [2-character iso country codes](https://www.nationsonline.org/oneworld/country_code_list.htm)
+- [Search box for World Bank indicators](https://data.worldbank.org)
+
+To find the indicator code:
+
+- First search for the indicator here: [https://data.worldbank.org](https://data.worldbank.org)
+- Click on the indicator name. The indicator code is in the url.
+- For example, the indicator code for total population is `SP.POP.TOTL`, which you can see in the link [https://data.worldbank.org/indicator/SP.RUR.TOTL](https://data.worldbank.org/indicator/SP.RUR.TOTL).
+
+```python
+# Define URL: Rural population in Switzerland between 1995-2001
+url = 'http://api.worldbank.org/v2/country/ch/indicator/SP.RUR.TOTL/?date=1995:2001&format=json&per_page=1000'
+# Send the request
+r = requests.get(url)
+# Convert to JSON: first element is metadata
+r_json = r.json()
+df = pd.DataFrame(r_json[1])
+```
+
 
 ### 3.3 Transform
 
