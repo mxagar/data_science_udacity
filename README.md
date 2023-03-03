@@ -7,12 +7,12 @@ The Nanodegree asssumes basic data analysis skills with python libraries (pandas
 1. Introduction to Data Science: [`01_Intro_Data_Science`](./01_Intro_Data_Science/DSND_Introduction.md).
 2. Software Engineering: [`02_SoftwareEngineering`](./02_SoftwareEngineering/DSND_SWEngineering.md).
 3. Data Engineering: [`03_DataEngineering`](./03_DataEngineering/DSND_DataEngineering.md).
-4. Experimental Design & Recommendations
-5. Data Scientist Capstone
+4. Experimental Design & Recommendations: [`04_ExperimentalDesign_RecSys`](./04_ExperimentalDesign_RecSys/).
+5. Data Scientist Capstone: [`05_Capstone_Project`](./05_Capstone_Project/).
 
 Additionally, it is necessary to submit and pass some projects to get the certification:
 
-- Create a data sciece project and write a blog post: [airbnb_data_analysis](https://github.com/mxagar/airbnb_data_analysis).
+- Create a data science project and write a blog post: [airbnb_data_analysis](https://github.com/mxagar/airbnb_data_analysis).
 - Disaster response pipeline
 - Recommendation engine
 - Capstone project
