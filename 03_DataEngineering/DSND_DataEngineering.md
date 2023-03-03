@@ -31,6 +31,7 @@ Overview of Contents:
       - [Exercise 4: APIs](#exercise-4-apis)
     - [3.3 Transform](#33-transform)
       - [Exercise 5: Combining Datasets](#exercise-5-combining-datasets)
+      - [Exercise 6: Cleaning Data](#exercise-6-cleaning-data)
     - [3.4 Load](#34-load)
   - [3. NLP Pipelines](#3-nlp-pipelines)
   - [4. Machine Learning Pipelines](#4-machine-learning-pipelines)
@@ -292,6 +293,15 @@ Typical transformation operations:
 
 #### Exercise 5: Combining Datasets
 
+Typical pandas methods to combine datasets:
+
+- Concatenate: `concat`
+- Join: `merge`
+- Pivot/unpivot between long/wide formats: `pivot`, `melt`
+
+File: [`lab/05_combine_data/5_combining_data.ipynb`](lab/05_combine_data/5_combining_data.ipynb)
+
+Content:
 
 ```python
 # df_rural.columns = 'Country Name', 'Country Code', 'Indicator Name', 'Indicator Code', '1960', ..., '2017'
@@ -328,6 +338,23 @@ df_merge = df_rural.merge(df_electricity, how='outer',
 df_combined = df_merge.sort_values(by=['Country Name', 'Year'])
 df_combined.head()
 ```
+
+#### Exercise 6: Cleaning Data
+
+Typical data errors that need to be cleaned:
+
+- data entry mistakes
+- duplicate data
+- incomplete records
+- inconsistencies between dataset
+
+File: [`lab/06_cleaningdata/6_cleaning_data.ipynb`](lab/06_cleaningdata/6_cleaning_data.ipynb)
+
+It's an interesting but very specific case of data cleaning: country names are mapped to their ISO country codes:
+
+- The library `pycountry` is used to get the ISO code given the official name.
+- Countries that are not found in the `pycountry` database are mapped manually.
+- Mapping is done with `.apply(lambda x: d[x])`, where `d` is a dictionary which maps `name` to `code`.
 
 ### 3.4 Load
 
