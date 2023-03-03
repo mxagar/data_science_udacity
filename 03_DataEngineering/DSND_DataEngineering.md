@@ -30,6 +30,7 @@ Overview of Contents:
       - [Exercise 3: SQL](#exercise-3-sql)
       - [Exercise 4: APIs](#exercise-4-apis)
     - [3.3 Transform](#33-transform)
+      - [Exercise 5: Combining Datasets](#exercise-5-combining-datasets)
     - [3.4 Load](#34-load)
   - [3. NLP Pipelines](#3-nlp-pipelines)
   - [4. Machine Learning Pipelines](#4-machine-learning-pipelines)
@@ -260,6 +261,10 @@ To find the indicator code:
 - Click on the indicator name. The indicator code is in the url.
 - For example, the indicator code for total population is `SP.POP.TOTL`, which you can see in the link [https://data.worldbank.org/indicator/SP.RUR.TOTL](https://data.worldbank.org/indicator/SP.RUR.TOTL).
 
+File: [`lab/04_api/4_api_exercise.ipynb`](lab/04_api/4_api_exercise.ipynb)
+
+Content:
+
 ```python
 # Define URL: Rural population in Switzerland between 1995-2001
 url = 'http://api.worldbank.org/v2/country/ch/indicator/SP.RUR.TOTL/?date=1995:2001&format=json&per_page=1000'
@@ -270,8 +275,59 @@ r_json = r.json()
 df = pd.DataFrame(r_json[1])
 ```
 
-
 ### 3.3 Transform
+
+Typical transformation operations:
+
+- Combine different datasets in different formats: join/merge, pivot/melt
+- Cleaning data
+- Checking data types
+- Matching encodings
+- Dealing with missing data
+- Dealing with duplicates
+- Encoding data: dummies
+- Outliers
+- Scaling data
+- Feature engineering
+
+#### Exercise 5: Combining Datasets
+
+
+```python
+# df_rural.columns = 'Country Name', 'Country Code', 'Indicator Name', 'Indicator Code', '1960', ..., '2017'
+df_rural = pd.read_csv('rural_population_percent.csv', skiprows=4)
+# df_electricity.columns = 'Country Name', 'Country Code', 'Indicator Name', 'Indicator Code', '1960', ..., '2017'
+df_electricity = pd.read_csv('electricity_access_percent.csv', skiprows=4)
+
+# New format: long
+# df_rural.columns = 'Country Name, 'Country Code', 'Indicator Name', 'Indicator Code', 'Year', 'Rural Value'
+df_rural = pd.melt(df_rural, id_vars=['Country Name',
+                                      'Country Code',
+                                      'Indicator Name',
+                                      'Indicator Code'],
+                             var_name='Year',
+                             value_name='Rural Value')
+# df_electricity.columns = 'Country Name, 'Country Code', 'Indicator Name', 'Indicator Code', 'Year', 'Electricity Value'
+df_electricity = pd.melt(df_electricity, id_vars=['Country Name',
+                                                  'Country Code',
+                                                  'Indicator Name',
+                                                  'Indicator Code'],
+                                         var_name='Year',
+                                         value_name='Electricity Value')
+
+# Drop any columns from the data frames that aren't needed
+df_rural.drop(['Indicator Name', 'Indicator Code'], axis=1, inplace=True)
+df_electricity.drop(['Indicator Name', 'Indicator Code'], axis=1, inplace=True)
+
+# Merge the data frames together based on their common columns
+# in this case, the common columns are Country Name, Country Code, and Year
+df_merge = df_rural.merge(df_electricity, how='outer',
+                                          on=['Country Name', 'Country Code', 'Year'])
+
+# Sort the results by country and then by year
+df_combined = df_merge.sort_values(by=['Country Name', 'Year'])
+df_combined.head()
+```
 
 ### 3.4 Load
 
