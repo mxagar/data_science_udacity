@@ -32,6 +32,7 @@ Overview of Contents:
     - [3.3 Transform](#33-transform)
       - [Exercise 5: Combining Datasets](#exercise-5-combining-datasets)
       - [Exercise 6: Cleaning Data](#exercise-6-cleaning-data)
+      - [Exercise 7: Data Types](#exercise-7-data-types)
     - [3.4 Load](#34-load)
   - [3. NLP Pipelines](#3-nlp-pipelines)
   - [4. Machine Learning Pipelines](#4-machine-learning-pipelines)
@@ -355,6 +356,12 @@ It's an interesting but very specific case of data cleaning: country names are m
 - The library `pycountry` is used to get the ISO code given the official name.
 - Countries that are not found in the `pycountry` database are mapped manually.
 - Mapping is done with `.apply(lambda x: d[x])`, where `d` is a dictionary which maps `name` to `code`.
+
+#### Exercise 7: Data Types
+
+File: [`lab/07_datatypes/7_datatypes_exercis.ipynb`](lab/07_datatypes/7_datatypes_exercise.ipynb)
+
+
 
 ### 3.4 Load
 
