@@ -361,7 +361,9 @@ It's an interesting but very specific case of data cleaning: country names are m
 
 File: [`lab/07_datatypes/7_datatypes_exercis.ipynb`](lab/07_datatypes/7_datatypes_exercise.ipynb)
 
-
+- Column filtering is done with `isin()`.
+- Filtered column values are summed with `sum(axis=0)`.
+- String columns are converted to numeric by removing `,` first using `replace()` and then `to_numeric()`.
 
 ### 3.4 Load
 
