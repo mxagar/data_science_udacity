@@ -27,6 +27,7 @@ Overview of Contents:
     - [3.2 Extract](#32-extract)
       - [Exercise 1: CSV](#exercise-1-csv)
       - [Exercise 2: JSON and XML](#exercise-2-json-and-xml)
+      - [Exercise 3: SQL](#exercise-3-sql)
     - [3.3 Transform](#33-transform)
     - [3.4 Load](#34-load)
   - [3. NLP Pipelines](#3-nlp-pipelines)
@@ -167,7 +168,81 @@ File: [`lab/02_json_xml/2_extract_exercise.ipynb`](lab/02_json_xml/2_extract_exe
 Contents:
 
 ```python
+## JSON
 
+import pandas as pd
+# Orient:
+# https://pandas.pydata.org/docs/reference/api/pandas.read_json.html
+df_json = pd.read_json('population_data.json', orient='records')
+
+## XML
+
+# Often more manual processing is required
+# Example XML file with these "record" objects and "fields" within:
+# <record>
+#   <field name="Country or Area" key="ABW">Aruba</field>
+#   <field name="Item" key="SP.POP.TOTL">Population, total</field>
+#   <field name="Year">1960</field>
+#   <field name="Value">54211</field>
+# </record>
+# Parse with BeautifulSoup
+from bs4 import BeautifulSoup
+with open("population_data.xml") as fp:
+    soup = BeautifulSoup(fp, "lxml") # lxml is the Parser type
+# Convert the XML into dataframe
+data_dictionary = {'Country or Area':[], 'Year':[], 'Item':[], 'Value':[]}
+for record in soup.find_all('record'): # look for "record" objects
+    for record in record.find_all('field'): # look for "field" objects
+        data_dictionary[record['name']].append(record.text)
+df = pd.DataFrame.from_dict(data_dictionary)
+#   Country or Area	 Year	 Item	               Value
+# 0	Aruba	           1960	 Population, total	 54211
+# ...
+# We need to / can pivot the table for better format
+df = df.pivot(index='Country or Area', columns='Year', values='Value')
+df.reset_index(level=0, inplace=True)
+#  	Country or Area	  1960	    1961	    1962	    1963	1964	...	2017
+# 0	Afghanistan	      8996351	  9166764	  9345868	  ...
+# ...
+```
+
+#### Exercise 3: SQL
+
+File: [`lab/03_sql/3_sql_exercise.ipynb`](lab/03_sql/3_sql_exercise.ipynb)
+
+There are many ways of getting data from SQL databases. Here two are shown using a SQLite database:
+
+- Using `sqlite3`, the python library for SQLite
+- Using SQLAlchemy with raw SQL statements; there are other ways with SQLAlchemy, too.
+
+SQLite creates databases in a single file (non-distributed); these storage is though for single applications, when we'd like to query data.
+
+Content:
+
+```python
+import sqlite3
+import pandas as pd
+from sqlalchemy import create_engine
+
+# SQLite
+# Connect to the database
+conn = sqlite3.connect('population_data.db')
+# Run a query: there is only one table, population_data, and we extract everything
+df = pd.read_sql('SELECT * FROM population_data', conn)
+
+# SQLAlchemy
+# Create an engine
+engine = create_engine('sqlite:///population_data.db')
+# Run SELECT * query
+df = pd.read_sql("SELECT * FROM population_data", engine)
+
+# Write to SQLite
+conn = sqlite3.connect('dataset.db')
+df = pd.read_csv('dataset.csv')
+# Clean
+columns = [col.replace(' ', '_') for col in df.columns]
+df.columns = columns
+df.to_sql("dataset", conn, if_exists="replace")
 ```
 
 ### 3.3 Transform
