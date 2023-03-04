@@ -35,6 +35,7 @@ Overview of Contents:
       - [Exercise 7: Data Types](#exercise-7-data-types)
       - [Exercise 8: Parsing Dates](#exercise-8-parsing-dates)
       - [Exercise 9: Encodings](#exercise-9-encodings)
+      - [Exercise 10: Missing Values](#exercise-10-missing-values)
     - [3.4 Load](#34-load)
   - [3. NLP Pipelines](#3-nlp-pipelines)
   - [4. Machine Learning Pipelines](#4-machine-learning-pipelines)
@@ -414,6 +415,18 @@ with open("mystery.csv", 'rb') as file:
     print(chardet.detect(file.read()))
 ```
 
+#### Exercise 10: Missing Values
+
+Most machine learning algorithms cannot handle missing values; exception: [Gradient Boosting: XGBoost](https://xgboost.readthedocs.io/en/latest/).
+
+There are two ways to handle missing values:
+
+- Delete data
+  - If a column is almost all `NA`, we could consider deleting it
+  - If a row is almost all `NA`, we could consider deleting it
+- Fill missing values = **imputation**
+  - **Mean / median / mode imputation** is an option if the missing cells are not that many; note that instead of imputing the column aggregate, we could group by other categorical features and impute the aggregate of that group!
+  - Time series: **Forward fill, Backward fill**: if the data is ordered in time, we apply *hold last sample* in one direction or the other.
 
 ### 3.4 Load
 
