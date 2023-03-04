@@ -33,6 +33,8 @@ Overview of Contents:
       - [Exercise 5: Combining Datasets](#exercise-5-combining-datasets)
       - [Exercise 6: Cleaning Data](#exercise-6-cleaning-data)
       - [Exercise 7: Data Types](#exercise-7-data-types)
+      - [Exercise 8: Parsing Dates](#exercise-8-parsing-dates)
+      - [Exercise 9: Encodings](#exercise-9-encodings)
     - [3.4 Load](#34-load)
   - [3. NLP Pipelines](#3-nlp-pipelines)
   - [4. Machine Learning Pipelines](#4-machine-learning-pipelines)
@@ -349,7 +351,7 @@ Typical data errors that need to be cleaned:
 - incomplete records
 - inconsistencies between dataset
 
-File: [`lab/06_cleaningdata/6_cleaning_data.ipynb`](lab/06_cleaningdata/6_cleaning_data.ipynb)
+File: [`lab/06_cleaningdata/6_cleaning_data.ipynb`](lab/06_cleaningdata/6_cleaning_data.ipynb).
 
 It's an interesting but very specific case of data cleaning: country names are mapped to their ISO country codes:
 
@@ -359,11 +361,59 @@ It's an interesting but very specific case of data cleaning: country names are m
 
 #### Exercise 7: Data Types
 
-File: [`lab/07_datatypes/7_datatypes_exercis.ipynb`](lab/07_datatypes/7_datatypes_exercise.ipynb)
+File: [`lab/07_datatypes/7_datatypes_exercis.ipynb`](lab/07_datatypes/7_datatypes_exercise.ipynb).
+
+Contents:
 
 - Column filtering is done with `isin()`.
 - Filtered column values are summed with `sum(axis=0)`.
 - String columns are converted to numeric by removing `,` first using `replace()` and then `to_numeric()`.
+
+#### Exercise 8: Parsing Dates
+
+Parsing dates is a common activity both in pandas and in [SQL](http://www-db.deis.unibo.it/courses/TW/DOCS/w3schools/sql/sql_dates.asp.html#gsc.tab=0).
+
+File: [`lab/08_parsingdates/8_parsingdates_exercise.ipynb`](lab/08_parsingdates/8_parsingdates_exercise.ipynb).
+
+Content:
+
+```python
+# Example closing date: 2023-06-28
+# Format: https://strftime.org
+df_projects['closingdate'] = pd.to_datetime(df_projects['closingdate'], format='%Y-%m-%dT%H:%M:%SZ')
+# Get year, month, weekday
+df_projects['closingdate'].dt.year
+df_projects['closingdate'].dt.month
+df_projects['closingdate'].dt.weekday
+```
+
+#### Exercise 9: Encodings
+
+Text or file encodings are mappings between bytes and string symbols; the default encoding, which is also valid for all languages, is `utf-8`. But python also comes with other encodings, too: [Standard Encodings](https://docs.python.org/3/library/codecs.html#standard-encodings).
+
+File: [`lab/09_encodings/9_encodings_exercise.ipynb`](lab/09_encodings/9_encodings_exercise.ipynb).
+
+```python
+from encodings.aliases import aliases
+
+# When an encoding is not UFT-8, how to detect which encoding we should use?
+# Python has a file containing a dictionary of encoding names and associated aliases
+alias_values = set(aliases.values())
+for alias in alias_values:
+    try:
+        df = pd.read_csv('mystery.csv', encoding=alias)
+        print(alias) # valid encodings are printed
+    except:
+         pass 
+
+# Another option: chardet
+# !pip install chardet
+import chardet
+
+with open("mystery.csv", 'rb') as file:
+    print(chardet.detect(file.read()))
+```
+
 
 ### 3.4 Load
 
