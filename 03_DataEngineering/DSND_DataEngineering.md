@@ -39,7 +39,8 @@ Overview of Contents:
       - [Exercise 11: Duplicates](#exercise-11-duplicates)
       - [Exercise 12: Regex and Dummy Variables](#exercise-12-regex-and-dummy-variables)
       - [Exercises 13 and 14: Outliers](#exercises-13-and-14-outliers)
-      - [Exercise 14: Outliers, Part 2](#exercise-14-outliers-part-2)
+      - [Exercise 15: Scaling](#exercise-15-scaling)
+      - [Exercise 16: Feature Engineering](#exercise-16-feature-engineering)
     - [3.4 Load](#34-load)
   - [3. NLP Pipelines](#3-nlp-pipelines)
   - [4. Machine Learning Pipelines](#4-machine-learning-pipelines)
@@ -550,11 +551,32 @@ def tukey_filter(df, col_name):
     return df[(df[col_name] < max_value) & (df[col_name] > min_value)]
 ```
 
-#### Exercise 14: Outliers, Part 2
+#### Exercise 15: Scaling
 
+Algorithms that use Euclidean distance computations work with data in similar ranges; thus, scaling is necessary; typical scaling methods:
 
+- Rescaling: scale values to `[0,1]`, aka. `MinMaxScaling`.
+- Standardization: scale to get a mean of 0 and a standard deviation of 1, aka. `StandardScaling`.
+
+File: [`lab/15_scaling/15_scaling_exercise.ipynb`](lab/15_scaling/15_scaling_exercise.ipynb).
+
+#### Exercise 16: Feature Engineering
+
+Typical feature engineering approaches:
+
+- Encode/map values
+- Ratios
+- Sums
+- Polynomial features: `PolynomialFeatures`
+- Transform data into a new feature
+
+File: [`lab/16_featureengineering/16_featureengineering_exercise.ipynb`](lab/16_featureengineering/16_featureengineering_exercise.ipynb).
 
 ### 3.4 Load
+
+The last step in an ETL pipeline is loading the dataset we have prepared.
+
+
 
 ## 3. NLP Pipelines
 
