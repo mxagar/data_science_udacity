@@ -38,6 +38,8 @@ Overview of Contents:
       - [Exercise 10: Missing Values](#exercise-10-missing-values)
       - [Exercise 11: Duplicates](#exercise-11-duplicates)
       - [Exercise 12: Regex and Dummy Variables](#exercise-12-regex-and-dummy-variables)
+      - [Exercises 13 and 14: Outliers](#exercises-13-and-14-outliers)
+      - [Exercise 14: Outliers, Part 2](#exercise-14-outliers-part-2)
     - [3.4 Load](#34-load)
   - [3. NLP Pipelines](#3-nlp-pipelines)
   - [4. Machine Learning Pipelines](#4-machine-learning-pipelines)
@@ -509,6 +511,48 @@ except KeyError as err:
     print("Columns already dummified!")
 
 ```
+
+#### Exercises 13 and 14: Outliers
+
+Outliers are data points that have unexpected values; they can be due to:
+
+- Errors in the recordings, i.e., we should remove them
+- Due to chance, i.e., we should keep them
+
+There are many ways to detect them:
+
+- Data visualization: in 1D or 2D, plot as visually inspect; in higher dimensions, apply PCA to 2D and inspect.
+- Clustering (in any dimension): cluster the data and compute distances to centroids; values with large distances are suspicious of being outliers.
+- Statistical methods:
+  - Z-score (assuming normal distribution): any data point outside from the the 2-sigma range is an outlier (i.e., `< mean-2*sigma` or `> mean+2*sigma`); 2-sigma is related to the 95% Ci or `alpha = 0.05`. 
+  - Tukey method (no distribution assumption): any data point outside from the 1.5*IQR is an outlier (i.e., `< Q1-1.5*IQR` or `> Q3+1.5*IQR`)
+
+Outliers might affect the model considerably; for instance, in a linear regression model, the line/hyperplane is pulled to the outliers. However, sometimes the outliers are aligned with the model, and they are not really outliers; when should we remove them?
+
+- Compute candidate outliers in all dimensions, e.g., using Tukey.
+- Candidate data points that are outliers in all dimensions are maybe not outliers.
+- Create models with and without candidate outliers and then predict control points; do they change considerably?
+
+Outlier detection in Scikit-Learn: [Novelty and Outlier Detection](https://scikit-learn.org/stable/modules/outlier_detection.html).
+
+Files: 
+
+- [`lab/13_outliers_part1/13_outliers_exercise.ipynb`](lab/13_outliers_part1/13_outliers_exercise.ipynb).
+- [`lab/14_outliers_part2/14_outliers_exercise.ipynb`](lab/14_outliers_part2/14_outliers_exercise.ipynb).
+
+```python
+def tukey_filter(df, col_name):
+    Q1 = df[col_name].quantile(0.25)
+    Q3 = df[col_name].quantile(0.75)
+    IQR = Q3 - Q1
+    max_value = Q3 + 1.5 * IQR
+    min_value = Q1 - 1.5 * IQR
+    return df[(df[col_name] < max_value) & (df[col_name] > min_value)]
+```
+
+#### Exercise 14: Outliers, Part 2
+
+
 
 ### 3.4 Load
 
