@@ -36,6 +36,8 @@ Overview of Contents:
       - [Exercise 8: Parsing Dates](#exercise-8-parsing-dates)
       - [Exercise 9: Encodings](#exercise-9-encodings)
       - [Exercise 10: Missing Values](#exercise-10-missing-values)
+      - [Exercise 11: Duplicates](#exercise-11-duplicates)
+      - [Exercise 12: Regex and Dummy Variables](#exercise-12-regex-and-dummy-variables)
     - [3.4 Load](#34-load)
   - [3. NLP Pipelines](#3-nlp-pipelines)
   - [4. Machine Learning Pipelines](#4-machine-learning-pipelines)
@@ -427,6 +429,86 @@ There are two ways to handle missing values:
 - Fill missing values = **imputation**
   - **Mean / median / mode imputation** is an option if the missing cells are not that many; note that instead of imputing the column aggregate, we could group by other categorical features and impute the aggregate of that group!
   - Time series: **Forward fill, Backward fill**: if the data is ordered in time, we apply *hold last sample* in one direction or the other.
+
+File: [`lab/10_imputation/10_imputations_exercise.ipynb`](lab/10_imputation/10_imputations_exercise.ipynb).
+
+```python
+# Imputation of regular features (not time series): fill with mean / median / mode
+# WARNING: instead of imputing the column aggregate,
+# we should group by other categorical features and impute the aggregate of that group!
+df["var_fill"] = df.groupby("var_group")["var_fill"].transform(lambda x: x.fillna(x.mean())
+
+# Imputation in time series: Forward Fill and Backward Fill
+# i.e., if the data is ordered in time, we apply *hold last sample* 
+# in one direction or the other. BUT: we need to sort the data!
+df['GDP_ffill'] = df.sort_values(by='year').groupby("country")['GDP'].fillna(method='ffill')
+df['GDP_bfill'] = df.sort_values(by='year').groupby("country")['GDP'].fillna(method='bfill')
+# If only a country
+df['GDP_ffill'] = df.sort_values(by='year')['GDP'].fillna(method='ffill')
+# If the first/last value is NA, we need to run both: ffill and bfill
+df['GDP_ff_bf'] = df.sort_values(by='year')['GDP'].fillna(method='ffill').fillna(method='bfill')
+
+```
+
+#### Exercise 11: Duplicates
+
+This exercise goes beyond the typical `.duplicated()` and `.drop_duplicates().reset_index(drop=True)`. It analyzes the case of projects in Yogoslavia and the countries in which Yogoslavia was segregated. The idea is that some projects might be (and, in fact, are) duplicated. These are found by checking the country names and the project approval dates.
+
+File: [`lab/11_duplicatedata/11_duplicatedata_exercise.ipynb`](lab/11_duplicatedata/11_duplicatedata_exercise.ipynb).
+
+#### Exercise 12: Regex and Dummy Variables
+
+Categorical variables need to be converted into numbers; one approach is using dummy variables. However, categories often need to be cleaned and reduced (i.e., aggregated), otherwise the number of dummy columns explode. A common way of cleaning consists in using `.replace()` together with `re`, the regex module. More information on regex:
+
+- [Regex tutorial — A quick cheatsheet by examples](https://medium.com/factory-mind/regex-tutorial-a-simple-cheatsheet-by-examples-649dc1c3f285)
+- [Regex cookbook — Top 15 Most common regex](https://medium.com/@fox.jonny/regex-cookbook-most-wanted-regex-aa721558c3c1)
+
+File: [`lab/12_dummy_variables/12_dummyvariables_exercise.ipynb`](lab/12_dummy_variables/12_dummyvariables_exercise.ipynb).
+
+```python
+## Cleaning categories
+
+# Fields with value '!$10' -> NaN
+df['sector'] = df['sector'].replace('!$10', np.nan)
+# Replace with Regex
+# This looks for string with an exclamation point followed by one or more characters
+df['sector'] = df['sector'].replace('!.+', '', regex=True)
+# Replace with Regex
+# Remove the string '(Historic)' from the sector1 variable
+df['sector'] = df['sector'].replace('^(\(Historic\))', '', regex=True)
+# More on regex:
+# - Tutorial: https://medium.com/factory-mind/regex-tutorial-a-simple-cheatsheet-by-examples-649dc1c3f285
+# - Cookbook: https://medium.com/@fox.jonny/regex-cookbook-most-wanted-regex-aa721558c3c1
+
+## Aggregating categories
+
+import re
+
+# Create an aggregate sector variable which covers general topics
+# For instance: "Transportation: Highways", "Transportation: Airports" -> "Transportation"
+df.loc[:,'sector_aggregates'] = sector['sector']
+topics = ['Energy', 'Transportation']
+for topic in topics:
+    # Find all that contain the topic (ignore case), replace NaN with False (i.e., not found)
+    # All found have same general topic
+    df.loc[sector['sector_aggregates'].str.contains(topic, re.IGNORECASE).replace(np.nan, False),'sector_aggregates'] = topic
+
+## Dummy Variables
+
+# One-hot encoding of features: Dummy variables with pandas
+# Use drop_first=True to remove the first category and avoid multi-colinearity
+# Note: if a field has NaN, all dummy variables will have a value of 0
+col_dummies = ['var1', 'var2']
+try:
+    for col in col_dummies:
+        df = pd.concat([df.drop(col, axis=1),
+        				pd.get_dummies(df[col], prefix=col, prefix_sep='_',
+        					drop_first=True, dummy_na=False)],
+                        axis=1)
+except KeyError as err:
+    print("Columns already dummified!")
+
+```
 
 ### 3.4 Load
 
