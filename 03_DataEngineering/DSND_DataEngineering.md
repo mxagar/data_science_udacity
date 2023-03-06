@@ -45,6 +45,16 @@ Overview of Contents:
       - [Final Exercise](#final-exercise)
   - [3. Natural Language Processing (NLP) Pipelines](#3-natural-language-processing-nlp-pipelines)
     - [3.1 Text Processing](#31-text-processing)
+      - [Cleaning: Web Scrapping](#cleaning-web-scrapping)
+      - [Normalization](#normalization)
+      - [Tokenization](#tokenization)
+      - [Stop Words](#stop-words)
+      - [Tagging: Part-of-Speech (POS), Named Entities (NER)](#tagging-part-of-speech-pos-named-entities-ner)
+    - [3.2 Feature Extraction](#32-feature-extraction)
+      - [Bags-of-Words](#bags-of-words)
+      - [One-Hot Encoding](#one-hot-encoding)
+      - [Word Embeddings](#word-embeddings)
+    - [3.3 Modeling](#33-modeling)
   - [4. Machine Learning Pipelines](#4-machine-learning-pipelines)
   - [5. Project: Disaster Response Pipeline](#5-project-disaster-response-pipeline)
 
@@ -1010,12 +1020,106 @@ Additionally, my repository [text_sentiment](https://github.com/mxagar/text_sent
 
 The text obtained from any source (OCR, speech-to-text, web, etc.) is usually processed to a standard form; in this section we will carry out these steps:
 
-- Cleaning to remove irrelevant items, such as HTML tags
-- Normalizing by converting to all lowercase and removing punctuation
-- Splitting text into words or tokens
-- Removing words that are too common, also known as stop words (e.g., *the*, *of*, etc.)
-- Identifying different parts of speech and named entities
-- Converting words into their dictionary or canonical forms, using stemming and lemmatization
+- **Cleaning** to remove irrelevant items, such as HTML tags
+- **Normalizing** by converting to all lowercase and removing punctuation
+- **Tokenizing**: Splitting text into words or tokens
+- **Removing common words**, also known as stop words (e.g., *the*, *of*, etc.)
+- **Parts of speech and named entities'** identification
+- **Stemming and lemmatization**: Converting words into their dictionary or canonical forms
+
+#### Cleaning: Web Scrapping
+
+This section is not up to date, because the originally webpage used (Udacity course catalogue) applies Javascript to generated the course list now. Unfortunately, `BeautifulSoup` cannot deal with web pages that use Javascript to generate HTML content once the basic HTML content is captured. More on that: 
+
+[Web-scraping JavaScript page with Python](https://stackoverflow.com/questions/8049520/web-scraping-javascript-page-with-python).
+
+Instead of using the Udacity catalogue, I used this one:
+
+[https://learndataengineering.com/p/all-courses](https://learndataengineering.com/p/all-courses)
+
+Summary of the code in [`lab/NLP_Pipelines/cleaning_practice.ipynb`](./lab/NLP_Pipelines/cleaning_practice.ipynb):
+
+```python
+import requests 
+from bs4 import BeautifulSoup
+
+# Fetch web content
+r = requests.get('https://learndataengineering.com/p/all-courses')
+# Display the raw text: useless
+print(r.text)
+
+# Parse content
+#soup = BeautifulSoup(r.text, "lxml")
+soup = BeautifulSoup(r.content, 'html.parser')
+# Display the parsed content: useless
+print(soup.get_text())
+
+# Optional: Get all tags: a, div, p, h3, ...
+tags = {tag.name for tag in soup.find_all()}
+# Optional: Get all classes
+class_list = set()
+for tag in tags:
+    for i in soup.find_all(tag):
+        if i.has_attr("class"):
+            if len(i['class']) != 0:
+                class_list.add(" ".join( i['class']))
+print(class_list)
+
+# Get all courses: title, description
+# We need to right click + inspect to see the name of the CSS object
+# of each course card; then, we need to see the hierarchical components
+# of that object which contain the title and the description
+course_objects = soup.find_all("div", {"class": "featured-product-card__content"})
+courses = []
+for course in course_objects:
+    title = course.select_one("h3").get_text().strip()
+    description = course.select_one("h4").get_text().strip()
+    courses.append((title, description))
+
+print(courses)
+```
+
+Interesting links:
+
+- [Requests](https://docs.python-requests.org/en/latest/user/quickstart/#make-a-request)
+- [Regular expressions](https://docs.python.org/3/library/re.html)
+- [Beautiful Soup Documentation](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
+
+#### Normalization
+
+Typical normalization tasks:
+
+- Convert to lower case.
+- Remove punctuation and similar symbols.
+
+```python
+import re
+
+# Conver to lowercase
+text = text.lower()
+
+# Remove punctuation characters:
+# Anything that isn't A through Z or 0 through 9 will be replaced with a space
+text = re.sub(r"[^a-zA-Z0-9", " ", text)
+```
+
+#### Tokenization
+
+#### Stop Words
+
+
+#### Tagging: Part-of-Speech (POS), Named Entities (NER)
+
+### 3.2 Feature Extraction
+
+
+#### Bags-of-Words
+
+#### One-Hot Encoding
+
+#### Word Embeddings
+
+### 3.3 Modeling
 
 
 
