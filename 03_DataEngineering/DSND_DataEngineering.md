@@ -43,7 +43,8 @@ Overview of Contents:
       - [Exercise 16: Feature Engineering](#exercise-16-feature-engineering)
     - [3.4 Load](#34-load)
       - [Final Exercise](#final-exercise)
-  - [3. NLP Pipelines](#3-nlp-pipelines)
+  - [3. Natural Language Processing (NLP) Pipelines](#3-natural-language-processing-nlp-pipelines)
+    - [3.1 Text Processing](#31-text-processing)
   - [4. Machine Learning Pipelines](#4-machine-learning-pipelines)
   - [5. Project: Disaster Response Pipeline](#5-project-disaster-response-pipeline)
 
@@ -981,7 +982,42 @@ if __name__ == "__main__":
 
 ```
 
-## 3. NLP Pipelines
+## 3. Natural Language Processing (NLP) Pipelines
+
+Natural Language Processing (NLP) pipelines have specific characteristics; this lesson/section deals with them. Steps in an NLP pipeline:
+
+1. Text Processing: raw text is transformed to a normalized form
+   - Cleaning
+   - Normalization
+   - Tokenization
+   - Stop Word Removal
+   - Part of Speech Tagging
+   - Named Entity Recognition
+   - Stemming and Lemmatization
+2. Feature Extraction: useful features for the model are created
+   - Bag of Words
+   - TF-IDF
+   - Word Embeddings
+3. Modeling: a model is fit to the dataset of features
+
+When be fit and evaluate the model, it might not perform as desired; in that case, we need to go back some steps and rethink the implementation of the pipeline.
+
+I have an NLP guide which collects NLP techniques with NLTK and spaCy: [https://github.com/mxagar/nlp_guide](https://github.com/mxagar/nlp_guide).
+
+Additionally, my repository [text_sentiment](https://github.com/mxagar/text_sentiment) introduces the general NLP pipeline.
+
+### 3.1 Text Processing
+
+The text obtained from any source (OCR, speech-to-text, web, etc.) is usually processed to a standard form; in this section we will carry out these steps:
+
+- Cleaning to remove irrelevant items, such as HTML tags
+- Normalizing by converting to all lowercase and removing punctuation
+- Splitting text into words or tokens
+- Removing words that are too common, also known as stop words (e.g., *the*, *of*, etc.)
+- Identifying different parts of speech and named entities
+- Converting words into their dictionary or canonical forms, using stemming and lemmatization
+
+
 
 ## 4. Machine Learning Pipelines
 
