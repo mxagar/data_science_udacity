@@ -42,6 +42,7 @@ Overview of Contents:
       - [Exercise 15: Scaling](#exercise-15-scaling)
       - [Exercise 16: Feature Engineering](#exercise-16-feature-engineering)
     - [3.4 Load](#34-load)
+      - [Final Exercise](#final-exercise)
   - [3. NLP Pipelines](#3-nlp-pipelines)
   - [4. Machine Learning Pipelines](#4-machine-learning-pipelines)
   - [5. Project: Disaster Response Pipeline](#5-project-disaster-response-pipeline)
@@ -576,7 +577,87 @@ File: [`lab/16_featureengineering/16_featureengineering_exercise.ipynb`](lab/16_
 
 The last step in an ETL pipeline is loading the dataset we have prepared.
 
+Commonly, relational databases, i.e., SQL databases, are used; I have a guide on the topic: [sql_guide](https://github.com/mxagar/sql_guide).
 
+In addition to SQLAlchemy, we can use the SQLite package `sqlite3` in python (included in the standard library). In the following, some example lines are provided, which come from the file [`lab/17_load/17_load_exercise.ipynb`](lab/17_load/17_load_exercise.ipynb).
+
+```python
+# Write to SQLite using sqlite3
+# Alternative: SQLAlchemy
+import sqlite3
+# Connect to database; file created if not present
+conn = sqlite3.connect('dataset.db')
+# Load Table A - or create one
+df_A = pd.read_csv('dataset_A.csv')
+# Load Table B - or create one
+df_B = pd.read_csv('dataset_B.csv')
+# Clean, if necessary
+columns = [col.replace(' ', '_') for col in df_A.columns]
+df_A.columns = columns
+# ...
+# Write tables to database
+df_A.to_sql("table_A", conn, if_exists="replace", index=False)
+df_B.to_sql("table_B", conn, if_exists="replace", index=False)
+# Check (i.e., read)
+df_A_ = pd.read_sql('SELECT * FROM table_A', conn)
+df_B_ = pd.read_sql('SELECT * FROM table_B', conn)
+# Commit changes and close connection
+conn.commit()
+conn.close()
+```
+
+The standard `sqlite3` package and SQLite itself are limited in terms of capabilities; for instance, once we create a table with its primary key, we cannot change the key, i.e., we need to drop the table and recreate it. In the following, an example of how a table can be created using SQL and values added.
+
+```python
+# Insert rows to SQLite
+# WARNING: use better to_sql() and pass entire tables
+# i.e., don't insert row-by-row in a for loop...
+# Connect to the data base, create if file not there
+conn = sqlite3.connect('database.db')
+# Get a cursor
+cur = conn.cursor()
+# Drop the test table in case it already exists
+cur.execute("DROP TABLE IF EXISTS test")
+# Create the test table including project_id as a primary key
+cur.execute("CREATE TABLE test (project_id TEXT PRIMARY KEY, countryname TEXT, countrycode TEXT, totalamt REAL, year INTEGER);")
+# Insert a single row of value into the test table
+project_id = 'a'
+countryname = 'Brazil'
+countrycode = 'BRA'
+totalamt = '100,000'
+year = 1970
+sql_statement = f"INSERT INTO test (project_id, countryname, countrycode, totalamt, year) VALUES ('{project_id}', '{countryname}', '{countrycode}', '{totalamt}', {year});"
+cur.execute(sql_statement)
+# Commit changes made to the database
+conn.commit()
+# Select all from the test table
+cur.execute("SELECT * FROM test")
+cur.fetchall()
+# [('a', 'Brazil', 'BRA', '100,000', 1970)]
+# Insert several rows:
+for index, values in df.iterrows():
+    project_id, countryname, countrycode, totalamt, year = values
+    sql_statement = f"INSERT INTO test (project_id, countryname, countrycode, totalamt, year) VALUES ('{project_id}', '{countryname}', '{countrycode}', '{totalamt}', {year});"
+    cur.execute(sql_string)
+# Commit changes to the dataset after any changes are made
+conn.commit()
+# ...
+# Commit changes and close connection
+conn.commit()
+conn.close()
+```
+
+#### Final Exercise
+
+Very interesting exercise in which the complete ETL pipeline is carried out to extract content line-by-line from a CSV, clean and transform it and load it to an SQLite database.
+
+I have moved the code from the notebook to a script:
+
+[]()
+
+```python
+
+```
 
 ## 3. NLP Pipelines
 
