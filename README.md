@@ -25,6 +25,18 @@ conda activate ds
 pip install -r requirements.txt
 ```
 
+As I side note, I list here some related **free Udacity courses** on several topics:
+
+- **Big Data**
+  - [Intro to Hadoop and MapReduce](https://www.udacity.com/course/intro-to-hadoop-and-mapreduce--ud617)
+  - [Deploying a Hadoop Cluster](https://www.udacity.com/course/deploying-a-hadoop-cluster--ud1000)
+  - [Real-Time Analytics with Apache Storm](https://www.udacity.com/course/real-time-analytics-with-apache-storm--ud381)
+  - [Big Data Analytics in Healthcare](https://www.udacity.com/course/big-data-analytics-in-healthcare--ud758)
+  - [Spark](https://www.udacity.com/course/learn-spark-at-udacity--ud2002)
+- **Databases**
+  - [Data Wrangling with MongoDB](https://www.udacity.com/course/data-wrangling-with-mongodb--ud032)
+  - [SQL for Data Analysis](https://www.udacity.com/course/sql-for-data-analysis--ud198)
+
 Mikel Sagardia, 2022.  
 No guarantees.
 
