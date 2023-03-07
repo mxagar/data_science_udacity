@@ -39,5 +39,3 @@ As I side note, I list here some related **free Udacity courses** on several top
 
 Mikel Sagardia, 2022.  
 No guarantees.
-
-
