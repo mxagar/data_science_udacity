@@ -1,0 +1,2 @@
+Pennington_GloVe_2014.pdf
+	https://nlp.stanford.edu/pubs/glove.pdf
