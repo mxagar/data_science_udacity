@@ -53,9 +53,9 @@ Overview of Contents:
       - [Canonical Forms: Stemming and Lemmatization](#canonical-forms-stemming-and-lemmatization)
     - [3.2 Feature Extraction](#32-feature-extraction)
       - [Bags-of-Words](#bags-of-words)
-      - [One-Hot Encoding](#one-hot-encoding)
       - [Word Embeddings](#word-embeddings)
     - [3.3 Modeling](#33-modeling)
+    - [3.4 Additional Concepts](#34-additional-concepts)
   - [4. Machine Learning Pipelines](#4-machine-learning-pipelines)
   - [5. Project: Disaster Response Pipeline](#5-project-disaster-response-pipeline)
 
@@ -1358,14 +1358,31 @@ X = vectorizer.fit_transform(corpus)
 X.toarray()
 ```
 
-#### One-Hot Encoding
-
-
 #### Word Embeddings
+
+Bags of words or one-hot encoded vectors are very sparse and large representations; we can define embedding spaces in which those large vectors are compressed to lower dimensionalities. Those embedding vectors have continuous values in the vector elements and can be created in such a way that similar or related word vectors are in the neighborhood in the embedding space; that enables semantic operations between vectors.
+
+![Word Embeddings](./pics/word_embeddings.jpg)
 
 ### 3.3 Modeling
 
+Once we have the numerical features, we can try any model with inputs that match the features. Each application has usually its set of better suited models.
 
+### 3.4 Additional Concepts
+
+Some additional (and optional) concepts are introduced, which can be found in my notes of the Udacity Deep Learning and Computer Vision Nanodegrees:
+
+- [computer_vision_udacity](https://github.com/mxagar/computer_vision_udacity)
+- [deep_learning_udacity](https://github.com/mxagar/deep_learning_udacity) : [Embeddings and Word2Vec](https://github.com/mxagar/deep_learning_udacity/blob/main/04_RNN/DLND_RNNs.md#6-embeddings-and-word2vec)
+
+Concepts and links too unlisted videos:
+
+- [Word2Vec](https://www.youtube.com/watch?v=7jjappzGRe0&t=31s)
+- [GloVe](https://www.youtube.com/watch?v=KK3PMIiIn8o&t=54s); see the [literature](../literature/) folder for the paper.
+- [Embeddings For Deep Learning](https://www.youtube.com/watch?v=gj8u1KG0H2w&t=7s)
+- [t-SNE](https://www.youtube.com/watch?v=xxcK8oZ6_WE&t=1s)
+
+![Skip-Gram Model](./pics/skip-gram-model.png)
 
 ## 4. Machine Learning Pipelines
 
