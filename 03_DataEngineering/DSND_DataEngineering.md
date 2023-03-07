@@ -50,6 +50,7 @@ Overview of Contents:
       - [Tokenization](#tokenization)
       - [Stop Words](#stop-words)
       - [Tagging: Part-of-Speech (POS), Named Entities (NER)](#tagging-part-of-speech-pos-named-entities-ner)
+      - [Canonical Forms: Stemming and Lemmatization](#canonical-forms-stemming-and-lemmatization)
     - [3.2 Feature Extraction](#32-feature-extraction)
       - [Bags-of-Words](#bags-of-words)
       - [One-Hot Encoding](#one-hot-encoding)
@@ -1105,10 +1106,135 @@ text = re.sub(r"[^a-zA-Z0-9", " ", text)
 
 #### Tokenization
 
+Tokenization consists in separating the text in symbols that have a meaning, i.e., often words and additional symbols. We can do it with `split()` or using NLTK. In any case, we get a list of tokens.
+
+More information: [nltk.tokenize](https://www.nltk.org/api/nltk.tokenize.html)
+
+```python
+# Built-in string split: it separates in white spaces by default
+text = "Dr. Smith arrived late."
+word = text.split() # ['Dr.', 'Smith', 'arrived', 'late.']
+
+# NLTK: More meaningful word tokenization
+from nlt.tokenize import word_tokenize
+words = word_tokenize(text) # ['Dr.', 'Smith', 'arrived', 'late', '.']
+
+# NLTK: Sentence splits or tokenization
+from nlt.tokenize import sent_tokenize
+text = "Dr. Smith arrived late. However, the conference hadn't started yet."
+words = sent_tokenize(text)
+# ['Dr. Smith arrived late.',
+#  'However, the conference hadn't started yet.']
+```
+
 #### Stop Words
 
+Stop words are commonly occurring words that do not change much the meaning. It is common practice removing them to decrease the diensionality.
+
+```python
+# List stop words from NLTK
+from nltk.corpus import stopwords
+print(stopwords.words("english"))
+
+# Tokenized sentence
+words = ['the', 'first', 'time', 'you', 'see', 'the', 'second', 'renaissance', 'it', 'may', 'look', 'boring', 'look', 'at', 'it', 'at', 'least', 'twice', 'and', 'definetly', 'watch', 'part', '2', 'it', 'will', 'change', 'your', 'view', 'of', 'the', 'matrix', 'are', 'the', 'human people', 'the', 'ones', 'who', 'started', 'the', 'war', 'is', 'ai', 'a', 'bad', 'thing']
+
+# Remove stop words
+words = [w for w in words if w not in stopwords.words("english")]
+print(words)
+```
 
 #### Tagging: Part-of-Speech (POS), Named Entities (NER)
+
+Parts-of-Speech (POS) refer to token morphology: nouns, verbs, etc. NLTK has a tagger which uses a predefined grammar; usually, more sophisticated models (Hidden Markov Models or RNNs) should be used to deal with large texts.
+
+```python
+from nltk import pos_tag
+# Tag parts of speach (PoS)
+sentence = word_tokenize("I always lie down to tell a lie.")
+pos_tag(sentence)
+# [('I', 'PRP'),
+# ('always', 'RB'),
+# ('lie', 'VBP'),
+# ('down', 'RP'),
+# ('to', 'TO'),
+# ('tell', 'VB'),
+# ('a', 'DT'),
+# ('lie', 'NN'),
+# ('.', '.')]
+```
+
+Named Entities (NE) are nouns or noun phrases that refer to specific object, person, or place. It can be used, for instance, to index news articles on topics of interest (NEs).
+
+```python
+import nltk
+from nltk.tokenize import word_tokenize
+
+nltk.download('words')
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
+nltk.download('maxent_ne_chunker')
+
+from nltk import pos_tag, ne_chunk
+from nltk.tokenize import word_tokenize
+
+# Recognize named entities in a tagged sentence
+# We need to first tokenize and POS-tag
+text = "Antonio joined Udacity Inc. in California."
+tree = ne_chunk(pos_tag(word_tokenize(text)))
+
+# Display functions
+print(tree)
+tree.pretty_print()
+tree.leaves()
+tree.pprint()
+for ne in tree:
+    print(ne)
+```
+
+Interesting links:
+
+- [POS-Tagging](https://www.nltk.org/book/ch05.html)
+- [All possible tags in NLTK](https://stackoverflow.com/questions/15388831/what-are-all-possible-pos-tags-of-nltk)
+
+#### Canonical Forms: Stemming and Lemmatization
+
+**Stemming** consists in obtaining the root form of the word, often times removing parts of the ending/suffix using some rules (it doesn't matter if the produced word doesn't exist):
+
+    catching, catched , catches -> catch
+
+**Lemmatization** is a more sophisticated process in which the original word form is obtained, using dictionaries (it needs to know the PoS for finding the correct base form, and the produced *lemma* is a real word):
+
+    caught -> catch
+    was, were, am, is -> be
+
+So, we can decide:
+
+- To apply none.
+- To apply only one: stemming & lemmatization.
+- To apply both: in that case, we need to first apply lemmatization and then stemming.
+
+![Stemming vs. Lemmatization](./pics/stemming_lemmatization.jpg)
+
+```python
+import nltk
+nltk.download('wordnet') # download for lemmatization
+nltk.download('omw-1.4')
+
+# Stemming: modify endings
+from nltk.stem.porter import PorterStemmer
+stemmed = [PorterStemmer().stem(w) for w in words]
+print(stemmed)
+
+# Lemmatization: use dictionary + POS to find base form
+from nltk.stem.wordnet import WordNetLemmatizer
+# By default, in doubt, the lemma is a noun
+lemmed = [WordNetLemmatizer().lemmatize(w) for w in words]
+print(lemmed)
+# Lemmatize verbs by specifying pos: when possible, lemma is a verb
+lemmed = [WordNetLemmatizer().lemmatize(w, pos='v') for w in lemmed]
+print(lemmed)
+```
 
 ### 3.2 Feature Extraction
 
