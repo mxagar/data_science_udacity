@@ -1238,10 +1238,128 @@ print(lemmed)
 
 ### 3.2 Feature Extraction
 
+Depending on the application and the model it requires, we can represent texts as
+
+- Graphs of symbols, i.e., each word/token is a node connected to others.
+- Vectors.
+
+Most applications use vector representations, which are used to build statistical models; vectorization can be done at two levels:
+
+- Document level, `doc2vec`: bags of words; these can be used with models that predict properties of a document, e.g., whether it's spam, sentiment, etc.
+- Word level, `word2vec`: word embeddings; these should be used in models where we're trying to predict words, i.e., for text generation.
 
 #### Bags-of-Words
 
+Each document becomes an unordered collection of words. We build the dictionary of all possible words after sweeping all documents and each document is a vector of the length of the vocabulary. If we stack all document vectors, we have the Document-Term Matrix.
+
+To check how similar are two documents, we can use the cosine similarity: the cosine part of the dot product between the two document vectors.
+
+![Document-Term Matrix](./pics/document_term_matrix.jpg)
+
+Each cell in the Document-Term Matrix is a frequency value of a word in the document. It is possible to further process/normalize the matrix by using the **term frequency inverse document frequency (TF-IDF)**. That consists in multiplying the count of that term in the document by the how rare that term is throughout all the documents we are looking at. That way, common but meaningless words (e.g., 'the', 'of', etc.) have a lower value and it highlights the words in a document which are characteristic to it.
+
+The TF-IDF matrix contains the following values for each document `d` and term `t` cell:
+
+`idf(d,t) = ln((N/|d in D in which t in d|) + 1)`
+`tfidf(d,t) = C(d,t) * idf(d,t)`
+
+With:
+
+- `N`: total number of documents in the corpus, `|D|`
+- `|d in D in which t in d|`: number of documents in which the term `t` appears
+- `C(d,t)`: how many times the term `t` appears in document `d`
+
+In Scikit-Learn:
+
+- `CountVectorizer()` computes the document-term matrix.
+- `TfidfVectorizer()` computes the TF-IDF matrix.
+
+Example: Two documents: 
+
+- *"We like dogs and cats"*
+- *"We like cars and planes"*
+
+`CountVectorizer()` yields:
+
+| doc | We | like | and | dogs | cats | cars | planes |
+| --- | -- | ---- | --- | ---- | ---- | ---- | ------ |
+| 0   | 1  | 1    | 1   | 1    | 1    | 0    | 0      |
+| 1   | 1  | 1    | 1   | 0    | 0    | 1    | 1      |
+
+`TfidfVectorizer()` would yield:
+
+| doc | We | like | and | dogs   | cats   | cars   | planes |
+| --- | -- | ---- | --- | ------ | ------ | ------ | ------ |
+| 0   | 1  | 1    | 1   | 1.6931 | 1.6931 | 0      | 0      |
+| 1   | 1  | 1    | 1   | 0      | 0      | 1.6931 | 1.6931 |
+
+However, note that `TfidfVectorizer()` additionally normalizes each row to have length 1.
+
+Examples are provided in [`lab/NLP_Pipelines/bow_tfidf_practice.ipynb`](./lab/NLP_Pipelines/bow_tfidf_practice.ipynb):
+
+```python
+import re
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem.wordnet import WordNetLemmatizer
+from nltk.tokenize import word_tokenize
+
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
+
+corpus = ["The first time you see The Second Renaissance it may look boring.",
+        "Look at it at least twice and definitely watch part 2.",
+        "It will change your view of the matrix.",
+        "Are the human people the ones who started the war?",
+        "Is AI a bad thing ?"]
+
+stop_words = stopwords.words("english")
+lemmatizer = WordNetLemmatizer()
+
+def tokenize(text):
+    # normalize case and remove punctuation
+    text = re.sub(r"[^a-zA-Z0-9]", " ", text.lower())
+    # tokenize text
+    tokens = word_tokenize(text)
+    # lemmatize andremove stop words
+    tokens = [lemmatizer.lemmatize(word) for word in tokens if word not in stop_words]
+
+    return tokens
+
+# initialize count vectorizer object: we pass the tokenizer function if we want!
+vect = CountVectorizer(tokenizer=tokenize)
+# get counts of each token (word) in text data
+X = vect.fit_transform(corpus)
+# convert sparse matrix to numpy array to view
+X.toarray()
+# view token vocabulary and counts
+vect.vocabulary_
+
+# initialize tf-idf transformer object
+transformer = TfidfTransformer(smooth_idf=False)
+# use counts from count vectorizer results to compute tf-idf values
+tfidf = transformer.fit_transform(X)
+# convert sparse matrix to numpy array to view
+tfidf.toarray()
+
+# NOTE: `TfidfVectorizer` = `CountVectorizer` + `TfidfTransformer`,
+# i.e., TfidfTransformer takes the ouput from CountVectorizer as input,
+# whereas the TfidfVectorizer takes the same input as CountVectorizer
+# initialize tf-idf vectorizer object
+vectorizer = TfidfVectorizer()
+# compute bag of word counts and tf-idf values
+X = vectorizer.fit_transform(corpus)
+# convert sparse matrix to numpy array to view
+X.toarray()
+```
+
 #### One-Hot Encoding
+
 
 #### Word Embeddings
 
