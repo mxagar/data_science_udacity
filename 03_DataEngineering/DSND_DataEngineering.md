@@ -57,6 +57,13 @@ Overview of Contents:
     - [3.3 Modeling](#33-modeling)
     - [3.4 Additional Concepts](#34-additional-concepts)
   - [4. Machine Learning Pipelines](#4-machine-learning-pipelines)
+    - [4.1 Case Study Introduction](#41-case-study-introduction)
+    - [4.2 Pipelines](#42-pipelines)
+    - [4.3 Feature Unions](#43-feature-unions)
+    - [4.4 Custom Transformers](#44-custom-transformers)
+      - [Case Study: Custom Transformer](#case-study-custom-transformer)
+    - [4.5 Grid Search](#45-grid-search)
+    - [4.6 Final Pipeline](#46-final-pipeline)
   - [5. Project: Disaster Response Pipeline](#5-project-disaster-response-pipeline)
 
 ## 1. Introduction to Data Engineering
@@ -106,6 +113,11 @@ Note that small datasets are used in the lesson, but usually big datasets appear
 - [Real-Time Analytics with Apache Storm](https://www.udacity.com/course/real-time-analytics-with-apache-storm--ud381)
 - [Big Data Analytics in Healthcare](https://www.udacity.com/course/big-data-analytics-in-healthcare--ud758)
 - [Spark](https://www.udacity.com/course/learn-spark-at-udacity--ud2002)
+
+**Fee Udacity courses** on **databases**:
+
+- [Data Wrangling with MongoDB](https://www.udacity.com/course/data-wrangling-with-mongodb--ud032)
+- [SQL for Data Analysis](https://www.udacity.com/course/sql-for-data-analysis--ud198)
 
 Interesting links:
 
@@ -1386,4 +1398,404 @@ Concepts and links too unlisted videos:
 
 ## 4. Machine Learning Pipelines
 
+Topics covered in this section:
+
+- Case Study
+- Advantages of Machine Learning Pipelines
+- Scikit-learn Pipeline
+- Scikit-learn Feature Union
+- Pipelines and Grid Search
+
+A case study is used in the section, explained in the next section.
+
+### 4.1 Case Study Introduction
+
+The dataset used as case study is not available anymore at the provided link; it is in origin a dataset from [Appen](https://appen.com/pre-labeled-datasets/) in which corporate messages are collected along with other features, such as message category, confidence, timestamp, etc.
+
+However, I found it in [data.world](https://data.world), and even though the encoding is broken, I can still use it somehow. The dataframe has a shape of `(3118, 11)`, but only 3 columns are used:
+
+- `text`: message to be classfied.
+- `category`: target message category: `Information`, `Action`, `Dialogue` and `Exclude` (the last is not taken).
+- `category:confidence`: the confidence of the category; only rows with confidence 1 are taken.
+
+A first approach to the ML workflow is summarized in the following code, which is a summary from [`lab/ML_Pipelines/ml_workflow.ipynb`](./lab/ML_Pipelines/ml_workflow.ipynb):
+
+```python
+import nltk
+nltk.download(['punkt', 'wordnet'])
+
+import re
+import numpy as np
+import pandas as pd
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+from sklearn.metrics import confusion_matrix
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+
+import chardet
+from encodings.aliases import aliases
+
+# URL regex, which appears in several messages
+url_regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+
+def load_data():
+    df = pd.read_csv('corporate_messaging.csv', encoding='mac_roman')
+    df = df[(df['category:confidence']==1) & (df['category']!='Exclude')]
+    X = df.text.values
+    y = df.category.values
+    return X, y
+
+def tokenize(text):
+  # Remove URLs
+    detected_urls = re.findall(url_regex, text)
+    for url in detected_urls:
+        text = text.replace(url, "urlplaceholder")
+    # Tokenize
+    tokens = word_tokenize(text)
+    # Lemmatize
+    lemmatizer = WordNetLemmatizer()
+    clean_tokens = []
+    for tok in tokens:
+        clean_tok = lemmatizer.lemmatize(tok).lower().strip()
+        clean_tokens.append(clean_tok)
+
+    return clean_tokens
+
+def display_results(y_test, y_pred):
+    labels = np.unique(y_pred)
+    confusion_mat = confusion_matrix(y_test, y_pred, labels=labels)
+    accuracy = (y_pred == y_test).mean()
+
+    print("Labels:", labels)
+    print("Confusion Matrix:\n", confusion_mat)
+    print("Accuracy:", accuracy)
+
+def main():
+    """This is the main function in which
+    the following steps are carried out:
+
+    - The data is loaded
+    - The data is processed
+    - Bags of Words are created
+    - A Random Forest classifier is trained
+    - The trained model is evaluated
+    - The results are shown
+    """
+    # Load data and perform train text split
+    X, y = load_data()
+    X_train, X_test, y_train, y_test = train_test_split(X, y)
+
+    # Instantiate transformers and classifiers
+    # Note: TfidfTransformer takes as input the output from CountVectorizer
+    # Alternative: TfidfVectorizer
+    # Note that we pass the tokenizer to CountVectorizer!
+    vect = CountVectorizer(tokenizer=tokenize)
+    tfidf = TfidfTransformer()
+    clf = RandomForestClassifier()
+
+    # Fit and transform the training data
+    X_train_counts = vect.fit_transform(X_train)
+    X_train_tfidf = tfidf.fit_transform(X_train_counts)
+
+    # Train classifier
+    clf.fit(X_train_tfidf, y_train)
+
+    # Transform (no fitting) the test data
+    X_test_counts = vect.transform(X_test)
+    X_test_tfidf = tfidf.transform(X_test_counts)
+
+    # Predict on test data
+    y_pred = clf.predict(X_test_tfidf)
+
+    # Display results
+    display_results(y_test, y_pred)
+
+if __name__ == "__main__":
+
+    ### -- Exploration: This exploration part is not necessary
+
+    # Read the data
+    # The dataset contains text messages + message categories
+    # among other columns.
+    # The goal is to map the mentioned values
+    df = pd.read_csv('corporate_messaging.csv', encoding='mac_roman')
+    df.head()
+
+    # Count the values in category
+    df.category.value_counts()
+    # Information
+    # Action
+    # Dialogue
+    # Exclude
+
+    # Narrow down to rows with a confidence of 1 and catogory that is not Exclude
+    df = df[(df['category:confidence']==1) & (df['category']!='Exclude')]
+    df.category.valur_counts()
+    # Information 1823
+    # Action 456
+    # Dialogue 124
+
+    # load and view text and category data
+    X = df.text.values
+    y = df.category.values
+    X[0] # Message: 'Barclays ...'
+    y[0] # Category: 'Information'
+
+    # Load the data with the function
+    # and tokenize the texts
+    X, y = load_data()
+    X.shape, y.shape
+    # ((2403,), (2403,))
+    for message in X[:5]:
+        tokens = tokenize(message)
+        print(message)
+        print(tokens, '\n')
+
+    ### -- Processing and Training: This is where everything is run wth main()
+
+    # This function runs everything
+    main()
+    # Labels: ['Action' 'Dialogue' 'Information']
+    # Confusion Matrix:
+    # [[ 87   0  27]
+    # [  1  34   5]
+    # [  7   1 439]]
+    # Accuracy: 0.931780366057
+
+```
+
+### 4.2 Pipelines
+
+Pipelines make thee code in the previous section more compact and they pack all transformation objects in a single `Pipeline` object. A `Pipeline` is a sequence of transformers with the `fit()` and `transform()` methods and a last estimator with the `fit()` and `predict()` method.
+
+The sequence in the `Pipeline` is a collection of key-value pairs: the name of the object and the instance of the object; the order is relevant, since the data is passed from one object to the next following it.
+
+Advantages of `Pipelines`:
+
+- More compact code.
+- Repetitive steps automated.
+- Code easier to understand and modify.
+- We can apply `GridSearchCV` to the complete `Pipeline`.
+- We prevent data leakage.
+
+Example: If we use `Pipeline` in the case study code from previous section, we get this new `main()` function:
+
+```python
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+
+def main():
+    X, y = load_data()
+    X_train, X_test, y_train, y_test = train_test_split(X, y)
+
+    pipeline = Pipeline([
+        ('vect', CountVectorizer(tokenizer=tokenize)),
+        ('tfidf', TfidfTransformer()),
+        ('clf', RandomForestClassifier())
+    ])
+
+    # train classifier
+    pipeline.fit(X_train, y_train)
+
+    # predict on test data
+    y_pred = pipeline.predict(X_test)
+
+    # display results
+    display_results(y_test, y_pred)
+```
+
+### 4.3 Feature Unions
+
+[Feature Union](https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.FeatureUnion.html) is a transformer/estimator which allows us to perform steps in parallel and take the union/concatenation of their results for the next step. We can use multiple feature unions with pipelines or pipelines within feature unions.
+
+![Feature Unions](./pics/feature_unions.png)
+
+It is related to the [Column Transfomer](https://scikit-learn.org/stable/modules/generated/sklearn.compose.ColumnTransformer.html), however, the `ColumnTransformer` applies transformations independently to columns, as if they were separate dataset slices. In contrast, the `FeatureUnion` applies several transformations to the complete dataset and concatenates the results.
+
+```python
+X = df['text'].values
+y = df['label'].values
+X_train, X_test, y_train, y_test = train_test_split(X, y)
+
+# Feature union applies nlp_pipeline and txt_len
+# in parallel and then it concatenates the output
+# as with np.hstack
+pipeline = Pipeline([
+    ('features', FeatureUnion([
+        ('nlp_pipeline', Pipeline([
+            ('vect', CountVectorizer()
+            ('tfidf', TfidfTransformer())
+        ])),
+        # Custom transformer which computes text length
+        ('txt_len', TextLengthExtractor())
+    ])),
+    ('clf', RandomForestClassifier())
+])
+
+pipeline.fit(Xtrain)
+
+predicted = pipeline.predict(Xtest)
+```
+
+### 4.4 Custom Transformers
+
+With custom transformers we can define any transformations we'd like; we need to define a class which
+
+- Inherits from `BaseEstimator` and `TransformerMixin`.
+- Define `fit()` and `transform()` functions; if there's nothing to fit, return `self`.
+- If the class has any state or attributes to be stored, define `__init__()`.
+
+Example:
+
+```python
+import numpy as np
+import pandas as pd
+from sklearn.base import BaseEstimator, TransformerMixin
+
+class CaseNormalizer(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        # Usually X will be 2D, but here it's 1D
+        return pd.Series(X).apply(lambda x: x.lower()).values
+
+case_normalizer = CaseNormalizer()
+
+X = np.array(['Implementing', 'a', 'Custom', 'Transformer', 'from', 'SCIKIT-LEARN'])
+case_normalizer.transform(X)
+# array(['implementing', 'a', 'custom', 'transformer', 'from', 'scikit-learn'], dtype=object)
+```
+
+Another way to create a custom transformer is [FunctionTransformer](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.FunctionTransformer.html#sklearn.preprocessing.FunctionTransformer), which converts any function we have into a transformer! It provides less flexibility but it's very simple.
+
+```python
+import numpy as np
+from sklearn.preprocessing import FunctionTransformer
+transformer = FunctionTransformer(np.log1p)
+X = np.array([[0, 1], [2, 3]])
+transformer.transform(X)
+# array([[0.       , 0.6931...],
+#       [1.0986..., 1.3862...]])
+```
+
+#### Case Study: Custom Transformer
+
+```python
+import nltk
+nltk.download(['punkt', 'wordnet', 'averaged_perceptron_tagger'])
+
+import re
+import numpy as np
+import pandas as pd
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+
+from sklearn.metrics import confusion_matrix
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline, FeatureUnion
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+
+class StartingVerbExtractor(BaseEstimator, TransformerMixin):
+
+    def starting_verb(self, text):
+        sentence_list = nltk.sent_tokenize(text)
+        for sentence in sentence_list:
+            pos_tags = nltk.pos_tag(tokenize(sentence))
+            first_word, first_tag = pos_tags[0]
+            if first_tag in ['VB', 'VBP'] or first_word == 'RT':
+                return True
+        return False
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        X_tagged = pd.Series(X).apply(self.starting_verb)
+        return pd.DataFrame(X_tagged)
+
+def tokenize(text):
+    detected_urls = re.findall(url_regex, text)
+    for url in detected_urls:
+        text = text.replace(url, "urlplaceholder")
+
+    tokens = word_tokenize(text)
+    lemmatizer = WordNetLemmatizer()
+
+    clean_tokens = []
+    for tok in tokens:
+        clean_tok = lemmatizer.lemmatize(tok).lower().strip()
+        clean_tokens.append(clean_tok)
+
+    return clean_tokens
+
+def model_pipeline():
+    pipeline = Pipeline([
+        ('features', FeatureUnion([
+
+            ('text_pipeline', Pipeline([
+                ('vect', CountVectorizer(tokenizer=tokenize)),
+                ('tfidf', TfidfTransformer())
+            ])),
+
+            ('starting_verb', StartingVerbExtractor())
+        ])),
+
+        ('clf', RandomForestClassifier())
+    ])
+
+    return pipeline
+
+```
+
+### 4.5 Grid Search
+
+With `GridSearchCV` we can try different sets of hyperparameters using cross validation; the search does not apply to the final estimator only, but to the entire `Pipeline`, i.e., we can find the best hyperparameters of the transformers, too, if they allow for tuning.
+
+To use it:
+
+- We create a dictionary with keys as parameter names a values as lists of values.
+- We create a `GridSearchCV` object and pass to it the pipeline and the dictionary with the parameters.
+
+
+```python
+# Build a Pipeline
+pipeline = Pipeline([
+    ('scaler', StandardScaler()),
+    ('clf', SVC())
+])
+
+# Define dictionary with key=pipeline element (transformer, estimator) parameter 
+# and value=list of parameter values
+# In case of Pipelines, use two _ to denote transformer__parameter
+parameters = {
+    'scaler__with_mean': [True, False]
+    'clf__kernel': ['linear', 'rbf'],
+    'clf__C':[1, 10]
+}
+
+# Grid Search with K=3 folds
+# We pass the Pipeline and the dictionary with the search parameters
+cv = GridSearchCV(pipeline, param_grid=parameters, cv = 3)
+
+cv.fit(X_train, y_train)
+y_pred = cv.predict(X_test)
+```
+
+It is better to use a `Pipeline` with `GridSearchCV`, because that way we can avoid **data leakage**: for instance, in `GridSearchCV`, we perform cross validation with K folds, and for each fold the `StandardScaler` is fit with different means and standard deviations; if we used `GridSearchCV` only with the final estimator, the `StandardScaler` would be parametrized identically for all folds, so training data is leaking into the validation.
+
+Note that since `GridSearchCV` performs several cross validation folds and tests all possible parameter value combinations (specified in the dictionary), it usually takes some time.
+
+### 4.6 Final Pipeline
+
+
+
+File: [`lab/ML_Pipelines/ml_nlp_pipeline.py`](./lab/ML_Pipelines/ml_nlp_pipeline.py)
+
+```python
+```
 ## 5. Project: Disaster Response Pipeline
