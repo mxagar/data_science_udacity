@@ -11,17 +11,31 @@ The following methods/techniques are used:
 - FetureUnion
 - GridSearchCV
 
+Using Pipeline along with GridSearchCV has several advantages:
+
+- More compact code.
+- Repetitive steps automated.
+- Code easier to understand and modify.
+- We can apply `GridSearchCV` to the complete `Pipeline`,
+    so we optimize transformer parameters, if necessary.
+- We prevent data leakage, because the transformers in
+    GridSearchCV are fit in each fold with a different
+    subset, so the complete training data is not leaked.
+
 To use this file, check that DATA_FILENAME points
 to the correct file path and run the script:
 
     $ python ml_nlp_pipeline.py
 
-Note that you need to run 
+Note that you need to run the script in an environment
+where all necessary packages have been installed:
+
+    numpy, pandas, nltk, sklearn, chardet
 
 Source: Udacity Data Science Nanodegree case study,
 link to original file:
 
-    https://github.com/mxagar/data_science_udacity/blob/main/03_DataEngineering/lab/18_final_exercise/etl_gdp.py
+    https://github.com/mxagar/data_science_udacity/blob/main/03_DataEngineering/lab/ML_Pipelines/ml_nlp_pipeline.py
 
 Author: Mikel Sagardia
 Date: 2023-03-08
