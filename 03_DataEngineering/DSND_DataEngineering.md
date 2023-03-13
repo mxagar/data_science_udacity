@@ -2,7 +2,7 @@
 
 These are my personal notes taken while following the [Udacity Data Science Nanodegree](https://www.udacity.com/course/data-scientist-nanodegree--nd025).
 
-The Nanodegree asssumes basic data analysis skills with python libraries (pandas, numpy, matplotlib, sklearn, etc.) and has 5 modules that build up on those skills:
+The Nanodegree assumes basic data analysis skills with python libraries (pandas, numpy, matplotlib, sklearn, etc.) and has 5 modules that build up on those skills:
 
 1. Introduction to Data Science
 2. Software Engineering
@@ -2053,4 +2053,4 @@ if __name__ == "__main__":
 
 ## 5. Project: Disaster Response Pipeline
 
-Project repository: []().
+Project repository: [disaster_response_pipeline](https://github.com/mxagar/disaster_response_pipeline).
