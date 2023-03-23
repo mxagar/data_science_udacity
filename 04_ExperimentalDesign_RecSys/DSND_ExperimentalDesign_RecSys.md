@@ -26,6 +26,9 @@ Overview of Contents:
     - [2.4 Types of Sampling](#24-types-of-sampling)
     - [2.5 Measuring Outcomes](#25-measuring-outcomes)
     - [2.6 Creating Metrics](#26-creating-metrics)
+    - [2.7 Controlling Variables](#27-controlling-variables)
+    - [2.8 Checking Validity](#28-checking-validity)
+    - [2.9 Checking Bias](#29-checking-bias)
 
 
 ## 1. Introduction to Experiment Design and Recommendation Engines
@@ -145,6 +148,51 @@ Lecture videos:
 
 ### 2.6 Creating Metrics
 
+Going back to the online store example, we need to find a way to divide the two groups; notes:
 
+- The flow of steps the user follows from start to end are called **user funnel**, because we loose users from step to step.
+- Two groups mean two different funnels.
+- In the case of an online store, we can implement the separation with a cookie in the beginning: when the user opens the page/starts a session, a cookie which randomly assigns the user to groups A/B is created, which is permanently stored for that user. The cookie is **unit of diversion** and it should be unnoticeable for the user; depending on the experiment, we might have different types of diversions:
+  - Event-based: when opening page.
+  - Cookie-based: a user has one permanent cookie.
+  - Account-based: every logged user has a group assigned.
+
+We need to track two kinds of metrics:
+
+1. Evaluation metrics: metrics we expect to change due to the treatment. We compare the groups with them.
+2. Invariant metrics: metrics we expect to be constant; we measure them to make sure that the groups are the same, treatment aside.
+
+![Metrics](./pics/metrics.jpg)
 
 Lecture video: [Creating Metrics](https://www.youtube.com/watch?v=__7tzDUY870&t=7s)
+
+### 2.7 Controlling Variables
+
+As mentioned before, *correlation does not mean causation*. Sometimes variables are correlated, but that relationship can be:
+
+- by chance
+- or caused by a **confounding variable**: a confounding variable is a hidden factor which influences both correlated variables.
+
+Example: ice cream consumption and crime rates are correlated; the confounding variable can be the temperature: the hotter it is, the more ice cream people eat and more crimes occur, without both being related more than by the temperature.
+
+If we want to argue causality, we need to change only one factor/variable and control the experiment very thoroughly.
+
+Lecture video: [Controlling Variables](https://www.youtube.com/watch?v=pLTneSg2MRY)
+
+### 2.8 Checking Validity
+
+Validity is related to how well the conclusions of the experiment can be supported.
+
+There are 3 types of validity measures:
+
+1. Construct validity: degree to which an experiment's metric result supports the goals of the study; a bad construct validity example is the number of search queries in the online store example.
+2. Internal validity: degree to which a causality claim can be supported. If we have 2 correlated variables, but we don't account for any other variables, the causation is not well supported; we need to consider other variables to state causation.
+3. External validity: how generalizable the results are. This is related to the representativeness of the sample: the more representative, the more generalizable.
+
+Lecture video: [Checking Validity](https://www.youtube.com/watch?v=H3H1SZXqDmQ&t=2s).
+
+### 2.9 Checking Bias
+
+
+
+Lecture video: [Checking Bias](https://www.youtube.com/watch?v=ppjNNY4DhPw&t=1s).
