@@ -13,7 +13,7 @@ The Nanodegree asssumes basic data analysis skills with python libraries (pandas
 Additionally, it is necessary to submit and pass some projects to get the certification:
 
 - Create a data science project and write a blog post: [airbnb_data_analysis](https://github.com/mxagar/airbnb_data_analysis).
-- Disaster response pipeline
+- Disaster response pipeline: [disaster_response_pipeline](https://github.com/mxagar/disaster_response_pipeline).
 - Recommendation engine
 - Capstone project
 
