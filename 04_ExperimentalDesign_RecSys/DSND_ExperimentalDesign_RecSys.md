@@ -248,9 +248,9 @@ Examples in experimental ethics, interesting links:
 
 Lecture videos:
 
-- [Ethics In Experimentation Pt1](https://www.youtube.com/watch?v=cWB1jQgcQ1g&t=1s)
+- [Ethics In Experimentation Pt 1](https://www.youtube.com/watch?v=cWB1jQgcQ1g&t=1s)
 - [Ethics In Experimentation Pt 2](https://www.youtube.com/watch?v=0qcJ_oggdKw)
-- [Ethics In Experimentation Pt3](https://www.youtube.com/watch?v=_HTolKktaC4)
+- [Ethics In Experimentation Pt 3](https://www.youtube.com/watch?v=_HTolKktaC4)
 
 ## 3. Statistical Considerations in Testing
 
@@ -260,9 +260,322 @@ Check also my notes on statistics: [statistics_with_python_coursera](https://git
 
 Notebook: [L2_Statistical_Significance_Solution.ipynb](./lab/Experiments/L2_Statistical_Significance_Solution.ipynb).
 
-```python
+Notes on statistical testing: [Statistics_Python_2_Inference.md](https://github.com/mxagar/statistics_with_python_coursera/blob/main/02_Inference/Statistics_Python_2_Inference.md).
 
+Problem: we have a new layout and want to check whether it leads to more download clicks; we run an A/B test with cookies, i.e., each user gets a random layout and we collect their response.
+
+- Experiment: Does layout change lead to more clicks on download?
+- Variable `condition`: layout changed or not
+- Variable `click`: whether download clicked or not
+
+A Z-test is performed with 2 proportions, using two approaches: 
+
+- (1) analytical, i.e., Z-test with binomial distribution variance,
+- (2) simulation, i.e., a large amount of samples are taken from the data to arrive at the same conclusion.
+
+```python
+# Experiment: Does layout change lead to more clicks on download?
+# condition: layout changed or not
+# click: whether download clicked or not
+data = pd.read_csv('./data/statistical_significance_data.csv')
+data.head(10)
+# 	condition	click
+# 0	1	        0
+# ...
+
+# INVARIANT metric: the condition
+# The size of both groups should not be significantly different
+# Get number of trials and number of 'successes'
+n_obs = data.shape[0]
+n_control = data.groupby('condition').size()[0]
+
+print(n_obs) # 999
+print(n_control) # 491: approx. 1/2, ok
+
+# Compute a z-score and p-value
+# H0: new layout doesn't have more/less entries 
+# Ha: new layout leads to more/less entries
+p = 0.5
+sd = np.sqrt(p * (1-p) * n_obs)
+
+z_score = ((n_control + 0.5) - p * n_obs) / sd
+p_value = 2*stats.norm.cdf(z_score)
+
+print("z-score: {z}".format(z=z_score))
+print("p-value from z-score: {p}".format(p=p_value)) # 0.61, we cannot reject H0
+
+# EVALUATION metric: downloads
+# Get p(click) in each condition
+p_click = data.groupby('condition').mean()['click']
+p_click
+# 0    0.079430
+# 1    0.112205
+
+# Get number of trials and overall 'success' rate under null
+n_control = data.groupby('condition').size()[0]
+n_exper = data.groupby('condition').size()[1]
+p_null = data['click'].mean()
+
+# Compute standard error, z-score, and p-value
+# H0: new layout doesn't lead to more/less clicks
+# Ha: new layout leads to more/less download clicks
+se_p = np.sqrt(p_null * (1-p_null) * (1/n_control + 1/n_exper))
+
+z_score = (p_click[1] - p_click[0]) / se_p
+p_val = 1-stats.norm.cdf(z_score)
+
+print("z-score: {z}".format(z=z_score))
+print("p-value from z-score: {p}".format(p=p_val)) # p = 0.039; we can reject H0
 ```
+
+### 3.2 Practical Significance
+
+Sometimes our experiments are significant and we conclude the change we would need to be more successful; however, implementing those changes might be very costly, more than the revenue they would bring. Thus, it doesn't make sense to implement them; that's **practical significance**: when in practice it doesn't make sense to modify something even though the experiments show it would be significantly beneficial. 
+
+Lecture video: [Practical Significance](https://www.youtube.com/watch?v=eJ3idt3AJ7E&t=1s)
+
+One way of dealing with the practical significance is the following:
+
+- Given the risks we want to take and the costs we want to assume to implement the change, we compute the minimum impact we expect, e.g., number of sold products.
+- Then, we compute the confidence interval (CI) of the metrics from our experiment.
+- Depending on the location of the expected impact wrt. the CI, we decide.
+
+### 3.3 Experiment Size: Statistical Power
+
+Lecture video: [Experiment Size](https://www.youtube.com/watch?v=sImRm8e01jA&t=2s).
+
+How long should we run an experiment to draw meaningful conclusions? How many recordings do we need?
+
+These questions are related to the statistical power.
+
+Example: we have an online store and we want to test whether a new layout leads to more buys; the current click-through rate is 10%, and we want to see an increase to 12%, that's the practical boundary. How many data-points do we need to record in order to reliably detect that change?
+
+We use the **statistical power**, `1 - beta`: the likelihood of a hypothesis test detecting a true effect if there is one, i.e., given the true mean (different from the H0), the probability of rejecting the null hypothesis.
+
+To compute it, we use the distributions of the two layouts/conditions:
+
+- We have the distributions of the click-through rates hypotheses with the current and the new layouts.
+- We select `alpha = 0.05` and draw the boundary in the current layout distribution.
+- The same boundary value is used to compute the power, which is the area below the curve starting at the boundary, e.g., `0.8 = 80%`.
+- The more data-points we take, the narrower and more disjoint the distributions become, so the power increases!
+- Thus, we can define the power we want and, from it, derivate the number of data-points we need to reach it.
+- with the number of data-points, we can calculate the duration of the experiment, because we know the number of visitors/day, approx.; but:
+  - Consider seasonal effects, weekends, etc. Which impact do they have on the results?
+  - If the experiment needs to be run too long, maybe we need to change the power?
+
+![Statistical Power](./pics/statistical_power_1.jpg)
+
+![Statistical Power](./pics/statistical_power_2.jpg)
+
+#### Example Notebook: Statistical Power and Experiment Size
+
+Notebook: [L2_Experiment_Size_Solution.ipynb](./lab/Experiments/L2_Experiment_Size_Solution.ipynb).
+
+This is a very interesting notebook in which two functions are defined and used in the context of the example above:
+
+- `power(p_null, p_alt, n, alpha = .05)`: given all the arguments, compute the power `1 - beta` of the experiment, i.e., the probability of a hypothesis test detecting a true effect if there is one. The hypotheses distributions are plotted.
+- `experiment_size(p_null, p_alt, alpha = .05, beta = .20)`: analytically compute the required sample size to reach a power (closed-form).
+
+![Statistical Power](./pics/statistical_power_plot.jpg)
+
+```python
+def power(p_null, p_alt, n, alpha = .05, plot = True):
+    """
+    Compute the power of detecting the difference in two populations with 
+    different proportion parameters, given a desired alpha rate.
+    
+    Input parameters:
+        p_null: base success rate under null hypothesis
+        p_alt : desired success rate to be detected, must be larger than
+                p_null
+        n     : number of observations made in each group
+        alpha : Type-I error rate
+        plot  : boolean for whether or not a plot of distributions will be
+                created
+    
+    Output value:
+        power : Power to detect the desired difference, under the null.
+    """
+    
+    # Compute the power
+    se_null = np.sqrt((p_null * (1-p_null) + p_null * (1-p_null)) / n)
+    null_dist = stats.norm(loc = 0, scale = se_null)
+    p_crit = null_dist.ppf(1 - alpha)
+    
+    se_alt  = np.sqrt((p_null * (1-p_null) + p_alt  * (1-p_alt) ) / n)
+    alt_dist = stats.norm(loc = p_alt - p_null, scale = se_alt)
+    beta = alt_dist.cdf(p_crit)
+    
+    if plot:
+        # Compute distribution heights
+        low_bound = null_dist.ppf(.01)
+        high_bound = alt_dist.ppf(.99)
+        x = np.linspace(low_bound, high_bound, 201)
+        y_null = null_dist.pdf(x)
+        y_alt = alt_dist.pdf(x)
+
+        # Plot the distributions
+        plt.plot(x, y_null)
+        plt.plot(x, y_alt)
+        plt.vlines(p_crit, 0, np.amax([null_dist.pdf(p_crit), alt_dist.pdf(p_crit)]),
+                   linestyles = '--')
+        plt.fill_between(x, y_null, 0, where = (x >= p_crit), alpha = .5)
+        plt.fill_between(x, y_alt , 0, where = (x <= p_crit), alpha = .5)
+        
+        plt.legend(['null','alt'])
+        plt.xlabel('difference')
+        plt.ylabel('density')
+        plt.show()
+    
+    # return power
+    return (1 - beta)
+
+power(.1, .12, 1000) # 0.44122379261151545
+
+
+def experiment_size(p_null, p_alt, alpha = .05, beta = .20):
+    """
+    Compute the minimum number of samples needed to achieve a desired power
+    level for a given effect size.
+    
+    Input parameters:
+        p_null: base success rate under null hypothesis
+        p_alt : desired success rate to be detected
+        alpha : Type-I error rate
+        beta  : Type-II error rate
+    
+    Output value:
+        n : Number of samples required for each group to obtain desired power
+    """
+    
+    # Get necessary z-scores and standard deviations (@ 1 obs per group)
+    z_null = stats.norm.ppf(1 - alpha)
+    z_alt  = stats.norm.ppf(beta)
+    sd_null = np.sqrt(p_null * (1-p_null) + p_null * (1-p_null))
+    sd_alt  = np.sqrt(p_null * (1-p_null) + p_alt  * (1-p_alt) )
+    
+    # Compute and return minimum sample size
+    p_diff = p_alt - p_null
+    n = ((z_null*sd_null - z_alt*sd_alt) / p_diff) ** 2
+    return np.ceil(n)
+
+experiment_size(.1, .12) # 2863.0
+```
+
+### 3.3 Using Dummy Tests: A/A Tests
+
+Lecture video: [Using Dummy Tests](https://www.youtube.com/watch?v=rURTLjh3Hlc&t=85s).
+
+Comparison between equivalent groups for two main purposes:
+
+1. Test that everything is working as expected; we should not see significant differences between the groups. However, some Type I errors might arise, so one large deviation is not necessarily reason for concern.
+2. Collect distributions of variables under non changes, for reference. That way, we can more easily compute experiment size in the future.
+
+### 3.4 Non-Parametric Tests
+
+Non-parametric tests make no assumption of the underlying distribution.
+
+### Notebook 1: CI and P-Value of Quantiles
+
+Notebook: [L2_Non-Parametric_Tests_Part_1_Solution.ipynb](./lab/Experiments/L2_Non-Parametric_Tests_Part_1_Solution.ipynb).
+
+Two non-parametric functions are presented in the notebook:
+
+- `quantile_ci(data, q, c = .95, n_trials = 1000)`: Compute a confidence interval for a quantile of a dataset using a bootstrap method. Bootstrapping is used to estimate sampling distributions by using the actually collected data to generate new samples that could have been hypothetically collected. In a standard bootstrap, a bootstrapped sample means drawing points from the original data with replacement until we get as many points as there were in the original data. With it, we can estimate the sampling distribution and obtain the CI of a quantile.
+- `quantile_permtest(x, y, q, alternative = 'less', n_trials = 10_000)`: Compute the p-value of the difference between 2 groups given a quantile. The permutation test is a resampling-type test used to compare the values on an outcome variable between two or more groups; under the null hypothesis, the outcome distribution should be the same for all groups.
+
+```python
+def quantile_ci(data, q, c = .95, n_trials = 1000):
+    """
+    Compute a confidence interval for a quantile of a dataset using a bootstrap
+    method.
+    
+    Input parameters:
+        data: data in form of 1-D array-like (e.g. numpy array or Pandas series)
+        q: quantile to be estimated, must be between 0 and 1
+        c: confidence interval width
+        n_trials: number of bootstrap samples to perform
+    
+    Output value:
+        ci: Tuple indicating lower and upper bounds of bootstrapped
+            confidence interval
+    """
+    
+    # initialize storage of bootstrapped sample quantiles
+    n_points = data.shape[0]
+    sample_qs = []
+    
+    # For each trial...
+    for _ in range(n_trials):
+        # draw a random sample from the data with replacement...
+        sample = np.random.choice(data, n_points, replace = True)
+        
+        # compute the desired quantile...
+        sample_q = np.percentile(sample, 100 * q)
+        
+        # and add the value to the list of sampled quantiles
+        sample_qs.append(sample_q)
+        
+    # Compute the confidence interval bounds
+    lower_limit = np.percentile(sample_qs, (1 - c)/2 * 100)
+    upper_limit = np.percentile(sample_qs, (1 + c)/2 * 100)
+    
+    return (lower_limit, upper_limit)
+
+def quantile_permtest(x, y, q, alternative = 'less', n_trials = 10_000):
+    """
+    Compute the p-value of the difference between 2 groups given a quantile.
+    
+    Input parameters:
+        x: 1-D array-like of data for independent / grouping feature as 0s and 1s
+        y: 1-D array-like of data for dependent / output feature (continuous values)
+        q: quantile to be estimated, must be between 0 and 1
+        alternative: type of test to perform, {'less', 'greater'}
+        n_trials: number of permutation trials to perform
+    
+    Output value:
+        p: estimated p-value of test
+    """
+    
+    
+    # initialize storage of bootstrapped sample quantiles
+    sample_diffs = []
+    
+    # For each trial...
+    for _ in range(n_trials):
+        # randomly permute the grouping labels
+        labels = np.random.permutation(x)
+        
+        # compute the difference in quantiles
+        cond_q = np.percentile(y[labels == 0], 100 * q)
+        exp_q  = np.percentile(y[labels == 1], 100 * q)
+        
+        # and add the value to the list of sampled differences
+        sample_diffs.append(exp_q - cond_q)
+    
+    # compute observed statistic
+    cond_q = np.percentile(y[x == 0], 100 * q)
+    exp_q  = np.percentile(y[x == 1], 100 * q)
+    obs_diff = exp_q - cond_q
+    
+    # compute a p-value
+    if alternative == 'less':
+        hits = (sample_diffs <= obs_diff).sum()
+    elif alternative == 'greater':
+        hits = (sample_diffs >= obs_diff).sum()
+    
+    return (hits / n_trials)
+```
+
+#### Notebook 2: Mean Differences
+
+Notebook: [`L2_Non-Parametric_Tests_Part_2_Solution.ipynb`](./lab/Experiments/L2_Non-Parametric_Tests_Part_2_Solution.ipynb).
+
+- `ranked_sum(x, y, alternative = 'two-sided')`: 
+- `stats.mannwhitneyu()`
+- `sign_test(x, y, alternative = 'two-sided')`: 
+
+
 
 ## 4. A/B Testing Case Study
 
