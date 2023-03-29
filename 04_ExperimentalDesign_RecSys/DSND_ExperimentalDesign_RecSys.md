@@ -29,6 +29,9 @@ Overview of Contents:
     - [2.7 Controlling Variables](#27-controlling-variables)
     - [2.8 Checking Validity](#28-checking-validity)
     - [2.9 Checking Bias](#29-checking-bias)
+    - [2.10 Ethics in Experimentation](#210-ethics-in-experimentation)
+  - [3. Statistical Considerations in Testing](#3-statistical-considerations-in-testing)
+  - [4. A/B Testing Case Study](#4-ab-testing-case-study)
 
 
 ## 1. Introduction to Experiment Design and Recommendation Engines
@@ -67,6 +70,13 @@ When creating the control/treatment groups:
 
 - Be mindful of the time of year if the business has seasonal patterns.
 - Consider the users' past behavior: maybe they have significant patterns that affect the group result.
+
+### Lab Exercises
+
+The folder [`lab`](./lab/) contains 2 sub-folders:
+
+- [`lab/Experiments`](./lab/Experiments/): exercises of sections 3-5
+- [`lab/Recommendations`](./lab/Recommendations/): exercises of sections 6 and 7
 
 ## 2. Concepts in Experiment Design
 
@@ -193,6 +203,74 @@ Lecture video: [Checking Validity](https://www.youtube.com/watch?v=H3H1SZXqDmQ&t
 
 ### 2.9 Checking Bias
 
+In addition to checking the validity, we need to check the biases of our experiments.
 
+Bias, definition: systematic error that affects the interpretability of the experiment.
+
+Examples of frequent biases:
+
+- Sampling bias: sample is not representative of the population. For instance:
+  - With questionnaires, some strata of people don't answer some questions, so if we take only the answers, we're introducing bias!
+  - With the online store example, if the A/B groups are decided depending on the daytime (AM, PM), we can expect them to be two different populations!
+- Novelty bias: when we introduce something new to the customers (e.g., overlay), the user behavior might deviate from the regular; then, when the novelty is gone, we get the stationary behavior, which might be different than before introducing the new feature.
+- Order biases: biases that occur when the order in which administer different treatment conditions is relevant:
+  - Primacy bias: condition is presented first, novelty bias
+  - Recency bias: condition is presented last
+  - Example: when 5 products are presented to the users sequentially and their feedback is asked.
+- Experimenter bias: when the presence of the experimenter affects the participants' behavior.
+
+Techniques to avoid bias: single/double blinding.
+
+Interesting links:
+
+- [Wikipedia: List of cognitive biases](https://en.wikipedia.org/wiki/List_of_cognitive_biases)
+- [Blinded experiment](https://en.wikipedia.org/wiki/Blinded_experiment)
 
 Lecture video: [Checking Bias](https://www.youtube.com/watch?v=ppjNNY4DhPw&t=1s).
+
+### 2.10 Ethics in Experimentation
+
+Ethical issues need to be examined before conducting an experiment:
+
+1. Minimize participant risk; emotional stress is also a form of harm.
+2. Clear the benefits for the risks taken. Are the benefits worth taking?
+3. Provide an informed consent. A debriefing is necessary, and a signed agreement; users need to be able to opt-out whenever they want.
+4. Handle sensitive data appropriately. Secure the information and anonymize it.
+
+Examples in experimental ethics, interesting links:
+
+- [Tuskegee Syphilis Study](https://en.wikipedia.org/wiki/Tuskegee_Syphilis_Study)
+- [Milgram experiment](https://en.wikipedia.org/wiki/Milgram_experiment)
+- [Stanford prison experiment](https://en.wikipedia.org/wiki/Stanford_prison_experiment)
+- [The Morality Of A/B Testing](https://techcrunch.com/2014/06/29/ethics-in-a-data-driven-world/?guccounter=1)
+- [The Belmont Report](https://www.hhs.gov/ohrp/regulations-and-policy/belmont-report/index.html)
+- [APA Ethics Code](https://www.apa.org/ethics/code/)
+
+Lecture videos:
+
+- [Ethics In Experimentation Pt1](https://www.youtube.com/watch?v=cWB1jQgcQ1g&t=1s)
+- [Ethics In Experimentation Pt 2](https://www.youtube.com/watch?v=0qcJ_oggdKw)
+- [Ethics In Experimentation Pt3](https://www.youtube.com/watch?v=_HTolKktaC4)
+
+## 3. Statistical Considerations in Testing
+
+Check also my notes on statistics: [statistics_with_python_coursera](https://github.com/mxagar/statistics_with_python_coursera).
+
+### 3.1 Statistical Significance Refresher Notebook
+
+Notebook: [L2_Statistical_Significance_Solution.ipynb](./lab/Experiments/L2_Statistical_Significance_Solution.ipynb).
+
+```python
+
+```
+
+## 4. A/B Testing Case Study
+
+## 5. Portfolio Exercise: Starbucks
+
+## 6. Introduction to Recommendation Engines
+
+## 7. Matrix Factorization Recommendations
+
+## 8. Project: Recommendation Engines
+
