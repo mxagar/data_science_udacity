@@ -254,13 +254,19 @@ Lecture videos:
 
 ## 3. Statistical Considerations in Testing
 
-Check also my notes on statistics: [statistics_with_python_coursera](https://github.com/mxagar/statistics_with_python_coursera).
+Check also my notes on statistics:
+
+- [Statistics_Python_2_Inference.md](https://github.com/mxagar/statistics_with_python_coursera/blob/main/02_Inference/Statistics_Python_2_Inference.md).
+- [Statistical_Analysis_Notes.pdf](https://github.com/mxagar/statistics_with_python_coursera/blob/main/Statistical_Analysis_Notes.pdf)
 
 ### 3.1 Statistical Significance Refresher Notebook
 
 Notebook: [L2_Statistical_Significance_Solution.ipynb](./lab/Experiments/L2_Statistical_Significance_Solution.ipynb).
 
-Notes on statistical testing: [Statistics_Python_2_Inference.md](https://github.com/mxagar/statistics_with_python_coursera/blob/main/02_Inference/Statistics_Python_2_Inference.md).
+Notes on statistical testing:
+
+- [Statistics_Python_2_Inference.md](https://github.com/mxagar/statistics_with_python_coursera/blob/main/02_Inference/Statistics_Python_2_Inference.md).
+- [Statistical_Analysis_Notes.pdf](https://github.com/mxagar/statistics_with_python_coursera/blob/main/Statistical_Analysis_Notes.pdf)
 
 Problem: we have a new layout and want to check whether it leads to more download clicks; we run an A/B test with cookies, i.e., each user gets a random layout and we collect their response.
 
@@ -475,14 +481,19 @@ Comparison between equivalent groups for two main purposes:
 
 Non-parametric tests make no assumption of the underlying distribution.
 
+Check also my notes on statistics:
+
+- [Statistics_Python_2_Inference.md](https://github.com/mxagar/statistics_with_python_coursera/blob/main/02_Inference/Statistics_Python_2_Inference.md).
+- [Statistical_Analysis_Notes.pdf](https://github.com/mxagar/statistics_with_python_coursera/blob/main/Statistical_Analysis_Notes.pdf)
+
 ### Notebook 1: CI and P-Value of Quantiles
 
 Notebook: [L2_Non-Parametric_Tests_Part_1_Solution.ipynb](./lab/Experiments/L2_Non-Parametric_Tests_Part_1_Solution.ipynb).
 
 Two non-parametric functions are presented in the notebook:
 
-- `quantile_ci(data, q, c = .95, n_trials = 1000)`: Compute a confidence interval for a quantile of a dataset using a bootstrap method. Bootstrapping is used to estimate sampling distributions by using the actually collected data to generate new samples that could have been hypothetically collected. In a standard bootstrap, a bootstrapped sample means drawing points from the original data with replacement until we get as many points as there were in the original data. With it, we can estimate the sampling distribution and obtain the CI of a quantile.
-- `quantile_permtest(x, y, q, alternative = 'less', n_trials = 10_000)`: Compute the p-value of the difference between 2 groups given a quantile. The permutation test is a resampling-type test used to compare the values on an outcome variable between two or more groups; under the null hypothesis, the outcome distribution should be the same for all groups.
+- `quantile_ci(data, q, c = .95, n_trials = 1000)`: [Bootstrapping](https://en.wikipedia.org/wiki/Bootstrapping_(statistics)): Compute a confidence interval for a quantile of a dataset using a bootstrap method. Bootstrapping is used to estimate sampling distributions by using the actually collected data to generate new samples that could have been hypothetically collected. In a standard bootstrap, a bootstrapped sample means drawing points from the original data with replacement until we get as many points as there were in the original data. With it, we can estimate the sampling distribution and obtain the CI of a quantile.
+- `quantile_permtest(x, y, q, alternative = 'less', n_trials = 10_000)`: [Permutation test](https://en.wikipedia.org/wiki/Permutation_test): Compute the p-value of the difference between 2 groups given a quantile. The permutation test is a resampling-type test used to compare the values on an outcome variable between two or more groups; under the null hypothesis, the outcome distribution should be the same for all groups.
 
 ```python
 def quantile_ci(data, q, c = .95, n_trials = 1000):
@@ -571,11 +582,113 @@ def quantile_permtest(x, y, q, alternative = 'less', n_trials = 10_000):
 
 Notebook: [`L2_Non-Parametric_Tests_Part_2_Solution.ipynb`](./lab/Experiments/L2_Non-Parametric_Tests_Part_2_Solution.ipynb).
 
-- `ranked_sum(x, y, alternative = 'two-sided')`: 
-- `stats.mannwhitneyu()`
-- `sign_test(x, y, alternative = 'two-sided')`: 
+- `ranked_sum(df.x, df.y, alternative = 'two-sided')`: [Rank-Sum Test (Mann-Whitney U test)](https://en.wikipedia.org/wiki/Mann–Whitney_U_test). We pass `y = {0,1}` and `x in R` and evaluate whether the groups belong to a different distribution without any assumption.
+- `scipy.stats.mannwhitneyu(df.x[df.y==0], df.x[df.y==1], alternative = 'greater')`: equivalent to the previous, but `scipy` is used, and the function considers more factors.
+- `sign_test(x, y, alternative = 'two-sided')`: [Sign test](https://en.wikipedia.org/wiki/Sign_test): it requires that there be paired values between two groups to compare, and tests whether one group's values tend to be higher than the other's. The test is quite weak but can be applied very broadly.
 
+```python
+import scipy.stats as stats
 
+data = pd.read_csv('./data/permutation_data.csv')
+data.head()
+# 	  condition	time
+#  0	0	        5940
+#  1	0	        666
+#  2	1	        571
+#  ...
+
+# Data visualization: two Poisson-like distributions
+bin_borders = np.arange(0, data['time'].max()+400, 400)
+plt.hist(data[data['condition'] == 0]['time'], alpha = 0.5, bins = bin_borders)
+plt.hist(data[data['condition'] == 1]['time'], alpha = 0.5, bins = bin_borders)
+plt.legend(labels = ['control', 'experiment'])
+
+stats.mannwhitneyu(data[data['condition'] == 0]['time'],
+                   data[data['condition'] == 1]['time'],
+                   alternative = 'greater')
+# MannwhitneyuResult(statistic=3273546.0, pvalue=0.001752280226004597)
+```
+
+### 3.5 Missing Data
+
+Missing data is data itself: if we have a questionnaire with difficult/sensitive questions, when a participant decides not to answer some, the missing value is related to their personality. If we're excluding the fact that they didn't answer, we are inserting bias; and if we're completely dropping the user, the bias is larger.
+
+Therefore, always consider:
+
+- Why do we have missing data?
+- Store with `Missing` variables the number or the columns/fields which are missing.
+- Which bias are we introducing when dropping/imputing?
+
+When should we prefer dropping vs. imputing?
+
+- Mechanical failures, e.g., no GPS data in forests.
+- The missing data is in the target.
+
+Other cases in which it is good practice dropping data:
+
+- Columns with no variability.
+- Values that we know are not correct.
+- If a column has a large percentage of missing values, we can remove it.
+
+But, always: **track missing values with dummy variables, either when we remove or impute them!**
+
+Lecture videos:
+
+- [Missing Data](https://www.youtube.com/watch?v=zAKd2WwSHfs&t=4s)
+- [Removing Data - When Is It OK?](https://www.youtube.com/watch?v=oQhIPq5AccU)
+- [Removing Data - Other Considerations](https://www.youtube.com/watch?v=xrXk_Tvi0oQ)
+
+### 3.6 Analyzing Multiple Metrics
+
+Usually we measure several metrics; if we perform several comparisons, the `alpha` needs to be corrected, because the combined probability of the Type I error increases with the number of variables.
+
+Example: We measure the ratio of adding to a cart and buying for web layouts A and B. The experiment is a success if either metric (cart or buy) is statistically significant. With `alpha = 5%` Type I error rate, how likely is to falsely declare a significant effect?
+
+    p(both not significant) = (1-0.05)*(1-0.05) = 0.9025
+    p(at least one significant) = 1 - 0.9025 = 0.0975
+    p(false significant effect) = 9.75%
+
+![Multiple Metrics](./pics/multiple_metrics.jpg)
+
+Thus, we take `alpha = 0.05`, but the combined error is larger: `alpha* = 0.0975`. Therefore, we need to correct the `alpha` value!
+
+![Multiple Metrics: Type I Error](./pics/multiple_metrics_type_1_error.png)
+
+One approach to correct the `alpha` value is the [**Bonferroni correction**](https://en.wikipedia.org/wiki/Bonferroni_correction):
+
+    alpha* = alpha / k
+    k: number of comparisons = number of metrics
+
+![Bonferroni Correction](./pics/bonferroni.png)
+
+If we assume independence between metrics, we can also use the **Sidak correction**, which is less conservative:
+
+    alpha* = 1 - (1 - alpha)^(1/k)
+    k: number of comparisons = number of metrics
+
+Note that:
+
+- Metrics tend to be correlated in real life, so we need to take a conservative correction like Bonferroni.
+- Reducing Type I error (smaller `alpha`) increases Type II error!
+
+Lecture videos:
+
+- [Analyzing Multiple Metrics Pt 1](https://www.youtube.com/watch?v=SNFHYbJvlZU)
+- [Analyzing Multiple Metrics Pt 2](https://www.youtube.com/watch?v=x7foG7murvU)
+
+### 3.7 Early Stopping
+
+Stopping an A/B test early because the results are statistically significant is usually a bad idea, because those observed effects can easily become smaller when the experiment is complete. We should instead define the experiment size/length in terms of the power we want to achieve and complete the experiment without peeking and early stopping.
+
+Notebook: [`L2_Early_Stopping_Solution.ipynb`](./lab/Experiments/L2_Early_Stopping_Solution.ipynb).
+
+More information:
+
+- [How Not To Run an A/B Test](https://www.evanmiller.org/how-not-to-run-an-ab-test.html)
+- [Simple Sequential A/B Testing](https://www.evanmiller.org/sequential-ab-testing.html)
+- [Sequential probability ratio test](https://en.wikipedia.org/wiki/Sequential_probability_ratio_test)
+
+Lecture video: [Early Stopping](https://www.youtube.com/watch?v=taIJZMNwRsI).
 
 ## 4. A/B Testing Case Study
 
