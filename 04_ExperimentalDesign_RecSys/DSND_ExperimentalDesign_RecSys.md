@@ -690,6 +690,17 @@ More information:
 
 Lecture video: [Early Stopping](https://www.youtube.com/watch?v=taIJZMNwRsI).
 
+### 3.8 Glossary
+
+> - Bootstrapping: Estimate sampling distributions by using actually collected data to generate new samples that could have been hypothetically collected.
+> - Non-parametric tests: Tests that don't rely on many assumptions of the underlying population, and so can be used in a wider range of circumstances compared to standard tests.
+> - Permutation Tests: A resampling-type test used to compare the values on an outcome variable between two or more groups.
+> - Practical significance: Refers to the level of effect that you need to observe in order for the experiment to be called a true success and implemented in truth.
+> - Rank-Sum test: This test is performed only on the data present. Also known as the Mann-Whitney U test, is not a test of any particular statistic like the mean or median. Instead, it's a test of distributions.
+> - Sign test: This test only requires that there be paired values between two groups to compare, and tests whether one group's values tend to be higher than the other's.
+
+
+
 ## 4. A/B Testing Case Study
 
 ## 5. Portfolio Exercise: Starbucks
