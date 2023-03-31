@@ -820,6 +820,85 @@ Everything is explained in the main notebook.
 
 ## 6. Introduction to Recommendation Engines
 
+Have a look at my notes on recommender engines:
+
+- [Machine Learning IBM: Recommender Systems](https://github.com/mxagar/machine_learning_ibm/tree/main/06_Capstone_Project)
+- [Machine Learning Andrew Ng: Recommender Systems](https://github.com/mxagar/machine_learning_coursera/tree/main/07_Anomaly_Recommender)
+- Project: [course_recommender_streamlit](https://github.com/mxagar/course_recommender_streamlit)
+
+There are 3 main recommendation systems:
+
+1. Knowledge-based
+2. Content-based
+3. Collaborative Filtering
+    - Neighborhood Based Collaborative Filtering
+    - Model-Based Collaborative Filtering
+
+However, other approaches and hybrid systems are also possible, i.e., mixing those basic types.
+
+To work with recommendation engines, we need to use similarity/distance metrics:
+
+- Pearson's correlation coefficient
+- Spearman's correlation coefficient
+- Kendall's Tau
+- Euclidean Distance
+- Manhattan Distance
+
+Additionally, there are 4 factors which need to be taken into account when implementing recommendation engines:
+
+- Relevance
+- Novelty
+- Serendipity
+- Increased Diversity
+
+The notebooks of this section are located in
+
+[`lab/Recommendations/01_Intro_to_Recommendations/`](./lab/Recommendations/01_Intro_to_Recommendations/)
+
+### 6.1 Three Types of Recommendation Engines
+
+Lecture video: [Types Of Recommendations](https://www.youtube.com/watch?v=uoXF81AO21E&t=11s).
+
+Let's image a user-item matrix, such as user-movies.
+
+1. Knowledge-based RS: use knowledge about items to meet user specifications.
+    - Typical for luxury items.
+    - Users define characteristics, which are then filtered.
+2. Collaborative Filtering RS: use item ratings of many users in a collaborative way to recommend new items to new users.
+    - It's the most common
+    - The key idea is that there is collaboration between users and items.
+3. Content-based RS: use information about items to find similarities; then, similar items are recommended. The information is usually composed by (latent) features related to the topic/genre, year, etc.
+    - They key idea is that similarities between items (or users) are taken, without considering user-item interactions.
+
+
+### 6.2 MovieTweetings Dataset
+
+The **MovieTweetings** dataset is data about movie ratings collected from Twitter by Simon Dooms:
+
+- Dataset: [sidooms/MovieTweetings](https://github.com/sidooms/MovieTweetings).
+- Presentation / slides: [MovieTweetings: a movie rating dataset collected from twitter](https://www.slideshare.net/simondooms/movie-tweetings-a-movie-rating-dataset-collected-from-twitter)
+
+The dataset used by Udacity is reduced; however, I downloaded the dataset from the original source and the files are located in
+
+[`lab/Recommendations/01_Intro_to_Recommendations/org_data/MovieTweetings/`](./lab/Recommendations/01_Intro_to_Recommendations/org_data/MovieTweetings/)
+
+The dataset consists of 3 files:
+
+```
+users.dat
+    user_id::twitter_id
+    1::177651718
+
+items.dat
+    movie_id::movie_title (movie_year)::genre|genre|genre
+    0110912::Pulp Fiction (1994)::Crime|Thriller
+
+ratings.dat
+    user_id::movie_id::rating[0,10]::rating_timestamp
+    14927::0110912::9::1375657563
+
+```
+
 ## 7. Matrix Factorization Recommendations
 
 ## 8. Project: Recommendation Engines
