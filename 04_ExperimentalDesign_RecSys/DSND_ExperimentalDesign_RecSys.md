@@ -390,6 +390,8 @@ def power(p_null, p_alt, n, alpha = .05, plot = True):
     Compute the power of detecting the difference in two populations with 
     different proportion parameters, given a desired alpha rate.
     
+    WARNING: This formula is maybe one-sided, but we could use a two-sided approach?
+
     Input parameters:
         p_null: base success rate under null hypothesis
         p_alt : desired success rate to be detected, must be larger than
@@ -699,11 +701,122 @@ Lecture video: [Early Stopping](https://www.youtube.com/watch?v=taIJZMNwRsI).
 > - Rank-Sum test: This test is performed only on the data present. Also known as the Mann-Whitney U test, is not a test of any particular statistic like the mean or median. Instead, it's a test of distributions.
 > - Sign test: This test only requires that there be paired values between two groups to compare, and tests whether one group's values tend to be higher than the other's.
 
-
-
 ## 4. A/B Testing Case Study
 
+A software company sells a product which has a 7-day trial period; they expect that the trial testers are likelier to buy the software. They want to experiment which web layout leads to more trial testers, i.e., the structure and the content should invite to join to the 7-day trial period.
+
+Steps:
+
+1. Design funnel and metrics to track
+2. Estimate experiment size/duration
+3. Statistical analysis of the data
+4. Conclusion: which layout is necessary?
+
+### 4.1 Funnel and Metrics
+
+Expected, normal flow:
+
+- Visit homepage
+- Visit download page
+- Sign up for an account
+- Download software
+- After the 7-day trial, the software takes the user to a license-purchase page
+- Purchase license
+
+Atypical events:
+
+- Users land in the 7-day trial page from somewhere else
+- Users buy the license before 7 days
+- Users buy the license after 7 days
+
+We need to choose:
+
+- Where to split users into experimental groups: the unit of diversion
+- Which metrics to track in each step, both invariant and evaluation metrics
+
+Diversion methods:
+
+- Event-based, i.e., page view: not good here, because if the visitor gets a different view every time he/she opens the page, that's disturbing.
+- User-ID, i.e., account: not good here, because some users sign in when hitting the download button.
+- Cookie-based: best choice here; however, typical issues of cookies hold: what if the user accesses via incognito browsing? We assume those issues are insignificant.
+
+Metrics:
+
+- Number of users at each stage of the funnel/flow.
+    - Invariant metric: Total number of cookies
+- Number of licenses bought?
+    - Evaluation metric: download rate
+    - Evaluation metric: purchase rate
+- Is it possible to track software usage statistics?
+
+
+### 4.2 Experiment Sizing
+
+Historical statistics:
+
+- Invariant metric: 3250 unique visitors/day
+    - Slightly more on weekdays
+- Evaluation metric 1: 520 downloads/day: 0.16
+- Evaluation metric 2: 65 license purchases/day: 0.02
+
+If any evaluation metric 1 / 2 increases significantly, the experiment is successful, i.e., we should deploy the layout that favors the increase. Even in that case we need to apply the Bonferroni correction:
+
+`alpha = 0.05 / 2 = 0.025`
+
+**However, if we needed to see an increase in both metrics, we wouldn't need to apply Bonferroni - WTF!?**
+
+> Let's say that we want to detect an increase of 50 downloads per day (up to 570 per day, or a .175 rate). How many days of data would we need to collect in order to get enough visitors to detect this new rate at an overall 5% Type I error rate and at 80% power?
+
+Using the `experiment_size()` function from the notebook [L2_Experiment_Size_Solution.ipynb](./lab/Experiments/L2_Experiment_Size_Solution.ipynb) introduced previously:
+
+```python
+experiment_size(p_null=0.16, p_alt=0.175, alpha=0.025, beta=0.2) / 3250
+# 2.91 -> 3
+```
+
+> What if we wanted to detect an increase of 10 license purchases per day (up to 75 per day, or a .023 rate). How many days of data would we need to collect in order to get enough visitors to detect this new rate at an overall 5% Type I error rate and at 80% power?
+
+```python
+experiment_size(p_null=0.02, p_alt=0.023, alpha=0.025, beta=0.2) / 3250
+# 10.74 -> 11
+```
+
+The solution has values that are double the ones I got; that is maybe because the formula implementation is *pone-sided*, but the solution is *two-sided*?
+
+However, **important note**: consider there is a delay between the implementation and the downloads; maybe the first week after implementation the downloads are due to the UX before the implementation. Thus, we should consider extending slightly the experiment.
+
+### 4.3 Validity, Bias, Ethics
+
+- In this case, **validity** is achieved by properly implementing randomization; additionally, we don't need generalization.
+- Biases:
+    - Novelty is not an issue because users are expected to visit the download/purchase page once/very few times.
+    - However, if the new layout is successful, the expanded user base that uses customer support is biased (I don't see clearly the effect of that).
+- Ethical issues: none; after cookie consent, everything should be ok, and no sensitive data is collected.
+
+### 4.4 Data Analysis
+
+Dataset collected during 29 days (21 + 8 days): [`homepage-experiment-data.csv`](./lab/Experiments/data/homepage-experiment-data.csv).
+
+The statistical analysis is in [`ABTesting_UseCase.ipynb`](./lab/Experiments/ABTesting_UseCase.ipynb):
+
+- Both groups have non-significant differences in terms of group size.
+- The new layout led to significantly more downloads.
+- No significant differences were found between the two layouts in terms of license purchases.
+
+
 ## 5. Portfolio Exercise: Starbucks
+
+Project presentation video: [Starbucks Lab](https://www.youtube.com/watch?v=QPKRboscAf4&t=4s).
+
+The dataset and the mini-project were the take-home assignment for data scientist role candidates at Starbucks. It is a Starbucks experiment (using simulated and realistic data) with control and treatment groups.
+
+Goal: identify which features are important, which create an incremental response.
+
+Note: the column names are not as obvious as they seem.
+
+Notebook and data: [`Starbucks_Assignment`](./lab/Experiments/Starbucks_Assignment/)
+
+Everything is explained in the main notebook.
 
 ## 6. Introduction to Recommendation Engines
 
