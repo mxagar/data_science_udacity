@@ -899,6 +899,226 @@ ratings.dat
 
 ```
 
+#### Notebook: Transform and Prepare Datasets
+
+Notebook: [`1_Introduction to the Recommendation Data.ipynb`](./lab/Recommendations/01_Intro_to_Recommendations/1_Introduction%20to%20the%20Recommendation%20Data.ipynb)
+
+In this notebook genres are extracted as well as the year and the rating timestamp.
+
+```python
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import datetime
+
+# Read in the datasets
+movies = pd.read_csv('original_movies.dat',
+                     delimiter='::',
+                     header=None,
+                     names=['movie_id', 'movie', 'genre'],
+                     dtype={'movie_id': object}, engine='python')
+
+reviews = pd.read_csv('original_ratings.dat',
+                      delimiter='::',
+                      header=None,
+                      names=['user_id', 'movie_id', 'rating', 'timestamp'],
+                      dtype={'movie_id': object, 'user_id': object, 'timestamp': object},
+                      engine='python')
+
+# Reduce the size reviews dataset
+reviews = reviews.loc[:100000,:]
+
+# number of movies
+print(f"Number of movies: {len(movies['movie_id'].unique())}")
+# number of ratings
+print(f"Number of ratings: {reviews[~reviews['rating'].isna()].shape[0]}")
+# number of different genres
+genres = set()
+for r in movies['genre'].dropna().str.split('|'):
+    for g in r:
+        genres.add(g)
+print(f"Number of different genres: {len(genres)}")
+# number of unique users
+print(f"Number of unique users: {len(reviews['user_id'].unique())}")
+# number of missing ratings
+print(f"Number of missing ratings: {reviews['rating'].isna().sum()}")
+# the `average`, `min`, and `max` ratings given
+print(f"Ratings: min = {reviews['rating'].min()}, max = {reviews['rating'].max()}, avg = {reviews['rating'].mean()}")
+
+# Number of movies: 35479
+# Number of ratings: 100001
+# Number of different genres: 28
+# Number of unique users: 8022
+# Number of missing ratings: 0
+# Ratings: min = 0, max = 10, avg = 7.397666023339767
+
+# Pull the date from the title and create new column
+movies['year'] = movies['movie'].str.extract(r'\((\d{4})\)')
+
+# Dummy the date column with 1's and 0's for each century of a movie (1800's, 1900's, and 2000's)
+movies["1800's"] = movies['year'].apply(lambda year_text: 1 if int(year_text) < 1900 else 0)
+movies["1900's"] = movies['year'].apply(lambda year_text: 1 if int(year_text) > 1899 and int(year_text) < 2000 else 0)
+movies["2000's"] = movies['year'].apply(lambda year_text: 1 if int(year_text) > 1900 else 0)
+
+# Dummy column the genre with 1's and 0's for each genre
+genre_dict = {g:i for i,g in enumerate(genres)}
+
+def get_genre_vector(genre_list):
+    genre_vector = [0]*len(genres)
+    try:
+        for g in genre_list:
+            genre_vector[genre_dict[g]] = 1
+    except:
+        pass
+    
+    return genre_vector
+
+genre_dummies_series = movies.genre.str.split('|').apply(get_genre_vector)
+genre_dummies_df = pd.DataFrame(genre_dummies.apply(pd.Series))
+genre_dummies_df.columns = list(genre_dict.keys())
+movies = pd.concat([movies, genre_dummies_df], axis=1)
+
+# Create a date out of time stamp
+change_timestamp = lambda val: datetime.datetime.fromtimestamp(int(val)).strftime('%Y-%m-%d %H:%M:%S')
+reviews['date'] = reviews['timestamp'].apply(change_timestamp)
+
+```
+
+### 6.3 Knowledge-Based Recommendations
+
+Lecture video: [Knowledge Based Recommendations](https://www.youtube.com/watch?v=C_vU1tjQHZI&t=97s).
+
+Knowledge-based recommendations require from users to choose some preferences, e.g.:
+
+- Genre(s)
+- Year range for movies
+- etc.
+
+Then, the most recommended movies that fit those properties are suggested, i.e., a ranking is done according to available rankings and the user-provided filters.
+
+This approach is very common in luxury or expensive items, e.g., houses.
+
+Note that we distinguish two types of recommender systems in this context:
+
+- Knowledge-based, i.e., those that apply user filters.
+- Rank-based, i.e., those that sort items according to their ranking.
+
+Of course, both approaches are usually combined.
+
+#### Notebook: Most Popular Recommendations
+
+Notebook: [`2_Most_Popular_Recommendations.ipynb`](./lab/Recommendations/01_Intro_to_Recommendations/2_Most_Popular_Recommendations.ipynb).
+
+In this notebook, (1) ranking and (2) filtering are carried out to select movies.
+
+```python
+def create_ranked_df(movies, reviews):
+        '''
+        INPUT
+        movies - the movies dataframe
+        reviews - the reviews dataframe
+        
+        OUTPUT
+        ranked_movies - a dataframe with movies that are sorted by highest avg rating, more reviews, 
+                        then time, and must have more than 4 ratings
+        '''
+        
+        # Pull the average ratings and number of ratings for each movie
+        movie_ratings = reviews.groupby('movie_id')['rating']
+        avg_ratings = movie_ratings.mean()
+        num_ratings = movie_ratings.count()
+        last_rating = pd.DataFrame(reviews.groupby('movie_id').max()['date'])
+        last_rating.columns = ['last_rating']
+
+        # Add Dates
+        rating_count_df = pd.DataFrame({'avg_rating': avg_ratings, 'num_ratings': num_ratings})
+        rating_count_df = rating_count_df.join(last_rating)
+
+        # merge with the movies dataset
+        movie_recs = movies.set_index('movie_id').join(rating_count_df)
+
+        # sort by top avg rating and number of ratings
+        ranked_movies = movie_recs.sort_values(['avg_rating', 'num_ratings', 'last_rating'], ascending=False)
+
+        # for edge cases - subset the movie list to those with only 5 or more reviews
+        ranked_movies = ranked_movies[ranked_movies['num_ratings'] > 4]
+        
+        return ranked_movies
+
+ranked_movies = create_ranked_df(movies, reviews)
+
+def popular_recs_filtered(user_id, n_top, ranked_movies, years=None, genres=None):
+    '''
+    INPUT:
+    user_id - the user_id (str) of the individual you are making recommendations for
+    n_top - an integer of the number recommendations you want back
+    ranked_movies - a pandas dataframe of the already ranked movies based on avg rating, count, and time
+    years - a list of strings with years of movies
+    genres - a list of strings with genres of movies
+    
+    OUTPUT:
+    top_movies - a list of the n_top recommended movies by movie title in order best to worst
+    '''
+    
+    # Implement your code here
+
+    # Step 1: filter movies based on year and genre
+    #top_movies = list(ranked_movies.movie[:n_top])
+    movies_years = np.ones((ranked_movies.shape[0],))
+    if years:
+        years = [int(y) for y in years]
+        movies_years = ranked_movies['date'].isin(years).values
+    movies_genres = np.ones((ranked_movies.shape[0],))
+    if genres:
+        num_genre_match = ranked_movies[genres].sum(axis=1)
+        movies_genres = (num_genre_match > 0).values
+                
+    # Step 2: create top movies list 
+    top_movies = list(ranked_movies[np.logical_and(movies_years, movies_genres)].movie[:n_top])
+
+    return top_movies
+
+# Top 20 movies recommended for id 1 with years=['2015', '2016', '2017', '2018'], genres=['History']
+recs_20_for_1_filtered = popular_recs_filtered(user_id=1, n_top=20, ranked_movies=ranked_movies, years=['2015', '2016', '2017', '2018'], genres=['History'])
+```
+
+### 6.4 Collaborative Filtering
+
+The previous *knowledge-based* approach requires user input for filtering; we can infer the user preferences by past items he/she has selected and comparing his/her profile to other users. In other words, we use item-user interactions/collaborations to recommend new items. That is called **collaborative filtering**.
+
+In collaborative filtering, in practice, we don't need to have explicit user preferences (e.g., genres) nor item properties (e.g., movie genres), but just suffices with the user-item interactions. Systems that require explicit information about users and items are **content-based** recommendation engines.
+
+In collaborative filtering, we collect these data:
+
+- Item ratings for each user
+- Items liked by user or not
+- Items used by user or not
+
+In general, there are 2 major collaborative filtering methods:
+
+1. Model-based, learned in section [7. Matrix Factorization Recommendations](#7-matrix-factorization-recommendations).
+2. Neighborhood-based, learned now.
+
+In **neighborhood-based collaborative filtering systems**, we need to work with **similarity measures** or **distance measures**:
+
+- Similarity: correlation-related, the largest the better, usually in `[-1,1]`
+    - Pearson's correlation coefficient
+    - Spearman's correlation coefficient
+    - Kendall's Tau
+- Distance: how far as data points in feature space? the smallest the better
+    - Euclidean Distance
+    - Manhattan Distance
+
+Lecture videos:
+
+- [Intro To Collab Filtering](https://www.youtube.com/watch?v=wGq7dUgJpsc)
+- [Types Of Collaborative Filtering](https://www.youtube.com/watch?v=fZhkWHHP6SM)
+- [Measuring Similarity](https://www.youtube.com/watch?v=G_Y6IPmp7Xs)
+
+#### Notebook: Measuring Similarity
+
+
+
 ## 7. Matrix Factorization Recommendations
 
 ## 8. Project: Recommendation Engines
