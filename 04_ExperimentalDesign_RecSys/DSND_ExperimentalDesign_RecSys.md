@@ -1103,8 +1103,8 @@ In **neighborhood-based collaborative filtering systems**, we need to work with 
 
 - Similarity: correlation-related, the largest the better, usually in `[-1,1]`
     - Pearson's correlation coefficient
-    - Spearman's correlation coefficient
-    - Kendall's Tau
+    - Spearman's correlation coefficient: correlation with ranking values. Unlike Pearson's correlation, Spearman's correlation can have perfect relationships (1 or -1 values) that aren't linear relationships. You will notice that neither Spearman or Pearson correlation values suggest a relation when there are quadratic relationships.
+    - Kendall's Tau: similar to Spearman correlation (also ranks are used), but more it has a smaller variability when using larger sample sizes. Spearman and Kendall can give same values.
 - Distance: how far as data points in feature space? the smallest the better
     - Euclidean Distance
     - Manhattan Distance
@@ -1114,8 +1114,360 @@ Lecture videos:
 - [Intro To Collab Filtering](https://www.youtube.com/watch?v=wGq7dUgJpsc)
 - [Types Of Collaborative Filtering](https://www.youtube.com/watch?v=fZhkWHHP6SM)
 - [Measuring Similarity](https://www.youtube.com/watch?v=G_Y6IPmp7Xs)
+- [Identifying Recommendations](https://www.youtube.com/watch?v=P60qvS_OTMg)
 
 #### Notebook: Measuring Similarity
+
+Notebook: [`3_Measuring Similarity.ipynb`](./lab/Recommendations/01_Intro_to_Recommendations/3_Measuring%20Similarity.ipynb).
+
+The introduced distance metrics are implemented:
+
+- Pearson
+- Spearman
+- Kendall
+- Euclidean
+- Manhattan
+
+```python
+def pearson_corr(x, y):
+    '''
+    INPUT
+    x - an array of matching length to array y
+    y - an array of matching length to array x
+    OUTPUT
+    corr - the pearson correlation coefficient for comparing x and y
+    '''
+    # Implement your code here
+    xm = x.mean()
+    ym = y.mean()
+    corr = np.dot(x-xm, y-ym) / (np.sqrt(np.sum(np.dot(x-xm,x-xm))) * np.sqrt(np.sum(np.dot(y-ym,y-ym))))
+    
+    return corr
+
+def corr_spearman(x, y):
+    '''
+    INPUT
+    x - an array of matching length to array y
+    y - an array of matching length to array x
+    OUTPUT
+    corr - the spearman correlation coefficient for comparing x and y
+    '''
+    # Implement your code here
+    xr = x.rank()
+    yr = y.rank()
+    corr = pearson_corr(xr, yr)
+    
+    return corr
+
+
+def kendalls_tau(x, y):
+    '''
+    INPUT
+    x - an array of matching length to array y
+    y - an array of matching length to array x
+    OUTPUT
+    tau - the kendall's tau for comparing x and y
+    '''    
+    # Change each vector to ranked values
+    x = x.rank()
+    y = y.rank()
+    n = len(x)
+     
+    sum_vals = 0
+    # Compute Mean Values
+    for i, (x_i, y_i) in enumerate(zip(x, y)):
+        for j, (x_j, y_j) in enumerate(zip(x, y)):
+            if i < j:
+                sum_vals += np.sign(x_i - x_j)*np.sign(y_i - y_j)
+                        
+    tau = 2*sum_vals/(n*(n-1))
+    
+    return tau
+
+def eucl_dist(x, y):
+    '''
+    INPUT
+    x - an array of matching length to array y
+    y - an array of matching length to array x
+    OUTPUT
+    euc - the euclidean distance between x and y
+    '''  
+    return np.sqrt(np.sum(np.dot(x-y, x-y)))
+    
+def manhat_dist(x, y):
+    '''
+    INPUT
+    x - an array of matching length to array y
+    y - an array of matching length to array x
+    OUTPUT
+    manhat - the manhattan distance between x and y
+    '''  
+    return np.sum(np.abs(x-y))
+```
+
+#### Identifying Recommendations
+
+To identify which movies to recommend, we need to:
+
+- Find neighbor users based on their similarity/distance.
+- Remove the movies that the user has already seen.
+- Remove movies with bad ratings from identified neighbor users, or tae movies with high ratings.
+
+It is possible to use of the approaches, too, e.g. weighting ratings based on the closeness of the neighbors.
+
+![Identifying Recommendations](./pics/identify_recs.jpg)
+
+Interesting links:
+
+- [Recommender Systems through Collaborative Filtering](https://www.dominodatalab.com/blog/recommender-systems-collaborative-filtering).
+- [Item Weighting Techniques for Collaborative Filtering](https://www.semanticscholar.org/paper/Item-Weighting-Techniques-for-Collaborative-Baltrunas-Ricci/3e9ebcd9503ef7375c7bb334511804d1e45127e9?p2df).
+
+#### Notebook: Neighborhood-Based Collaborative Filtering
+
+Notebook: [`4_Collaborative Filtering.ipynb)`](./lab/Recommendations/01_Intro_to_Recommendations/4_Collaborative%20Filtering.ipynb).
+
+Many things are implemented in this notebook; they all essentially filter the main dataframe and compute vector similarities. Summary of steps:
+
+- Load `movies` and `reviews` dataframes.
+- Pivot `reviews` dataframe to get the `user_items` matrix/dataframe.
+- Function: movies watched by a `user_id`.
+- Function: create a dictionary with movies watched by each `user_id`.
+- Functions: given 2 users, compute their correlation & distance taking the reviews vector.
+- Load the dataframe which contains all user-user distances: `df_dist`.
+- Function: Given a user, compute his/her closest user neighbors.
+- Function: Given a user, compute movies above a rating.
+- Function: Given an array of movie ids, get their names.
+- Function: Given a user, find his/her closest neighbors, and for each neighbors, pick movies rated a above a value; limit the number of recommended movies to a threshold.
+- Function: make recommendations for all users.
+
+
+```python
+import numpy as np
+import pandas as pd
+
+movies = pd.read_csv('movies_clean.csv')
+reviews = pd.read_csv('reviews_clean.csv')
+
+user_items = reviews[['user_id', 'movie_id', 'rating']]
+user_items.head()
+#   user_id	movie_id	rating
+# 0	1	    114508	    8
+# ...
+
+# Create user-by-item matrix
+user_by_movie = user_items.pivot(index='user_id', columns='movie_id', values='rating').reset_index().rename_axis(index=None, columns=None)
+#user_by_movie = user_items.groupby(['user_id', 'movie_id'])['rating'].max().unstack()
+
+# Create a dictionary with users and corresponding movies seen
+
+def movies_watched(user_id):
+    '''
+    INPUT:
+        user_id - the user_id of an individual as int
+    OUTPUT:
+        movies - an array of movies the user has watched
+    '''
+    #movies = user_by_movie[user_by_movie.user_id==user_id][user_by_movie[user_by_movie.user_id==user_id].isnull() == False].index.values
+    movies = user_by_movie.loc[user_by_movie.user_id==user_id][user_by_movie.loc[user_by_movie.user_id==user_id].isnull() == False].index.values
+    movies = movies[1:]
+    return movies
+
+
+def create_user_movie_dict():
+    '''Creates the movies_seen dictionary.
+
+    INPUT: None
+    OUTPUT: movies_seen - a dictionary where each key is a user_id and the value is an array of movie_ids
+    '''
+    #movies_seen = {user_id:movies_watched(user_id) for user_id in user_by_movie['user_id']}
+    n_users = user_by_movie.shape[0]
+    movies_seen = dict()
+
+    #for user1 in range(n_users):
+    for user1 in user_by_movie['user_id'].values:   
+        movies_seen[user1] = movies_watched(user1)
+    
+    return movies_seen
+
+def create_movies_to_analyze(movies_seen, lower_bound=2):
+    '''
+    INPUT:  
+        movies_seen - a dictionary where each key is a user_id and the value is an array of movie_ids
+        lower_bound - (an int) a user must have more movies seen than the lower bound to be added to the movies_to_analyze dictionary
+    OUTPUT: 
+    movies_to_analyze - a dictionary where each key is a user_id and the value is an array of movie_ids
+    '''
+    movies_to_analyze = dict()
+
+    for user, movies in movies_seen.items():
+        if len(movies) > lower_bound:
+            movies_to_analyze[user] = movies
+    return movies_to_analyze
+
+def compute_correlation(user1, user2):
+    '''
+    INPUT
+    user1 - int user_id
+    user2 - int user_id
+    OUTPUT
+    the correlation between the matching ratings between the two users
+    '''
+    # Pull movies for each user
+    movies1 = movies_to_analyze[user1]
+    movies2 = movies_to_analyze[user2]
+    
+    # Find Similar Movies
+    sim_movs = np.intersect1d(movies1, movies2, assume_unique=True)
+    
+    # Calculate correlation between the users
+    df = user_by_movie.loc[(user1, user2), sim_movs]
+    corr = df.transpose().corr().iloc[0,1]
+        
+    return corr
+
+def compute_euclidean_dist(user1, user2):
+    '''
+    INPUT
+    user1 - int user_id
+    user2 - int user_id
+    OUTPUT
+    the euclidean distance between user1 and user2
+    '''
+    # Pull movies for each user
+    movies1 = movies_to_analyze[user1]
+    movies2 = movies_to_analyze[user2]
+    
+    # Find Similar Movies
+    sim_movs = np.intersect1d(movies1, movies2, assume_unique=True)
+    
+    # Calculate ratings
+    ratings1 = user_by_movie.loc[user1, sim_movs].values
+    ratings2 = user_by_movie.loc[user2, sim_movs].values    
+    
+    # Calculate distance
+    d = ratings1-ratings2
+    dist = np.sqrt(np.dot(d,d))
+    
+    return dist #return the euclidean distance
+
+movies_seen = create_user_movie_dict()
+movies_to_analyze = create_movies_to_analyze(movies_seen)
+
+#######
+
+df_dists = pd.read_csv('df_dists.csv')
+del df_dists['Unnamed: 0']
+df_dists.dropna(inplace=True)
+df_dists.shape # (12208036, 3), very large!
+
+df_dists.head()
+#       user1	user2	eucl_dist
+# 8023	2	    2	    0.0
+# ...
+
+def find_closest_neighbors(user):
+    '''
+    INPUT:
+        user - (int) the user_id of the individual you want to find the closest users
+    OUTPUT:
+        closest_neighbors - an array of the id's of the users sorted from closest to farthest away
+    '''
+    closest_users = df_dists[df_dists['user1']==user].sort_values(by='eucl_dist').iloc[1:]['user2']
+    closest_neighbors = np.array(closest_users)
+    
+    return closest_neighbors
+
+
+def movies_liked(user_id, min_rating=7):
+    '''
+    INPUT:
+    user_id - the user_id of an individual as int
+    min_rating - the minimum rating considered while still a movie is still a "like" and not a "dislike"
+    OUTPUT:
+    movies_liked - an array of movies the user has watched and liked
+    '''
+    movies_liked = np.array(user_items.query('user_id == @user_id and rating > (@min_rating -1)')['movie_id'])
+    
+    return movies_liked
+
+def movie_names(movie_ids):
+    '''
+    INPUT
+    movie_ids - a list of movie_ids
+    OUTPUT
+    movies - a list of movie names associated with the movie_ids    
+    '''
+    movie_lst = list(movies[movies['movie_id'].isin(movie_ids)]['movie'])
+   
+    return movie_lst
+    
+    
+def make_recommendations(user, num_recs=10):
+    '''
+    INPUT:
+        user - (int) a user_id of the individual you want to make recommendations for
+        num_recs - (int) number of movies to return
+    OUTPUT:
+        recommendations - a list of movies - if there are "num_recs" recommendations return this many
+                          otherwise return the total number of recommendations available for the "user"
+                          which may just be an empty list
+    '''
+    # I wanted to make recommendations by pulling different movies than the user has already seen
+    # Go in order from closest to farthest to find movies you would recommend
+    # I also only considered movies where the closest user rated the movie as a 9 or 10
+    
+    # movies_seen by user (we don't want to recommend these)
+    movies_seen = movies_watched(user)
+    closest_neighbors = find_closest_neighbors(user)
+    
+    # Keep the recommended movies here
+    recs = np.array([])
+    
+    # Go through the neighbors and identify movies they like the user hasn't seen
+    for neighbor in closest_neighbors:
+        neighbs_likes = movies_liked(neighbor)
+        
+        #Obtain recommendations for each neighbor
+        new_recs = np.setdiff1d(neighbs_likes, movies_seen, assume_unique=True)
+        
+        # Update recs with new recs
+        recs = np.unique(np.concatenate([new_recs, recs], axis=0))
+        
+        # If we have enough recommendations exit the loop
+        if len(recs) > num_recs-1:
+            break
+    
+    # Pull movie titles using movie ids
+    recommendations = movie_names(recs)
+    
+    return recommendations
+
+def all_recommendations(num_recs=10):
+    '''
+    INPUT 
+        num_recs (int) the (max) number of recommendations for each user
+    OUTPUT
+        all_recs - a dictionary where each key is a user_id and the value is an array of recommended movie titles
+    '''
+    
+    # All the users we need to make recommendations for
+    users = np.unique(df_dists['user1'])
+    n_users = len(users)
+    
+    #Store all recommendations in this dictionary
+    all_recs = dict()
+    
+    # Make the recommendations for each user
+    for user in users:
+        all_recs[user] = make_recommendations(user, num_recs)
+    
+    return all_recs
+
+all_recs = all_recommendations(10)
+
+```
+
+### 6.5 Content-Based Recommender Systems
 
 
 
