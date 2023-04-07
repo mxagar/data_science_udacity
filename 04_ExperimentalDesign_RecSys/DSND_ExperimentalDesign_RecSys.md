@@ -1654,14 +1654,49 @@ There are several aspects to consider when considering how good a recommendation
     - Offline: predict the ratings of a user for all items and compare them with the real user ratings (matrix factorization).
 - We can also perform user studies: we ask for feedback to user groups after predicting their recommendations.
 
-### Singular Value Decomposition (SVD) and Matrix Factorization
+### 7.2 Singular Value Decomposition (SVD) and Matrix Factorization
 
 [Singular Value Decomposition (SVD)](https://en.wikipedia.org/wiki/Singular_value_decomposition) is a matrix factorization technique that can be used to predict the latent features of items/users, such that we can get the predictions for any user.
 
-However, SVD is limited; a better, newer version is [FunkSVD](https://annie-wangliu.medium.com/funksvd-math-code-prediction-and-validation-4842bfaa219e), which won the [1M Netflix prize](https://en.wikipedia.org/wiki/Netflix_Prize) in 2006 and is the most used method in the industry.
+However, SVD is limited, because it requires the user-item matrix to be completely filled; a better, newer version is [FunkSVD](https://annie-wangliu.medium.com/funksvd-math-code-prediction-and-validation-4842bfaa219e), which won the [1M Netflix prize](https://en.wikipedia.org/wiki/Netflix_Prize) in 2006 and is the most used method in the industry.
 
-Lecture video: [Why SVD](https://www.youtube.com/watch?v=WdW1-rRQrLk)
+Also, check my notes of the Andrew Ng lectures, because he achieves matrix factorization (not SVD) even with not completely filled matrices!
 
+Lecture videos:
+
+- [Why SVD](https://www.youtube.com/watch?v=WdW1-rRQrLk)
+- [Latent Factors](https://www.youtube.com/watch?v=jZz7tFEF2Dc&t=24s)
+- [SVD](https://www.youtube.com/watch?v=t2XTuHq6-xc)
+
+#### Latent Factors
+
+Latent factors are properties of the data points that are implicit to them; they don't need to be expressed explicitly. For instance:
+
+- The movie is sci-fi.
+- There are many women in the movie.
+- It's an animation movie.
+- etc.
+
+These latent factors are also related to the users, not only to the items; that relationship is expressed in terms of how important a latent factor is for a user.
+
+#### Notebook: SVD Computation
+
+Given the user-item matrix, it is factorized into the multiplication of 3 matrices of lower rank which are related to latent factors:
+
+    M (n x m) user x item matrix
+    M = U*S*V^T
+        U (n x k): user x latent factor
+            it contains the ratings of the users to latent factors
+        V^T (k x m): latent factor x movie
+            it contains the strength of each factor in each movie, which can be negative
+        S (k x k), diagonal: importance of latent factors
+            the singular values in the diangonal are always positive and ordered
+            they help us decide which ones are the most important,
+            so we can remove the latent factors with the smallest values
+
+![SVD Factorization](./pics/svd_factorization.jpg)
+
+Notebook: [`1_Intro_to_SVD.ipynb`](./lab/Recommendations/02_Matrix_Factorization_for_Recommendations/1_Intro_to_SVD.ipynb)
 
 
 ## 8. Project: Recommendation Engines
