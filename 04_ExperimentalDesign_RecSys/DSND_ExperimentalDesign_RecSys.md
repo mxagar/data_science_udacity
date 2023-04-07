@@ -1667,6 +1667,7 @@ Lecture videos:
 - [Why SVD](https://www.youtube.com/watch?v=WdW1-rRQrLk)
 - [Latent Factors](https://www.youtube.com/watch?v=jZz7tFEF2Dc&t=24s)
 - [SVD](https://www.youtube.com/watch?v=t2XTuHq6-xc)
+- [SVD Practice Takeaways](https://www.youtube.com/watch?v=2er0HUDum7k)
 
 #### Latent Factors
 
@@ -1679,12 +1680,12 @@ Latent factors are properties of the data points that are implicit to them; they
 
 These latent factors are also related to the users, not only to the items; that relationship is expressed in terms of how important a latent factor is for a user.
 
-#### Notebook: SVD Computation
+#### SVD Computation
 
 Given the user-item matrix, it is factorized into the multiplication of 3 matrices of lower rank which are related to latent factors:
 
-    M (n x m) user x item matrix
-    M = U*S*V^T
+    A (n x m) user x item matrix
+    A = U*S*V^T
         U (n x k): user x latent factor
             it contains the ratings of the users to latent factors
         V^T (k x m): latent factor x movie
@@ -1696,7 +1697,83 @@ Given the user-item matrix, it is factorized into the multiplication of 3 matric
 
 ![SVD Factorization](./pics/svd_factorization.jpg)
 
+There is a [closed-form solution](http://web.mit.edu/be.400/www/SVD/Singular_Value_Decomposition.htm) to the SVD computation:
+
+> "Calculating the SVD consists of finding the eigenvalues and eigenvectors of AA' and A'A. The eigenvectors of A'A make up the columns of V, the eigenvectors of AA' make up the columns of U. Also, the singular values in S are square roots of eigenvalues from AA' or A'A. The singular values are the diagonal entries of the S matrix and are arranged in descending order. The singular values are always real numbers. If the matrix A is a real matrix, then U and V are also real."
+
+Important additional notes: 
+
+- We choose the number of latent features `k` and we can adjust it depending on the relevance of each latent feature (i.e., their magnitude in the `S` matrix).
+- The values `s` of `S` account for the variability explained by each latent factor (we need to square them); it is important to choose the value of `k` according to that, i.e., say we want to explain 95% of all variability.
+    - Note that latent features with the smallest `s` values are probably modeling noise!
+    - The total variability is the sum of all squared `s`.
+- The most common approach is to use gradient descend instead the closed-form solution; that's because:
+    - It is more efficient with large datasets.
+    - The original SVD computation requires to know the complete `A` matrix, which is not possible; other methods work with `NaN` cells, but use gradient descend.
+- [Singular values are always non-negative](https://math.stackexchange.com/questions/2060572/why-are-singular-values-always-non-negative).
+
+#### Notebook: SVD Computation
+
 Notebook: [`1_Intro_to_SVD.ipynb`](./lab/Recommendations/02_Matrix_Factorization_for_Recommendations/1_Intro_to_SVD.ipynb)
+
+In the notebook, the Numpy SSVD is used on a subset of the user-item matrix without missing values.
+
+```python
+# Read in the datasets
+movies = pd.read_csv('movies_clean.csv')
+reviews = pd.read_csv('reviews_clean.csv')
+
+# Create user-by-item matrix
+user_items = reviews[['user_id', 'movie_id', 'rating']]
+user_by_movie = user_items.groupby(['user_id', 'movie_id'])['rating'].max().unstack()
+
+# Subset dataset
+user_movie_subset = user_by_movie[[75314,  68646, 99685]].dropna(axis=0)
+user_movie_subset.shape # (6, 3)
+
+# This call returns U (nxn), V^T (mxm) and S (k)
+# We need to process the result to select the value for k
+# we would like: select according to total explained variance.
+# Then, we need to slice the matrices.
+# Note that if we take all the latent featues from S
+# we still need to truncate U or V^T
+u, s, vt = np.linalg.svd(user_movie_subset)
+s.shape, u.shape, vt.shape
+# ((3,), (6, 6), (3, 3))
+
+# Take all singular values / latent features
+# Change the dimensions of u, s, and vt as necessary to use three latent features
+# update the shape of u and store in u_new
+u_new = u[:, :len(s)]
+# update the shape of s and store in s_new
+s_new = np.zeros((len(s), len(s)))
+s_new[:len(s), :len(s)] = np.diag(s) 
+# Because we are using 3 latent features and there are only 3 movies, 
+# vt and vt_new are the same
+vt_new = vt
+
+# Compute the variance explained with ethe first 2/3 singular values
+total_var = np.sum(s**2)
+var_exp_comp1_and_comp2 = s[0]**2 + s[1]**2
+perc_exp = round(var_exp_comp1_and_comp2/total_var*100, 2) # 99.91%
+
+# Take the first 2 singular values / latent features
+# Change the dimensions of u, s, and vt as necessary to use four latent features
+# update the shape of u and store in u_new
+k = 2
+u_2 = u[:, :k]
+# update the shape of s and store in s_new
+s_2 = np.diag(s)[:k, :k]
+# Because we are using 2 latent features, we need to update vt this time
+vt_2 = vt[:k, :]
+
+# Compute the error: Sum Square Errors
+# Compute the dot product
+pred_ratings = np.dot(np.dot(u_2, s_2), vt_2)
+# Compute the squared error for each predicted vs. actual rating
+sum_square_errs = np.sum(np.sum((user_movie_subset - pred_ratings)**2))
+
+```
 
 
 ## 8. Project: Recommendation Engines
