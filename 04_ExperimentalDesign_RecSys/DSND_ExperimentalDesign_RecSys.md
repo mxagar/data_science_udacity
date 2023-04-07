@@ -1019,37 +1019,37 @@ In this notebook, (1) ranking and (2) filtering are carried out to select movies
 
 ```python
 def create_ranked_df(movies, reviews):
-        '''
-        INPUT
-        movies - the movies dataframe
-        reviews - the reviews dataframe
-        
-        OUTPUT
-        ranked_movies - a dataframe with movies that are sorted by highest avg rating, more reviews, 
-                        then time, and must have more than 4 ratings
-        '''
-        
-        # Pull the average ratings and number of ratings for each movie
-        movie_ratings = reviews.groupby('movie_id')['rating']
-        avg_ratings = movie_ratings.mean()
-        num_ratings = movie_ratings.count()
-        last_rating = pd.DataFrame(reviews.groupby('movie_id').max()['date'])
-        last_rating.columns = ['last_rating']
+    '''
+    INPUT
+    movies - the movies dataframe
+    reviews - the reviews dataframe
+    
+    OUTPUT
+    ranked_movies - a dataframe with movies that are sorted by highest avg rating, more reviews, 
+                    then time, and must have more than 4 ratings
+    '''
+    
+    # Pull the average ratings and number of ratings for each movie
+    movie_ratings = reviews.groupby('movie_id')['rating']
+    avg_ratings = movie_ratings.mean()
+    num_ratings = movie_ratings.count()
+    last_rating = pd.DataFrame(reviews.groupby('movie_id').max()['date'])
+    last_rating.columns = ['last_rating']
 
-        # Add Dates
-        rating_count_df = pd.DataFrame({'avg_rating': avg_ratings, 'num_ratings': num_ratings})
-        rating_count_df = rating_count_df.join(last_rating)
+    # Add Dates
+    rating_count_df = pd.DataFrame({'avg_rating': avg_ratings, 'num_ratings': num_ratings})
+    rating_count_df = rating_count_df.join(last_rating)
 
-        # merge with the movies dataset
-        movie_recs = movies.set_index('movie_id').join(rating_count_df)
+    # merge with the movies dataset
+    movie_recs = movies.set_index('movie_id').join(rating_count_df)
 
-        # sort by top avg rating and number of ratings
-        ranked_movies = movie_recs.sort_values(['avg_rating', 'num_ratings', 'last_rating'], ascending=False)
+    # sort by top avg rating and number of ratings
+    ranked_movies = movie_recs.sort_values(['avg_rating', 'num_ratings', 'last_rating'], ascending=False)
 
-        # for edge cases - subset the movie list to those with only 5 or more reviews
-        ranked_movies = ranked_movies[ranked_movies['num_ratings'] > 4]
-        
-        return ranked_movies
+    # for edge cases - subset the movie list to those with only 5 or more reviews
+    ranked_movies = ranked_movies[ranked_movies['num_ratings'] > 4]
+    
+    return ranked_movies
 
 ranked_movies = create_ranked_df(movies, reviews)
 
@@ -1627,16 +1627,43 @@ Goals of the section - answer these questions:
 
 - How do you know when our recommendations are good?
 - How can you use machine learning for recommendations?
-- How do you make recommendations for new users (aka. **cold start problem**)?
+- How do you make recommendations for new users (aka. **cold start problem**)? Usually, this is addressed by combining different recommendation techniques.
 
 The machine learning method learned in this section is the **matrix factorization** method, which discovers latent features of items.
 
 For related information, check:
 
-- [`Matrix_Factorization.pdf`](Matrix_Factorization.pdf).
+- My handwritten notes after watching the lectures from Andrew Ng: [`Matrix_Factorization.pdf`](Matrix_Factorization.pdf).
 - [Machine Learning IBM: Recommender Systems](https://github.com/mxagar/machine_learning_ibm/tree/main/06_Capstone_Project)
 - [Machine Learning Andrew Ng: Recommender Systems](https://github.com/mxagar/machine_learning_coursera/tree/main/07_Anomaly_Recommender)
 - Project: [course_recommender_streamlit](https://github.com/mxagar/course_recommender_streamlit)
 
+### 7.1 Validating Our Recommendations
+
+Lecture video: [How Do We Know Our Recs Are Good](https://www.youtube.com/watch?v=D0H_fjJ35CU)
+
+There are several aspects to consider when considering how good a recommendation engine is:
+
+- We define interesting metrics (e.g., user engagement, downloads, revenue) and check how these metrics behave before and after the implementation of the recsys.
+    - We can perform A/B testing with and old and a new version of the recsys.
+- During development, we should use train/test splits to evaluate the performance of the recsys properly, if possible; not all approaches lend to that. But, if possible, then:
+    - The train split should contain the oldest data, whereas the test split the newer data.
+    - Which metrics can we use? If we use matrix factorization with SVD, we get a prediction for all cells in the user-item matrix, thus we can apply typical regression metrics, i.e., MSE, MAE.
+- Also, we talk about *online* vs. *offline* validations:
+    - Online: A/B testing with old/new version of the recommender system, by tracking relevant metrics.
+    - Offline: predict the ratings of a user for all items and compare them with the real user ratings (matrix factorization).
+- We can also perform user studies: we ask for feedback to user groups after predicting their recommendations.
+
+### Singular Value Decomposition (SVD) and Matrix Factorization
+
+[Singular Value Decomposition (SVD)](https://en.wikipedia.org/wiki/Singular_value_decomposition) is a matrix factorization technique that can be used to predict the latent features of items/users, such that we can get the predictions for any user.
+
+However, SVD is limited; a better, newer version is [FunkSVD](https://annie-wangliu.medium.com/funksvd-math-code-prediction-and-validation-4842bfaa219e), which won the [1M Netflix prize](https://en.wikipedia.org/wiki/Netflix_Prize) in 2006 and is the most used method in the industry.
+
+Lecture video: [Why SVD](https://www.youtube.com/watch?v=WdW1-rRQrLk)
+
+
+
 ## 8. Project: Recommendation Engines
 
+Project repository: []().
