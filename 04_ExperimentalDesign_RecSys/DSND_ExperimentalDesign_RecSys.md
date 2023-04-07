@@ -844,12 +844,18 @@ To work with recommendation engines, we need to use similarity/distance metrics:
 - Euclidean Distance
 - Manhattan Distance
 
-Additionally, there are 4 factors which need to be taken into account when implementing recommendation engines:
+#### Goals of Recommender Systems
 
-- Relevance
-- Novelty
-- Serendipity
-- Increased Diversity
+Lecture video: [Goals Of Recommendation Systems](https://www.youtube.com/watch?v=WzelOlFeDmU)
+
+Recommender systems are very important to companies which implement them, because they're central to their revenue system. There are 4 factors which need to be taken into account when implementing recommendation engines:
+
+- Relevance: Does the user have a connection with this recommendation?
+- Novelty: The user has not been exposed to this recommendation already.
+- Serendipity: A user is genuinely and pleasantly surprised by the recommendation.
+- Increased Diversity: Finding the balance between what a user expects and knows and offering new and varied recommendations.
+
+Blog post on how to evaluate those 4 factors/metrics: [Recommender Systems — It’s Not All About the Accuracy](https://gab41.lab41.org/recommender-systems-its-not-all-about-the-accuracy-562c7dceeaff)
 
 The notebooks of this section are located in
 
@@ -1224,7 +1230,7 @@ Interesting links:
 
 #### Notebook: Neighborhood-Based Collaborative Filtering
 
-Notebook: [`4_Collaborative Filtering.ipynb)`](./lab/Recommendations/01_Intro_to_Recommendations/4_Collaborative%20Filtering.ipynb).
+Notebook: [`4_Collaborative Filtering.ipynb`](./lab/Recommendations/01_Intro_to_Recommendations/4_Collaborative%20Filtering.ipynb).
 
 Many things are implemented in this notebook; they all essentially filter the main dataframe and compute vector similarities. Summary of steps:
 
@@ -1469,9 +1475,168 @@ all_recs = all_recommendations(10)
 
 ### 6.5 Content-Based Recommender Systems
 
+Lecture video: [Content Based Recommendations](https://www.youtube.com/watch?v=pnGHpB77Mys).
 
+When the number of users starts to increase, it is a good practice to use a blend of methods; but until the number of users grows, **content-based** recommendations are very useful, because they enable making recommendations without needing to establish relationships between them via the user-item matrix. 
+
+The content-based approach consists in listing the properties of the items, e.g.:
+
+- Movies: genre.
+- Clothes: appearance properties, e.g., color, type of cloth, etc.
+- Products: related products, e.g. bike leads to pump, helm, etc.
+
+![Content-based recommendations](./pics/content_based.jpg)
+
+#### Notebook: Content-Based Recommender System
+
+Notebook: [`5_Content Based Recommendations.ipynb`](./lab/Recommendations/01_Intro_to_Recommendations/5_Content%20Based%20Recommendations.ipynb).
+
+Contents:
+
+- Get ranked reviews by user.
+- Compute movie similarity matrix by applying dot product to the genre vectors.
+- Implement complementary functions:
+    - Given a movie id, get its name/title.
+    - Given a movie id, get the 10 most similar ones.
+- Make recommendations for all users based on similarities:
+    - Take the movies rated by each user, sorted.
+    - Find the most similar movies to the ranked movies and add to recommendation set, if not yet seen.
+
+
+```python
+movies = pd.read_csv('movies_clean.csv')
+reviews = pd.read_csv('reviews_clean.csv')
+
+movies.shape # (35479, 35): century and genre columns included
+reviews.head()
+# 	user_id	movie_id	rating	timestamp	date
+# 0	1	    114508	    8	    1381006850	2013-10-05 21:00:50
+# ...
+
+ranked_reviews = reviews.sort_values(by=["user_id", "rating"], ascending=[True, False])
+users = np.unique(reviews['user_id'])
+
+# Similarities matrix
+movie_content = np.array(movies.iloc[:,4:])
+dot_prod_movies = movie_content.dot(np.transpose(movie_content))
+
+def get_movie_names(movie_ids):
+    '''
+    INPUT
+    movie_ids - a list of movie_ids
+    OUTPUT
+    movies - a list of movie names associated with the movie_ids
+    
+    '''
+    movie_lst = [movies.loc[movies.movie_id == movie_id, 'movie'].values[0] for movie_id in movie_ids]
+   
+    return movie_lst
+
+def find_similar_movies(movie_id):
+    '''
+    INPUT
+    movie_id - a movie_id 
+    OUTPUT
+    similar_movies - an array of the most similar movies by title
+    '''
+    movie_index = movies.loc[movies.movie_id == movie_id].index[0]
+    movie_indices = list(df_sim.iloc[movie_index].sort_values(ascending=False)[1:11].index)
+    movie_ids = [movies.iloc[movie_indx]['movie_id'] for movie_indx in movie_indices]
+    similar_movies = get_movie_names(movie_ids)
+    return similar_movies
+
+def make_recs():
+    '''
+    INPUT
+    None
+    OUTPUT
+    recs - a dictionary with keys of the user and values of the recommendations
+    '''
+    # Create dictionary to return with users and ratings
+    recs = defaultdict(set)
+    # How many users for progress bar
+    n_users = len(users)
+
+    
+    # Create the progressbar
+    # https://progressbar-2.readthedocs.io/en/latest/
+    cnter = 0
+    bar = progressbar.ProgressBar(maxval=n_users+1,
+                                  term_width=50,
+                                  widgets=[progressbar.Bar('=', '[', ']'), 
+                                           '->',
+                                           progressbar.Percentage()])
+    bar.start()
+    
+    # For each user
+    for user in users:
+        
+        # Update the progress bar
+        cnter+=1 
+        bar.update(cnter)
+
+        # Pull only the reviews the user has seen
+        reviews_temp = ranked_reviews[ranked_reviews['user_id'] == user]
+        movies_temp = np.array(reviews_temp['movie_id'])
+        movie_names = np.array(get_movie_names(movies_temp))
+
+        # Look at each of the movies (highest ranked first), 
+        # pull the movies the user hasn't seen that are most similar
+        # These will be the recommendations - continue until 10 recs 
+        # or you have depleted the movie list for the user
+        for movie in movies_temp:
+            rec_movies = find_similar_movies(movie)
+            temp_recs = np.setdiff1d(rec_movies, movie_names)
+            recs[user].update(temp_recs)
+
+            # If there are more than 
+            if len(recs[user]) > 9:
+                break
+
+    bar.finish()
+    
+    return recs
+
+# Make recommendations for all users
+# based on similarities
+recs = make_recs()
+
+```
+
+### 6.6 Other Recommendation Techniques
+
+- [AirBnB: Listing Embeddings in Search Ranking](https://medium.com/airbnb-engineering/listing-embeddings-for-similar-listing-recommendations-and-real-time-personalization-in-search-601172f7603e)
+- [Location-Based Recommendation Systems](https://link.springer.com/referenceworkentry/10.1007/978-3-319-17885-1_1580)
+
+### 6.7 Types of Ratings
+
+Lecture video: [Types Of Ratings](https://www.youtube.com/watch?v=fMjqe4sxBlQ).
+
+We can have binary ratings (like/dislike) or scale-based ratings (1-3, 1-5, 1-10); to choose, we should consider the following points:
+
+- Do we need to account for neutrality from the user? If so, the number of values in the rating must be odd (3, 5, 7).
+- Try to always pick the simplest rating possible, i.e., prefer 1-3 to 1-5 is possible.
+
+Blog post on how to choose the best rating: [Survey Response Scales: How to Choose the Right One for your Questionnaire](https://cxl.com/blog/survey-response-scales/).
+
+![Types of Ratings](./pics/types_of_ratings.jpg)
 
 ## 7. Matrix Factorization Recommendations
+
+Goals of the section - answer these questions:
+
+- How do you know when our recommendations are good?
+- How can you use machine learning for recommendations?
+- How do you make recommendations for new users (aka. **cold start problem**)?
+
+The machine learning method learned in this section is the **matrix factorization** method, which discovers latent features of items.
+
+For related information, check:
+
+- [`Matrix_Factorization.pdf`](Matrix_Factorization.pdf).
+- [Machine Learning IBM: Recommender Systems](https://github.com/mxagar/machine_learning_ibm/tree/main/06_Capstone_Project)
+- [Machine Learning Andrew Ng: Recommender Systems](https://github.com/mxagar/machine_learning_coursera/tree/main/07_Anomaly_Recommender)
+- Project: [course_recommender_streamlit](https://github.com/mxagar/course_recommender_streamlit)
 
 ## 8. Project: Recommendation Engines
 
