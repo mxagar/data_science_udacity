@@ -1660,7 +1660,7 @@ There are several aspects to consider when considering how good a recommendation
 
 However, SVD is limited, because it requires the user-item matrix to be completely filled; a better, newer version is [FunkSVD](https://annie-wangliu.medium.com/funksvd-math-code-prediction-and-validation-4842bfaa219e), which won the [1M Netflix prize](https://en.wikipedia.org/wiki/Netflix_Prize) in 2006 and is the most used method in the industry.
 
-Also, check my notes of the Andrew Ng lectures, because he achieves matrix factorization (not SVD) even with not completely filled matrices!
+Also, check my notes of the Andrew Ng lectures, because he achieves matrix factorization (not really SVD, because only 2 matrices are obtained) even with not completely filled matrices using a similar technique as FunkSVD! I think it is actually the same technique...
 
 Lecture videos:
 
@@ -1774,6 +1774,46 @@ pred_ratings = np.dot(np.dot(u_2, s_2), vt_2)
 sum_square_errs = np.sum(np.sum((user_movie_subset - pred_ratings)**2))
 
 ```
+
+### 7.3 FunkSVD
+
+My handwritten notes after watching the lectures from Andrew Ng: [`Matrix_Factorization.pdf`](Matrix_Factorization.pdf).
+
+[FunkSVD](https://sifter.org/~simon/journal/20061211.html)
+
+Lecture video: [Funk SVD](https://www.youtube.com/watch?v=H8gdwXy_npI)
+
+A fast Python implementation of FunkSVD using Numba: [gbolmier/funk-svd](https://github.com/gbolmier/funk-svd).
+
+The FunkSVD algorithm can work with user-item matrices that are not completely filled. It factorizes them to two matrices of lower rank which have as horizontal/vertical size the number of latent factors we would like to have. The steps are the following:
+
+- Given the user-item matrix `A (n x m)` with `NaN`s, choose `k` and define: `A = U * V`, with
+    - `U (n x k)`, filled with random numbers,
+    - `V (k x m)`, filled with random numbers.
+- For each `u_i` row vector in `U` and `v_j` vector in `V`, the dot product give the *predicted* `a_ij = u_i*v_j`.
+- Since we have some true `a_ij` values, we compute the error as the squared difference; and the algorithm will consist to minimize that error modifying the values in `U` and `V` in the direction of the total error gradients:
+    - `e_ij = (a_ij - u_i*v_j)^2`
+    - `E = sum(e_ij, if a_ij != NaN)`
+- The gradient is computed as the derivation of the error (I think in the image below there's a typo, `v_i` is used instead of `v_j`):
+    - `dE/du_i = -2(a_ij - u_i*v_j)*v_j`
+    - `dE/dv_j = -2(a_ij - u_i*v_j)*u_i`
+- The gradient descend update occurs in a loop, where
+    - we pick `u_i` and `v_j` at each step
+    - we apply a learning rate to the error: `alpha`, e.g., `0.01`
+    - we first update `u_i` and then `v_j` using the updated `u_i`
+    - the update rule is as always: `x_new <- x_old - alpha * dE/dx`
+    - the loop goes through all non-missing values of `A` and picks the corresponding `u_i` and `v_j` of each non-missing `a_ij`
+        - we go through all non-missing values (1 epoch)
+        - we go through the complete `A` multiple times
+
+![FunkSVD: Matrices](./pics/funk_svd_1.jpg)
+
+![FunkSVD: Gradient Descend](./pics/funk_svd_2.jpg)
+
+![FunkSVD: Update](./pics/funk_svd_3.jpg)
+
+#### Notebook: Implementation of the FunkSVD
+
 
 
 ## 8. Project: Recommendation Engines
