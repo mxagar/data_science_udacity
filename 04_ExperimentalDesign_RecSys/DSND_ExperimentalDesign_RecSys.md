@@ -1814,6 +1814,510 @@ The FunkSVD algorithm can work with user-item matrices that are not completely f
 
 #### Notebook: Implementation of the FunkSVD
 
+Notebook: [`2_Implementing_FunkSVD.ipynb`](./lab/Recommendations/02_Matrix_Factorization_for_Recommendations/2_Implementing_FunkSVD.ipynb).
+
+The algorithm outlined previously is implemented and tested. A subset of the original matrix is taken due to the large size, but it works with any size!
+
+```python
+movies = pd.read_csv('movies_clean.csv')
+reviews = pd.read_csv('reviews_clean.csv')
+
+user_items = reviews[['user_id', 'movie_id', 'rating', 'timestamp']]
+user_by_movie = user_items.groupby(['user_id', 'movie_id'])['rating'].max().unstack()
+user_by_movie.shape # (8022, 13850)
+
+# Pick a subset without NaNs
+user_movie_subset = user_by_movie[[75314,  68646, 99685]].dropna(axis=0)
+ratings_mat = np.matrix(user_movie_subset)
+print(ratings_mat)
+# [[ 7. 10.  8.]
+#  [ 6. 10.  7.]
+#  [ 8.  9.  8.]
+#  [ 8. 10. 10.]
+#  [ 9.  9.  9.]
+#  [ 8.  9.  9.]]
+
+# Artifically insert a NaN in [0,0]
+# instead of the value 7
+ratings_mat[0, 0] = np.nan
+
+# FunfSVD algorithm
+def FunkSVD(ratings_mat, latent_features=4, learning_rate=0.0001, iters=100):
+    '''
+    This function performs matrix factorization using a basic form of FunkSVD with no regularization
+    
+    INPUT:
+    ratings_mat - (numpy array) a matrix with users as rows, movies as columns, and ratings as values
+    latent_features - (int) the number of latent features used
+    learning_rate - (float) the learning rate 
+    iters - (int) the number of iterations
+    
+    OUTPUT:
+    user_mat - (numpy array) a user by latent feature matrix
+    movie_mat - (numpy array) a latent feature by movie matrix
+    '''
+    
+    # Set up useful values to be used through the rest of the function
+    n_users = ratings_mat.shape[0]
+    n_movies = ratings_mat.shape[1]
+    n_nan = np.sum(np.sum(np.isnan(ratings_mat), axis=0), axis=1)[0,0]
+    num_ratings = n_users*n_movies - n_nan
+    # Alternative:
+    # num_ratings = np.count_nonzero(~np.isnan(ratings_mat))
+    
+    # Initialize the user and movie matrices with random values
+    # https://numpy.org/doc/stable/reference/random/generated/numpy.random.rand.html
+    user_mat = np.random.rand(n_users,latent_features)
+    movie_mat = np.random.rand(latent_features, n_movies)
+    
+    # Initialize sse at 0 for first iteration
+    sse_accum = 0
+    
+    print("Optimizaiton Statistics")
+    print("Iterations | Mean Squared Error ")
+    
+    for it in range(iters):
+        # Update our sse
+        old_sse = sse_accum
+        sse_accum = 0
+        
+        for i in range(n_users):
+            for j in range(n_movies):
+                r_ij = ratings_mat[i,j]
+                if not np.isnan(r_ij):
+                    u_i = user_mat[i,:]
+                    v_j = movie_mat[:,j]
+                    # Compute the error as the actual minus the dot product
+                    # of the user and movie latent features
+                    e_ij = (r_ij - np.dot(u_i,v_j))**2
+                    # Keep track of the sum of squared errors for the matrix
+                    sse_accum += e_ij                    
+                    # Update the values in each matrix in the direction of the gradient
+                    # dE/du_i = -2(a_ij - u_i*v_j)*v_j
+                    # dE/dv_j = -2(a_ij - u_i*v_j)*u_i
+                    # x_new <- x_old - alpha * dE/dx
+                    u_new = u_i + 2.0*learning_rate*(r_ij - np.dot(u_i,v_j))*v_j
+                    v_new = v_j + 2.0*learning_rate*(r_ij - np.dot(u_i,v_j))*u_new
+                    user_mat[i,:] = u_new
+                    movie_mat[:,j] = v_new
+
+        print(f"{it} | {sse_accum}")
+
+    return user_mat, movie_mat
+
+# Run FunkSVD on subset
+user_mat, movie_mat = FunkSVD(ratings_mat=ratings_mat,
+                              latent_features=3,
+                              learning_rate=0.005,
+                              iters=450)
+# Optimizaiton Statistics
+# Iterations | Mean Squared Error 
+# 0 | 1063.8673910732225
+# 1 | 866.8323007068128
+# ...
+# 449 | 3.102148457856114e-06
+
+# Print prediction and real
+# Note that the [0,0] NaN is predicted as 6.8
+# when the real value was 7!
+print(np.dot(user_mat, movie_mat))
+print(ratings_mat)
+# [[ 6.79927802  9.99644121  8.00370784]
+#  [ 5.99733358  9.99990057  7.00172179]
+#  [ 7.89279109  8.95792566  8.11035275]
+#  [ 8.09221844 10.03864715  9.90468108]
+#  [ 9.02236761  9.00802682  8.97747777]
+#  [ 7.9786558   8.99231456  9.02113112]]
+# [[nan 10.  8.]
+#  [ 6. 10.  7.]
+#  [ 8.  9.  8.]
+#  [ 8. 10. 10.]
+#  [ 9.  9.  9.]
+#  [ 8.  9.  9.]]
+
+```
+
+#### FunkSVD with Regulatization
+
+```python
+def FunkSVD_w_regularization(ratings_mat,
+                             latent_features=4,
+                             learning_rate=0.005,
+                             regularization=0.02,
+                             iters=100):
+    n_users = ratings_mat.shape[0]
+    n_movies = ratings_mat.shape[1]
+    n_already_rated = ratings_mat.nonzero()[0].size
+    user_mat = np.random.rand(n_users, latent_features)
+    movie_mat = np.random.rand(latent_features, n_movies)
+
+    iter_count = 0
+    sse_accum = 0
+    print("Optimizaiton Statistics")
+    print("Iterations | Mean Squared Error ")
+    for i in range(iters):
+        old_sse = sse_accum
+        sse_accum = 0
+        
+        # For each user-movie pair
+        for i in range(n_users):
+            for j in range(n_movies):
+                
+                # if the rating exists
+                if ratings_mat[i, j] > 0:
+                    
+                    # compute the error as the actual minus the dot product of the user and movie latent features
+                    diff = ratings_mat[i, j] - np.dot(user_mat[i, :], movie_mat[:, j])
+                    
+                    # Keep track of the sum of squared errors for the matrix
+                    sse_accum += diff**2
+                    
+                    # update the values in each matrix in the direction of the gradient regularize by how large the value was to begin with
+                    for k in range(latent_features):
+                        user_mat[i, k] += learning_rate * (2*diff*movie_mat[k, j] - regularization*user_mat[i, k])
+                        movie_mat[k, j] += learning_rate * (2*diff*user_mat[i, k] - regularization*movie_mat[k, j])
+
+        # print results
+        print("%d \t\t %f" % (iter_count, sse_accum/n_already_rated))
+        
+        # update iterations
+        iter_count += 1
+        
+    return user_mat, movie_mat
+```
+
+#### Notebook: Validation
+
+Notebook: [`3_How_Are_We_Doing.ipynb`](./lab/Recommendations/02_Matrix_Factorization_for_Recommendations/).
+
+In this notebook, a train/test split is performed, taking the newest entries for the test/validation dataset. Then, the model is trained with the train split and evaluated with the test/validation split.
+
+```python
+movies = pd.read_csv('movies_clean.csv')
+reviews = pd.read_csv('reviews_clean.csv')
+
+def create_train_test(reviews, order_by, training_size, testing_size):
+    '''    
+    INPUT:
+    reviews - (pandas df) dataframe to split into train and test
+    order_by - (string) column name to sort by
+    training_size - (int) number of rows in training set
+    testing_size - (int) number of columns in the test set
+    
+    OUTPUT:
+    training_df -  (pandas df) dataframe of the training set
+    validation_df - (pandas df) dataframe of the test set
+    '''
+    reviews_new = reviews.sort_values(order_by)
+    training_df = reviews_new.head(training_size)
+    validation_df = reviews_new.iloc[training_size:training_size+testing_size]
+    
+    return training_df, validation_df
+
+# Use our function to create training and test datasets
+# Pick only 10,000 entries, not all: 80%, 20%
+train_df, val_df = create_train_test(reviews, 'date', 8000, 2000)
+train_df.head()
+# 	    user_id	movie_id	rating	    timestamp	date
+# 17455	1181	1003052	8	1362063906	2013-02-28  07:05:06
+# ...
+
+# Create user-by-item matrix - nothing to do here
+train_user_item = train_df[['user_id', 'movie_id', 'rating', 'timestamp']]
+train_data_df = train_user_item.groupby(['user_id', 'movie_id'])['rating'].max().unstack()
+train_data_df.shape # (1542, 2842): user_id x [movie_id]
+
+train_data_np = np.array(train_data_df)
+
+# Fit FunkSVD with the specified hyper parameters to the training data
+user_mat, movie_mat = FunkSVD(train_data_np, 
+                              latent_features=15, 
+                              learning_rate=0.005, 
+                              iters=300)
+
+def predict_rating(user_matrix, movie_matrix, user_id, movie_id):
+    '''
+    INPUT:
+    user_matrix - user by latent factor matrix
+    movie_matrix - latent factor by movie matrix
+    user_id - the user_id from the reviews df
+    movie_id - the movie_id according the movies df
+    
+    OUTPUT:
+    pred - the predicted rating for user_id-movie_id according to FunkSVD
+    '''
+    # Create series of users and movies in the right order
+    user_ids_series = np.array(train_data_df.index)
+    movie_ids_series = np.array(train_data_df.columns)
+    
+    # User row and Movie Column
+    user_row = np.where(user_ids_series == user_id)[0][0]
+    movie_col = np.where(movie_ids_series == movie_id)[0][0]
+    
+    # Take dot product of that row and column in U and V to make prediction
+    pred = np.dot(user_matrix[user_row, :], movie_matrix[:, movie_col])
+    
+    return pred
+
+# Test your function with the first user-movie in the user-movie matrix (notice this is a nan)
+pred_val = predict_rating(user_mat, movie_mat, 2625, 169547)
+pred_val # 8.992688339316702
+
+def validation_comparison(val_df, user_mat, movie_mat):
+    '''
+    INPUT:
+    val_df - the validation dataset created in the third cell above
+    user_mat - U matrix in FunkSVD
+    movie_mat - V matrix in FunkSVD
+        
+    OUTPUT:
+    rmse - RMSE of how far off each value is from it's predicted value
+    perc_rated - percent of predictions out of all possible that could be rated
+    actual_v_pred - a 10 x 10 grid with counts for actual vs predicted values (confusion matrix)
+    '''
+    val_users = np.array(val_df['user_id'])
+    val_movies = np.array(val_df['movie_id'])
+    val_ratings = np.array(val_df['rating'])
+    
+    sse = 0
+    num_rated = 0
+    preds, acts = [], []
+    actual_v_pred = np.zeros((10,10))
+    for idx in range(len(val_users)):
+        try:
+            # Sometimes the user-movie item from the validation set
+            # cannot be predicted using the train split
+            # because that movie/user is new!
+            # That's related to the cold start problem
+            pred = predict_rating(user_mat, movie_mat, val_users[idx], val_movies[idx])
+            sse += (val_ratings[idx]-pred)**2
+            num_rated += 1
+            preds.append(pred)
+            acts.append(val_ratings[idx])
+            actual_v_pred[11-int(val_ratings[idx]-1), int(round(pred)-1)]+=1
+        
+        except:
+            continue
+    
+    rmse = np.sqrt(sse/num_rated)
+    perc_rated = num_rated/len(val_users)
+    return rmse, perc_rated, actual_v_pred, preds, acts
+
+# How well did we do?
+# Confusion matrix of predicted vs actual ratings
+rmse, perc_rated, actual_v_pred, preds, acts = validation_comparison(val_df=val_df,
+                                                                     user_mat=user_mat, movie_mat=movie_mat)
+print(rmse, perc_rated) # 2.9090003487365728 0.5065
+sns.heatmap(actual_v_pred);
+plt.xticks(np.arange(10), np.arange(1,11));
+plt.yticks(np.arange(10), np.arange(1,11));
+plt.xlabel("Predicted Values");
+plt.ylabel("Actual Values");
+plt.title("Actual vs. Predicted Values");
+
+# Histograms of predicted and actual ratings
+plt.figure(figsize=(8,8))
+plt.hist(acts, density=True, alpha=.5, label='actual');
+plt.hist(preds, density=True, alpha=.5, label='predicted');
+plt.legend(loc=2, prop={'size': 15});
+plt.xlabel('Rating');
+plt.title('Predicted vs. Actual Rating');
+
+# Number of items which could not be rated
+not_rated = int(len(val_df['rating'])*(1-perc_rated))
+rated = int(len(val_df['rating'])*perc_rated)
+print("Number not rated {}.".format(not_rated))
+print("Number rated {}.".format(rated))
+# Number not rated 987.
+# Number rated 1012.
+```
+
+### 7.4 The Coldstart Problem
+
+The **cold start** problem refers to the initial recommendations, which cannot be done using the collaborative filtering method based on the FunkSVD. In those cases, the other techniques introduced beforehand (i.e., knowledge-based methods, content-based, neighborhood-based) need to be used to predict recommendations. This problem arises typically when we have a new user/movie.
+
+In the following, a notebook which implements the solution for the *cold start* problem is shown.
+
+The **general approach** is the following:
+
+- Use matrix factorization to compute the predicted ratings in the user-item matrix by applying FunkSVD. Do it with a train/test split.
+- If we have a new movie/user, we need to apply another technique (e.g., that occurs already when we validate the output from the FunkSVD with the test split which contains new users/movies):
+    - For new movies (recall the movies have genre dummy variables), a content-based system is implemented which uses the similarity matrix between movies.
+    - For new users, a rank-based system is implemented: the best rated movies are suggested. We could further refine this by suggesting the best movies which are related to selected genres.
+
+#### Notebook: Cold Start Implementation
+
+Notebook: [`4_Cold_Start_Problem.ipynb`](./lab/Recommendations/02_Matrix_Factorization_for_Recommendations/4_Cold_Start_Problem.ipynb).
+
+This notebook continues right after the end of the previous: we have predicted the recommendations of the test split using FunkSVD, but some ratings cannot be predicted because they contain new user/movie ids!
+
+The following is implemented:
+
+- For new movies (recall the movies have genre dummy variables), a content-based system is implemented which uses the similarity matrix between movies.
+- For new users, a rank-based system is implemented: the best rated movies are suggested. We could further refine this by suggesting the best movies which are related to selected genres.
+
+```python
+# The dataframe movies contains the century and the genre dummy columns
+movie_content = np.array(movies.iloc[:,4:])
+
+# Take the dot product to obtain a movie x movie matrix of similarities
+dot_prod_movies = movie_content.dot(np.transpose(movie_content))
+
+def find_similar_movies(movie_id):
+    '''
+    INPUT
+    movie_id - a movie_id 
+    OUTPUT
+    similar_movies - an array of the most similar movies by title
+    '''
+    # find the row of each movie id
+    movie_idx = np.where(movies['movie_id'] == movie_id)[0][0]
+    
+    # find the most similar movie indices - to start I said they need to be the same for all content
+    similar_idxs = np.where(dot_prod_movies[movie_idx] == np.max(dot_prod_movies[movie_idx]))[0]
+    
+    # pull the movie titles based on the indices
+    similar_movies = np.array(movies.iloc[similar_idxs, ]['movie'])
+    
+    return similar_movies
+    
+    
+def get_movie_names(movie_ids):
+    '''
+    INPUT
+    movie_ids - a list of movie_ids
+    OUTPUT
+    movies - a list of movie names associated with the movie_ids
+    
+    '''
+    movie_lst = list(movies[movies['movie_id'].isin(movie_ids)]['movie'])
+   
+    return movie_lst
+
+def create_ranked_df(movies, reviews):
+    '''
+    INPUT
+        movies - the movies dataframe
+        reviews - the reviews dataframe
+
+    OUTPUT
+        ranked_movies - a dataframe with movies that are sorted by highest avg rating, more reviews, 
+                        then time, and must have more than 4 ratings
+    '''
+
+    # Pull the average ratings and number of ratings for each movie
+    movie_ratings = reviews.groupby('movie_id')['rating']
+    avg_ratings = movie_ratings.mean()
+    num_ratings = movie_ratings.count()
+    last_rating = pd.DataFrame(reviews.groupby('movie_id').max()['date'])
+    last_rating.columns = ['last_rating']
+
+    # Add Dates
+    rating_count_df = pd.DataFrame({'avg_rating': avg_ratings, 'num_ratings': num_ratings})
+    rating_count_df = rating_count_df.join(last_rating)
+
+    # merge with the movies dataset
+    movie_recs = movies.set_index('movie_id').join(rating_count_df)
+
+    # sort by top avg rating and number of ratings
+    ranked_movies = movie_recs.sort_values(['avg_rating', 'num_ratings', 'last_rating'], ascending=False)
+
+    # for edge cases - subset the movie list to those with only 5 or more reviews
+    ranked_movies = ranked_movies[ranked_movies['num_ratings'] > 4]
+
+    return ranked_movies
+    
+
+def popular_recommendations(user_id, n_top, ranked_movies):
+    '''
+    INPUT:
+        user_id - the user_id (str) of the individual you are making recommendations for
+        n_top - an integer of the number recommendations you want back
+        ranked_movies - a pandas dataframe of the already ranked movies based on avg rating, count, and time
+
+    OUTPUT:
+        top_movies - a list of the n_top recommended movies by movie title in order best to worst
+    '''
+
+    top_movies = list(ranked_movies['movie'][:n_top])
+
+    return top_movies
+
+def make_recommendations(_id, _id_type='movie', train_data=train_data_df, 
+                         train_df=train_df, movies=movies, rec_num=5, user_mat=user_mat):
+    '''
+    INPUT:
+    _id - either a user or movie id (int)
+    _id_type - "movie" or "user" (str)
+    train_data - dataframe of data as user-movie matrix
+    train_df - dataframe of training data reviews
+    movies - movies df
+    rec_num - number of recommendations to return (int)
+    user_mat - the U matrix of matrix factorization
+    movie_mat - the V matrix of matrix factorization
+    
+    OUTPUT:
+    recs - (array) a list or numpy array of recommended movies like the 
+                   given movie, or recs for a user_id given
+    '''
+    # If the user is available from the matrix factorization data, 
+    # I will use this and rank movies based on the predicted values
+    # For use with user indexing
+    val_users = train_data_df.index
+    rec_ids = create_ranked_df(movies, train_df)
+    
+    if _id_type == 'user':
+        if _id in train_data.index: # Use matrix factorization
+            # Get the index of which row the user is in for use in U matrix
+            idx = np.where(val_users == _id)[0][0]
+            
+            # Take the dot product of that row and the V matrix
+            preds = np.dot(user_mat[idx,:],movie_mat)
+            
+            # Pull the top movies according to the prediction
+            indices = preds.argsort()[-rec_num:][::-1] #indices
+            rec_ids = train_data_df.columns[indices]
+            rec_names = get_movie_names(rec_ids)
+            
+        else: # Use ranking system
+            # If we don't have this user, give just top ratings back
+            rec_names = popular_recommendations(_id, rec_num, rec_ids)
+            
+
+    else: # Find similar movies if it is a movie that is passed
+        rec_ids = find_similar_movies(_id)
+        rec_names = get_movie_names(rec_ids)
+    
+    return rec_ids, rec_names
+
+# Make recommendations
+user_recs_dict_with_top = dict()
+for user_id in set(val_df['user_id']):
+    user_recs_dict_with_top[user_id] = make_recommendations(user_id, 'user')[1]
+
+cnter = 0
+for user, rec in user_recs_dict_with_top.items():
+    if cnter < 12:
+        print("For user {}, our recommendations are: \n {}".format(user, rec))
+        cnter+=1
+    else:
+        break
+# For user 4096, our recommendations are: 
+#  ['Rocky (1976)', 'Va, vis et deviens (2005)', 'Beastly (2011)', 'Les amours imaginaires (2010)', 'La voz dormida (2011)']
+# For user 4104, our recommendations are: 
+#  ['Jubal (1956)', 'Rocky (1976)', 'Va, vis et deviens (2005)', 'The Town (2010)', 'Beastly (2011)']
+# ...
+```
+
+### 7.5 Putting It All Together: A Module
+
+
+
+Lecture videos:
+
+- [Putting It All Together](https://www.youtube.com/watch?v=r5jfD2uKnbQ)
+- [Recommendations Module](https://www.youtube.com/watch?v=zgz5WYlI5fE)
+
 
 
 ## 8. Project: Recommendation Engines
