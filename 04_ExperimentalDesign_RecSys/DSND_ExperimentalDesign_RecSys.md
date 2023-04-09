@@ -2563,7 +2563,6 @@ python recommender.py
 
 ```
 
-
 ## 8. Project: Recommendation Engines
 
-Project repository: []().
+Project repository: [recommendations_ibm](https://github.com/mxagar/recommendations_ibm).
