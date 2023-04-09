@@ -182,7 +182,8 @@ if __name__ == '__main__':
     rec = r.Recommender()
 
     # fit recommender
-    rec.fit(reviews_pth='data/train_data.csv', movies_pth= 'data/movies_clean.csv', learning_rate=.01, iters=1)
+    #rec.fit(reviews_pth='data/train_data.csv', movies_pth= 'data/movies_clean.csv', learning_rate=.01, iters=1)
+    rec.fit(reviews_pth='../train_data.csv', movies_pth= '../movies_clean.csv', learning_rate=.003, iters=50)
 
     # predict
     rec.predict_rating(user_id=8, movie_id=2844)
