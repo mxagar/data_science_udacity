@@ -19,6 +19,7 @@ Overview of Contents:
 
 - [Udacity Data Science Nanodegree: Data Engineering](#udacity-data-science-nanodegree-data-engineering)
   - [1. Introduction to Experiment Design and Recommendation Engines](#1-introduction-to-experiment-design-and-recommendation-engines)
+    - [Lab Exercises](#lab-exercises)
   - [2. Concepts in Experiment Design](#2-concepts-in-experiment-design)
     - [2.1 What Is an Experiment?](#21-what-is-an-experiment)
     - [2.2 Types of Experiment](#22-types-of-experiment)
@@ -31,7 +32,53 @@ Overview of Contents:
     - [2.9 Checking Bias](#29-checking-bias)
     - [2.10 Ethics in Experimentation](#210-ethics-in-experimentation)
   - [3. Statistical Considerations in Testing](#3-statistical-considerations-in-testing)
+    - [3.1 Statistical Significance Refresher Notebook](#31-statistical-significance-refresher-notebook)
+    - [3.2 Practical Significance](#32-practical-significance)
+    - [3.3 Experiment Size: Statistical Power](#33-experiment-size-statistical-power)
+      - [Example Notebook: Statistical Power and Experiment Size](#example-notebook-statistical-power-and-experiment-size)
+    - [3.3 Using Dummy Tests: A/A Tests](#33-using-dummy-tests-aa-tests)
+    - [3.4 Non-Parametric Tests](#34-non-parametric-tests)
+    - [Notebook 1: CI and P-Value of Quantiles](#notebook-1-ci-and-p-value-of-quantiles)
+      - [Notebook 2: Mean Differences](#notebook-2-mean-differences)
+    - [3.5 Missing Data](#35-missing-data)
+    - [3.6 Analyzing Multiple Metrics](#36-analyzing-multiple-metrics)
+    - [3.7 Early Stopping](#37-early-stopping)
+    - [3.8 Glossary](#38-glossary)
   - [4. A/B Testing Case Study](#4-ab-testing-case-study)
+    - [4.1 Funnel and Metrics](#41-funnel-and-metrics)
+    - [4.2 Experiment Sizing](#42-experiment-sizing)
+    - [4.3 Validity, Bias, Ethics](#43-validity-bias-ethics)
+    - [4.4 Data Analysis](#44-data-analysis)
+  - [5. Portfolio Exercise: Starbucks](#5-portfolio-exercise-starbucks)
+  - [6. Introduction to Recommendation Engines](#6-introduction-to-recommendation-engines)
+      - [Goals of Recommender Systems](#goals-of-recommender-systems)
+    - [6.1 Three Types of Recommendation Engines](#61-three-types-of-recommendation-engines)
+    - [6.2 MovieTweetings Dataset](#62-movietweetings-dataset)
+      - [Notebook: Transform and Prepare Datasets](#notebook-transform-and-prepare-datasets)
+    - [6.3 Knowledge-Based Recommendations](#63-knowledge-based-recommendations)
+      - [Notebook: Most Popular Recommendations](#notebook-most-popular-recommendations)
+    - [6.4 Collaborative Filtering](#64-collaborative-filtering)
+      - [Notebook: Measuring Similarity](#notebook-measuring-similarity)
+      - [Identifying Recommendations](#identifying-recommendations)
+      - [Notebook: Neighborhood-Based Collaborative Filtering](#notebook-neighborhood-based-collaborative-filtering)
+    - [6.5 Content-Based Recommender Systems](#65-content-based-recommender-systems)
+      - [Notebook: Content-Based Recommender System](#notebook-content-based-recommender-system)
+    - [6.6 Other Recommendation Techniques](#66-other-recommendation-techniques)
+    - [6.7 Types of Ratings](#67-types-of-ratings)
+  - [7. Matrix Factorization Recommendations](#7-matrix-factorization-recommendations)
+    - [7.1 Validating Our Recommendations](#71-validating-our-recommendations)
+    - [7.2 Singular Value Decomposition (SVD) and Matrix Factorization](#72-singular-value-decomposition-svd-and-matrix-factorization)
+      - [Latent Factors](#latent-factors)
+      - [SVD Computation](#svd-computation)
+      - [Notebook: SVD Computation](#notebook-svd-computation)
+    - [7.3 FunkSVD](#73-funksvd)
+      - [Notebook: Implementation of the FunkSVD](#notebook-implementation-of-the-funksvd)
+      - [FunkSVD with Regulatization](#funksvd-with-regulatization)
+      - [Notebook: Validation](#notebook-validation)
+    - [7.4 The Coldstart Problem](#74-the-coldstart-problem)
+      - [Notebook: Cold Start Implementation](#notebook-cold-start-implementation)
+    - [7.5 Putting It All Together: A Module](#75-putting-it-all-together-a-module)
+  - [8. Project: Recommendation Engines](#8-project-recommendation-engines)
 
 
 ## 1. Introduction to Experiment Design and Recommendation Engines
@@ -1616,6 +1663,12 @@ We can have binary ratings (like/dislike) or scale-based ratings (1-3, 1-5, 1-10
 
 - Do we need to account for neutrality from the user? If so, the number of values in the rating must be odd (3, 5, 7).
 - Try to always pick the simplest rating possible, i.e., prefer 1-3 to 1-5 is possible.
+
+Also, note that sometimes we don't have ratings at all, but other related data:
+
+- Was the item opened by the user or not?
+- When the item was opened by the user, how long did he/she spend on it?
+- Was item completely consumed by the user or not?
 
 Blog post on how to choose the best rating: [Survey Response Scales: How to Choose the Right One for your Questionnaire](https://cxl.com/blog/survey-response-scales/).
 
