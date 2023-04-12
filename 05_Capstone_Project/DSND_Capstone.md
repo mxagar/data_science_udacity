@@ -86,7 +86,5 @@ Capstone project examples (Machine Learning Nanodegree):
 
 ## 3. My Selected Project: Spark Project
 
-- Course notes:
-  - Introduction to Hadoop: []().
-  - Spark: []().
-- Project repository: []().
+- Spark & Co. course notes [spark_big_data_guide](https://github.com/mxagar/spark_big_data_guide).
+- Project repository: [sparkify_customer_churn](https://github.com/mxagar/sparkify_customer_churn).
