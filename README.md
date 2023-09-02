@@ -8,14 +8,14 @@ The Nanodegree asssumes basic data analysis skills with python libraries (pandas
 2. Software Engineering: [`02_SoftwareEngineering`](./02_SoftwareEngineering/DSND_SWEngineering.md).
 3. Data Engineering: [`03_DataEngineering`](./03_DataEngineering/DSND_DataEngineering.md).
 4. Experimental Design & Recommendations: [`04_ExperimentalDesign_RecSys`](./04_ExperimentalDesign_RecSys/).
-5. Data Scientist Capstone: [`05_Capstone_Project`](./05_Capstone_Project/).
+5. Data Scientist Capstone (Spark): [`05_Capstone_Project`](./05_Capstone_Project/).
 
 Additionally, it is necessary to submit and pass some projects to get the certification:
 
 - Create a data science project and write a blog post: [airbnb_data_analysis](https://github.com/mxagar/airbnb_data_analysis).
-- Disaster response pipeline: [disaster_response_pipeline](https://github.com/mxagar/disaster_response_pipeline).
-- Recommendation engine
-- Capstone project
+- Disaster response prediction pipeline deployed on a Flask app: [disaster_response_pipeline](https://github.com/mxagar/disaster_response_pipeline).
+- Recommender System which suggests new articles to the users of the IBM Watson Studio Platform: [recommendations_ibm](https://github.com/mxagar/recommendations_ibm).
+- Capstone project: Prediction of customer churn of a music streaming service using Spark: [sparkify_customer_churn](https://github.com/mxagar/sparkify_customer_churn).
 
 A regular python environment with the usual data science packages should suffice (i.e., scikit-learn, pandas, matplotlib, etc.); any special/additional packages and their installation commands are introduced in the guides. A recipe to set up a [conda](https://docs.conda.io/en/latest/) environment with my current packages is the following:
 
