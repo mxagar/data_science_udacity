@@ -7,8 +7,8 @@ The Nanodegree assumes basic data analysis skills with python libraries (pandas,
 1. Introduction to Data Science: [`01_Intro_Data_Science`](./01_Intro_Data_Science/DSND_Introduction.md).
 2. Software Engineering: [`02_SoftwareEngineering`](./02_SoftwareEngineering/DSND_SWEngineering.md).
 3. Data Engineering: [`03_DataEngineering`](./03_DataEngineering/DSND_DataEngineering.md).
-4. Experimental Design & Recommendations: [`04_ExperimentalDesign_RecSys`](./04_ExperimentalDesign_RecSys/).
-5. Data Scientist Capstone (Spark): [`05_Capstone_Project`](./05_Capstone_Project/).
+4. Experimental Design & Recommendations: [`04_ExperimentalDesign_RecSys`](./04_ExperimentalDesign_RecSys/DSND_ExperimentalDesign_RecSys.md).
+5. Data Scientist Capstone (Spark): [`05_Capstone_Project`](./05_Capstone_Project/DSND_Capstone.md).
 
 Additionally, it is necessary to submit and pass some projects to get the certification:
 
