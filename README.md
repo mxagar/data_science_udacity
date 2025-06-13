@@ -2,7 +2,7 @@
 
 These are my personal notes taken while following the [Udacity Data Science Nanodegree](https://www.udacity.com/course/data-scientist-nanodegree--nd025).
 
-The Nanodegree asssumes basic data analysis skills with python libraries (pandas, numpy, matplotlib, sklearn, etc.) and has 5 modules that build up on those skills; each module has its corresponding folder in this repository with its guide Markdown file:
+The Nanodegree assumes basic data analysis skills with python libraries (pandas, numpy, matplotlib, sklearn, etc.) and has 5 modules that build up on those skills; each module has its corresponding folder in this repository with its guide Markdown file:
 
 1. Introduction to Data Science: [`01_Intro_Data_Science`](./01_Intro_Data_Science/DSND_Introduction.md).
 2. Software Engineering: [`02_SoftwareEngineering`](./02_SoftwareEngineering/DSND_SWEngineering.md).
@@ -15,7 +15,7 @@ Additionally, it is necessary to submit and pass some projects to get the certif
 - Create a data science project and write a blog post: [airbnb_data_analysis](https://github.com/mxagar/airbnb_data_analysis).
 - Disaster response prediction pipeline deployed on a Flask app: [disaster_response_pipeline](https://github.com/mxagar/disaster_response_pipeline).
 - Recommender System which suggests new articles to the users of the IBM Watson Studio Platform: [recommendations_ibm](https://github.com/mxagar/recommendations_ibm).
-- Capstone project: Prediction of customer churn of a music streaming service using Spark: [sparkify_customer_churn](https://github.com/mxagar/sparkify_customer_churn).
+- Capstone project: Spark: [Spark Big Data Guide](https://github.com/mxagar/spark_big_data_guide).
 
 A regular python environment with the usual data science packages should suffice (i.e., scikit-learn, pandas, matplotlib, etc.); any special/additional packages and their installation commands are introduced in the guides. A recipe to set up a [conda](https://docs.conda.io/en/latest/) environment with my current packages is the following:
 
